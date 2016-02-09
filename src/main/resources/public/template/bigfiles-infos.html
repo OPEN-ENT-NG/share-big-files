@@ -1,0 +1,21 @@
+<form ng-submit="saveInfos()" class="twelve cell">
+	<div class="row">
+		<div class="three cell height-three">
+			<div class="absolute clip">
+				<image-select ng-model="bigfiles.thumbnail" default="/img/illustrations/bigfiles-default.png"></image-select>
+			</div>
+		</div>
+		<div class="eight cell horizontal-spacing-twice">
+			<input type="text" class="twelve cell" required translate attr="placeholder"
+				   placeholder="bigfiles.placeholder.title"
+				   ng-model="bigfiles.title" />
+			<media-select ng-model="bigfiles.thumbnail" label="setImage" class="small button cell" file-format="'img'"></media-select>
+			<input type="button" class="small button" translate attr="value" value="unsetImage" ng-click="removeIcon()"></button>
+		</div>
+	</div>
+
+	<div class="cell bottom-locked twelve reduce-block-six">
+		<input type="submit" value="save" class="right-magnet" translate attr="value" />
+		<input type="button" class="cancel right-magnet" ng-click="closeInfos()" value="cancel" translate attr="value" />
+	</div>
+</form>

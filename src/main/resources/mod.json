@@ -1,0 +1,11 @@
+{
+	"main" : "net.atos.entng.bigfiles.Bigfiles",
+	"port" : 8025,
+	"app-name" : "Bigfiles",
+	"app-address" : "/bigfiles",
+	"app-icon" : "Bigfiles-large",
+	"app-displayName" : "Bigfiles",
+	"mode": "dev",
+	"entcore.port" : 8090,
+	"auto-redeploy": true
+}
