@@ -1,0 +1,47 @@
+{
+	"sharebigfiles.title"					: "Sharebigfiles",
+
+	"sharebigfiles.notify.saved"				: "La donnée a été sauvegardée",
+	"sharebigfiles.notify.modified"			: "La donnée a été modifiée",
+	"sharebigfiles.notify.deleted"			: "La donnée a été supprimée",
+	"sharebigfiles.notify.shared"			: "La donnée a été partagée",
+	"sharebigfiles.notify.trashed"			: "La donnée a été mise à la corbeille",
+
+	"sharebigfiles.mine"						: "Mes sharebigfiles",
+	"sharebigfiles.shared"					: "Sharebigfiles partagés avec moi",
+	"sharebigfiles.trash"					: "Corbeille",
+
+	"sharebigfiles.manager"					: "Gestion",
+	"sharebigfiles.contrib"					: "Contribution",
+	"sharebigfiles.read"						: "Lecture",
+
+	"unsetImage"										: "Supprimer l'image",
+
+	"group.Teacher"										: "Tous les enseignants du groupe {0}.",
+	"group.Personnel"									: "Tous les personnels du groupe {0}.",
+	"group.Student"										: "Tous les élèves du groupe {0}.",
+	"group.Relative"									: "Tous les parents du groupe {0}.",
+	"group.school.Teacher"								: "Tous les enseignants de l'{0}.",
+	"group.school.Personnel"							: "Tous les personnels de l'{0}.",
+	"group.school.Student"								: "Tous les élèves de l'{0}.",
+	"group.school.Relative"								: "Tous les parents de l'{0}.",
+	"group.class.Teacher"								: "Tous les enseignants de la classe {0}.",
+	"group.class.Personnel"								: "Tous les personnels de la classe {0}.",
+	"group.class.Student"								: "Tous les élèves de la classe {0}.",
+	"group.class.Relative"								: "Tous les parents de la classe {0}.",
+
+	"title"												: "Titre",
+	"from"												: "De",
+	"date"												: "Date",
+
+	"loading"											: "Chargement",
+	"import.file"										: "Importer",
+	"share.users" 										: "Utilisateurs",
+	"share.groups" 										: "Groupes",
+	"root" 												: "Racine",
+	"share.title"										: "Partager avec...",
+	"share.more"										: "Voir la suite",
+	"share.search.title"								: "Rechercher des utilisateurs et des groupes",
+	"share.search.placeholder"							: "Ex : Sabine, Dupont, Enseignants de l'école...",
+	"seemore"											: "Voir la suite"
+}

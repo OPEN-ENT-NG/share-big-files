@@ -1,0 +1,48 @@
+<article class="list-view">
+	<table class="twelve">
+		<thead class="tableheader whiteheader">
+    		<tr>
+    			<th class="icon">
+    				<input type="checkbox" ng-model="select.all" ng-change="switchAll()"/>
+    			</th>
+    			<th class="icon" />
+    			<th class="content">
+					<a translate content="title" ng-click="orderBy('title')"></a>
+				</th>
+    			<th class="user">
+					<a translate content="from" ng-click="orderBy('owner.displayName')"></a>
+				</th>
+    			<th class="date">
+					<a translate content="date" ng-click="orderBy('modified.$date')"></a>
+				</th>
+    		</tr>
+		</thead>
+		<tbody>
+    		<tr ng-repeat="sharebigfiles in sharebigfilesList.all | filter:filterSharebigfiles:true | orderBy:ordering" ng-class="{ checked: sharebigfiles.selected }">
+    			<td class="icon">
+					<behaviour name="manager" resource="sharebigfiles">
+						<input type="checkbox" ng-model="sharebigfiles.selected"/>
+					</behaviour>
+				</td>
+    			<td class="icon">
+    				<div class="twelve cell">
+    					<img class="twelve" skin-src="/img/illustrations/sharebigfiles-default.png" ng-if="sharebigfiles.thumbnail === undefined || sharebigfiles.thumbnail.trim().length === 0"/>
+    					<img class="twelve" ng-src="[[sharebigfiles.thumbnail]]?thumbnail=20x20" ng-if="sharebigfiles.thumbnail !== undefined && sharebigfiles.thumbnail.trim().length > 0" />
+						<i ng-if="sharebigfiles.shared !== undefined && sharebigfiles.shared.length > 0 && sharebigfilesList.folder !== 'trash'" class="shared"></i>
+					</div>
+    			</td>
+    			<td class="content">
+                    <a ng-click="openSharebigfiles(sharebigfiles)">
+						[[sharebigfiles.title]]
+					</a>
+                </td>
+    			<td class="user">
+                    <a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[sharebigfiles.owner.displayName]]</a>
+                </td>
+    			<td class="date">
+                    [[$root.longDate(sharebigfiles.modified.$date)]]
+                </td>
+    		</tr>
+		</tbody>
+	</table>
+</article>

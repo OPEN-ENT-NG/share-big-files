@@ -1,0 +1,112 @@
+<div class="row" ng-controller="FolderController">
+	<div class="row">
+		<h1 class="four cell" data-reload>
+			<a><i class="sharebigfiles"></i><span translate content="sharebigfiles.title"></span></a>
+		</h1>
+		<nav class="contextual-buttons eight cell">
+			<div class="action-buttons">
+				<button workflow="sharebigfiles.create" workflow="sharebigfiles.create" ng-click="newsharebigfiles()">
+					<i class="add"></i><span translate content="create"></span>
+				</button>
+			</div>
+			<div class="display-buttons" ng-if="template.contains('list', 'table-list') || template.contains('list', 'icons-list')">
+				<i class="show-list"
+				   ng-class="{ selected: template.contains('list', 'table-list') }"
+				   ng-click="openView('list', 'table-list')"></i>
+				<i class="show-icons"
+				   ng-class="{ selected: template.contains('list', 'icons-list') }"
+				   ng-click="openView('list', 'icons-list')"></i>
+			</div>
+		</nav>
+	</div>
+
+	<div class="row">
+		<section class="vertical four cell">
+			<nav class="vertical">
+				<ul>
+					<li ng-repeat="(name, folderProps) in folders">
+						<a ng-if="!folderProps.workflow"
+						   ng-click="folderProps.list()"
+						   translate content="sharebigfiles.[[name]]"
+						   ng-class="{ selected: sharebigfilesList.folder === name }"/>
+						<a ng-if="folderProps.workflow"
+						   workflow="[[folderProps.workflow]]"
+						   ng-click="folderProps.list()"
+						   translate content="sharebigfiles.[[name]]"
+						   ng-class="{ selected: sharebigfilesList.folder === name }"/>
+					</li>
+				</ul>
+			</nav>
+		</section>
+		<section class="eight cell">
+			<div ng-include="template.containers.list" class="row"></div>
+		</section>
+
+	</div>
+
+	<div class="row">
+		<attachments apps="['workspace']" ng-model="ticket.newAttachments"></attachments>
+	</div>
+	<strong>Upload :</strong>
+	<input type="file" files-input-change="postFiles()" ng-model="newItem.newFiles" />
+	</br>
+
+	<strong>Expiration :</strong>
+	<select name="expiration" ng-model="newItem.expDate" ng-options="expDateList">
+
+	</select>
+	<!--Test-->
+	<!--<button class="cell" ng-click="openView('list', 'bigfiles-info')">-->
+
+
+	<section class="toggle-buttons" ng-class="{ hide: sharebigfilesList.selection().length === 0 }">
+		<div class="toggle block-container">
+			<div class="row">
+				<behaviour name="manager" resource="sharebigfilesList.selection()">
+					<button class="cell" translate content="edit" ng-if="sharebigfilesList.selection().length === 1 && sharebigfilesList.folder !== 'trash'" ng-click="editInfos()"/>
+				</behaviour>
+				<behaviour name="manager" resource="sharebigfilesList.selection()">
+					<button class="cell" translate content="share" ng-if="sharebigfilesList.folder === 'mine'" ng-click="sharesharebigfiles()"/>
+				</behaviour>
+				<behaviour name="manager" resource="sharebigfilesList.selection()">
+					<button class="cell" translate content="restore" ng-if="sharebigfilesList.folder === 'trash'" ng-click="sharebigfilesList.restore()"/>
+				</behaviour>
+				<behaviour name="manager" resource="sharebigfilesList.selection()">
+					<button class="cell" translate content="remove" ng-click="removesharebigfiles()"/>
+				</behaviour>
+		</div>
+	</section>
+
+	<!--<div class="row">-->
+	<!--<div class="row">-->
+	<!--<h3 class="cell" ng-if="newItem.attachments.length"><i18n>attachments</i18n></h3>-->
+	<!--<div class="right-magnet select-file nomargin" drop-files="newItem.newAttachments" on-drop="postAttachments()">-->
+	<!--<div class="hidden-content">-->
+	<!--<input type="file" multiple files-input-change="postAttachments()" ng-model="newItem.newAttachments">-->
+	<!--<input type="text" data-display-file="">-->
+	<!--</div>-->
+	<!--<button class="small file-button" translate="" content="add.attachment"></button>-->
+	<!--</div>-->
+	<!--</div>-->
+	<!--<article class="list-view" ng-if="newItem.loadingAttachments.length > 0">-->
+	<!--<h4><i18n>attachments.loading</i18n></h4>-->
+	<!--<table class="list-view">-->
+	<!--<thead>-->
+	<!--<th><i18n>name</i18n></th>-->
+	<!--<th><i18n>progress</i18n></th>-->
+	<!--</thead>-->
+	<!--<tbody>-->
+	<!--<tr ng-repeat="attachment in newItem.loadingAttachments">-->
+	<!--<td>-->
+	<!--[[attachment.file.name]]-->
+	<!--</td>-->
+	<!--<td>-->
+	<!--<progress-bar max="attachment.progress.total" filled="attachment.progress.completion" unit="%"></progress-bar>-->
+	<!--</td>-->
+	<!--</tr>-->
+	<!--</tbody>-->
+	<!--</table>-->
+	<!--</article>-->
+	<!--</div>-->
+
+</div class="row">

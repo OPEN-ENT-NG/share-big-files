@@ -1,0 +1,26 @@
+<article class="icons-view">
+	<header>&nbsp;</header>
+	<div class="icons-view">
+		<div ng-repeat="sharebigfiles in sharebigfilesList.all | filter:filterSharebigfiles:true" class="element reduce-block-six">
+			<div ng-click="openSharebigfiles(sharebigfiles)" class="img container">
+				<div>
+                    <img class="twelve" skin-src="/img/illustrations/sharebigfiles-default.png" ng-if="sharebigfiles.thumbnail === undefined || sharebigfiles.thumbnail.trim().length === 0"/>
+                    <img class="twelve" ng-src="[[sharebigfiles.thumbnail]]?thumbnail=120x120" ng-if="sharebigfiles.thumbnail !== undefined && sharebigfiles.thumbnail.trim().length > 0" />
+				</div>
+
+			</div>
+			<behaviour name="manager" resource="sharebigfiles">
+				<input type="checkbox" ng-model="sharebigfiles.selected" />
+			</behaviour>
+			<legend>
+				<a ng-click="openSharebigfiles(sharebigfiles)" class="medium-text">
+					<i ng-if="sharebigfiles.shared !== undefined && sharebigfiles.shared.length > 0 && sharebigfilesList.folder !== 'trash'" class="shared inline"></i>
+					[[sharebigfiles.title]]
+				</a>
+				<a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]"><strong class="small-text">[[sharebigfiles.owner.displayName]]</strong></a>
+			</legend>
+
+		</div>
+		<div class="clear"></div>
+	</div>
+</article>
