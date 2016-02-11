@@ -31,7 +31,7 @@ public class ShareBigFilesServiceImpl extends MongoDbControllerHelper implements
 	 */
 	private final Storage swiftStorage;
 
-	public ShareBigFilesServiceImpl(final Vertx vertx, final JsonObject config, final String collection) {
+	public ShareBigFilesServiceImpl(Vertx vertx, final JsonObject config, final String collection) {
 		super(collection);
 		this.shareBigFileCrudService = new MongoDbCrudService(collection);
 		this.swiftStorage = new StorageFactory(vertx, config).getStorage();

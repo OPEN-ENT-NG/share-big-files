@@ -16,7 +16,7 @@ public class ShareBigFiles extends BaseServer {
 	@Override
 	public void start() {
 		super.start();
-		addController(new ShareBigFilesController(SHARE_BIG_FILE_COLLECTION));
+		addController(new ShareBigFilesController(vertx, SHARE_BIG_FILE_COLLECTION, container));
 		MongoDbConf.getInstance().setCollection(SHARE_BIG_FILE_COLLECTION);
 		setDefaultResourceFilter(new ShareAndOwner());
 

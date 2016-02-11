@@ -1,8 +1,8 @@
 {
       "name": "fr.openent~share-big-files~0.1-SNAPSHOT",
       "config": {
-        "main" : "ShareBigFiles",
-        "port" : 8670,
+        "main" : "fr.openent.sharebigfiles.ShareBigFiles",
+        "port" : 8052,
         "app-name" : "Share Big Files",
     	"app-address" : "/sharebigfiles",
     	"app-icon" : "sharebigfiles-large",
@@ -18,7 +18,7 @@
               "uri": "http://129.181.25.243:32768",
               "container": "testcontainer" ,
                "user":  "test:tester",
-              " key ":  "testing",
+              "key":  "testing"
          },
         "purgeFilesCron" : "0 0 23 * * ?",
         "purgeMaxDelayAlive" : 30,

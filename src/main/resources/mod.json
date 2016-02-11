@@ -1,5 +1,5 @@
 {
-	"main" : "fr.openent.sharebigfiles.Sharebigfiles",
+	"main" : "fr.openent.sharebigfiles.ShareBigFiles",
 	"port" : 8052,
 	"app-name" : "Sharebigfiles",
 	"app-address" : "/sharebigfiles",
@@ -7,5 +7,5 @@
 	"app-displayName" : "Sharebigfiles",
 	"mode": "dev",
 	"entcore.port" : 8090,
-	"auto-redeploy": true
+	"auto-redeploy": false
 }

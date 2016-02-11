@@ -3,6 +3,7 @@ package fr.openent.sharebigfiles.controllers;
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
 
+import fr.openent.sharebigfiles.ShareBigFiles;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -11,19 +12,28 @@ import fr.wseduc.webutils.request.RequestUtils;
 
 import fr.openent.sharebigfiles.services.ShareBigFilesService;
 import fr.openent.sharebigfiles.services.ShareBigFilesServiceImpl;
+import org.entcore.common.events.EventStore;
+import org.entcore.common.events.EventStoreFactory;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.Vertx;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.http.RouteMatcher;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.platform.Container;
+
+import java.util.Map;
 
 /**
  * Vert.x backend controller for the application using Mongodb.
  */
 public class ShareBigFilesController extends MongoDbControllerHelper {
 
+	private EventStore eventStore;
+	private enum ShareBigFilesEvent { ACCESS }
 	//Computation service
 	private final ShareBigFilesService shareBigFilesService;
 
@@ -35,16 +45,32 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 		contrib_ressource	= "sharebigfile.contrib",
 		view_ressource		= "sharebigfile.read";
 
+	@Override
+	public void init(Vertx vertx, Container container, RouteMatcher rm,
+					 Map<String, fr.wseduc.webutils.security.SecuredAction> securedActions) {
+		super.init(vertx, container, rm, securedActions);
+		eventStore = EventStoreFactory.getFactory().getEventStore(ShareBigFiles.class.getSimpleName());
+	}
+
+
 	/**
 	 * Creates a new controller.
 	 * @param collection Name of the collection stored in the mongoDB database.
 	 */
-	public ShareBigFilesController(String collection) {
+	public ShareBigFilesController(Vertx vertx, String collection, Container container) {
 		super(collection);
 		final JsonObject config = container.config();
 		shareBigFilesService = new ShareBigFilesServiceImpl(vertx, config, collection);
+	}
 
+	@Get("")
+	@ApiDoc("Allows to display the main view")
+	@SecuredAction(read_only)
+	public void view(HttpServerRequest request) {
+		renderView(request);
 
+		// Create event "access to application CollaborativeWall" and store it, for module "statistics"
+		eventStore.createAndStoreEvent(ShareBigFilesEvent.ACCESS.name(), request);
 	}
 
 	/**
@@ -72,15 +98,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	}
 
 	//TODO
-	/**
-	 * Displays the home view.
-	 * @param request Client request
-	 */
-	@Get("")
-	@SecuredAction(read_only)
-	public void view(HttpServerRequest request) {
-		renderView(request);
-	}
+
 
 	//////////////
 	//// CRUD ////
