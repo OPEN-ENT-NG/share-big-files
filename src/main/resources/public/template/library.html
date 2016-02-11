@@ -52,8 +52,7 @@
 	</br>
 
 	<strong>Expiration :</strong>
-	<select name="expiration" ng-model="newItem.expDate" ng-options="expDateList">
-
+	<select name="expiration" ng-model="newItem.expDate" ng-options="exp for exp in expDateList.tab">
 	</select>
 	<!--Test-->
 	<!--<button class="cell" ng-click="openView('list', 'bigfiles-info')">-->

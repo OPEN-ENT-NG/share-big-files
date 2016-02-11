@@ -16,11 +16,12 @@ routes.define(function($routeProvider){
 function SharebigfilesController($scope, $rootScope, model, template, route, date){
 
 	$scope.template = template
-	$scope.expDateList = [1,5,10,30];
+	$scope.expDateList = {tab:[1,5,10,30]};
+	$scope.newItem = new Upload();
 
 	route({
 		defaultView: function(){
-			$scope.openView('main', 'library')
+			template.open('main', 'library')
 		}
 	})
 
@@ -28,17 +29,8 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		return date.create(dateStr.split(' ')[0]).format('DD MMMM YYYY')
 	}
 
-	$scope.openView = function(container, view){
-		if(container === "lightbox")
-			ui.showLightbox()
-		else
-			ui.hideLightbox()
-		template.open(container, view)
-	}
-
 	$scope.postFiles = function(){
-		var action = function(){
-			_.forEach($scope.newItem.newAttachments, function(targetAttachment){
+			_.forEach($scope.newItem.newFiles, function(targetAttachment){
 				var attachmentObj = {
 					file: targetAttachment,
 					progress: {
@@ -68,10 +60,6 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 						}, false);
 
 						return xhr;
-					},
-					complete: function(){
-						$scope.newItem.loadingAttachments.splice($scope.newItem.loadingAttachments.indexOf(attachmentObj), 1)
-						$scope.$apply()
 					}
 				}).done(function(result){
 					attachmentObj.id = result.id
@@ -88,14 +76,6 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 				})
 			})
 		}
-
-		if(!$scope.newItem.id){
-			model.folders.draft.saveDraft($scope.newItem, action);
-		} else {
-			action()
-		}
-	}
-
 }
 
 /**
@@ -131,7 +111,7 @@ function FolderController($scope, $rootScope, model, template){
 		if(typeof folder === "string")
 			$scope.sharebigfilesList.folder = folder
 		if(!template.contains('list', 'table-list') && !template.contains('list', 'icons-list'))
-			$scope.openView('list', 'table-list')
+			template.open('list', 'table-list')
 	}
 
 	$scope.folders = {
@@ -202,7 +182,7 @@ function FolderController($scope, $rootScope, model, template){
 
 	$scope.opensharebigfiles = function(sharebigfiles){
 		$rootScope.sharebigfiles = sharebigfiles
-		$scope.openView('main', 'sharebigfiles')
+		template.open('main', 'sharebigfiles')
 	}
 
 	/////////////////////////////////////
@@ -213,12 +193,12 @@ function FolderController($scope, $rootScope, model, template){
 		$scope.sharebigfiles = new Sharebigfiles()
 		$scope.sharebigfilesList.deselectAll()
 		$scope.select.all = false
-		$scope.openView('list', 'sharebigfiles-infos')
+		template.open('list', 'sharebigfiles-infos')
 	}
 
 	$scope.editInfos = function(){
 		$scope.sharebigfiles = $scope.sharebigfilesList.selection()[0]
-		$scope.openView('list', 'sharebigfiles-infos')
+		template.open('list', 'sharebigfiles-infos')
 	}
 
 	$scope.removeIcon = function(){
@@ -250,7 +230,7 @@ function FolderController($scope, $rootScope, model, template){
 
 	$scope.sharesharebigfiles = function(){
 		$rootScope.sharedSharebigfiles = $scope.sharebigfilesList.selection()
-		$scope.openView('lightbox', 'share')
+		template.open('lightbox', 'share')
 	}
 
 	$rootScope.$on('share-updated', function(){

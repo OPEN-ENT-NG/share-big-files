@@ -1,17 +1,13 @@
 package fr.openent.sharebigfiles.controllers;
 
-import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
-
 import fr.openent.sharebigfiles.ShareBigFiles;
+import fr.openent.sharebigfiles.services.ShareBigFilesService;
+import fr.openent.sharebigfiles.services.ShareBigFilesServiceImpl;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.request.RequestUtils;
-
-import fr.openent.sharebigfiles.services.ShareBigFilesService;
-import fr.openent.sharebigfiles.services.ShareBigFilesServiceImpl;
 import org.entcore.common.events.EventStore;
 import org.entcore.common.events.EventStoreFactory;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
@@ -26,6 +22,8 @@ import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Container;
 
 import java.util.Map;
+
+import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 
 /**
  * Vert.x backend controller for the application using Mongodb.
@@ -80,11 +78,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	@Post("")
 	@SecuredAction(modify)
 	public void create(final HttpServerRequest request) {
-		RequestUtils.bodyToJson(request, pathPrefix + "create", new Handler<JsonObject>() {
-			public void handle(JsonObject data) {
 				shareBigFilesService.create(request);
-			}
-		});
 	}
 
 	@Get("/download")

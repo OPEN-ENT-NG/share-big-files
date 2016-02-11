@@ -76,19 +76,18 @@ function SharebigfilesCollection(){
 }
 
 function Upload(data) {
-
-	this.postAttachment = function (attachment, options) {
-		return http().postFile("message/" + this.id + "/attachment", attachment, options)
-	}
-
 }
+
+Upload.prototype.postAttachment = function (attachment, options) {
+	return http().postFile("/sharebigfiles", attachment, options)
+};
 
 ///////////////////////
 ///   MODEL.BUILD   ///
 
 model.build = function(){
 	model.me.workflow.load(['sharebigfiles'])
-	this.makeModels([Sharebigfiles, SharebigfilesCollection])
+	this.makeModels([Sharebigfiles, SharebigfilesCollection, Upload])
 
 	this.sharebigfilesCollection = new SharebigfilesCollection()
 }
