@@ -3,12 +3,26 @@
 	"type": "object",
 	"additionalProperties": false,
 	"properties": {
-		"title": {
-			"type": "string"
-		},
-	    "thumbnail": {
-			"type": "string"
-		}
- 	},
-	"required": [ "title" ]
+        "_id": {
+            "type": "string"
+        },
+        "icon": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "delay": {
+             "type" : "integer"
+        },
+        "thumbnail": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "name"
+    ]
 }
