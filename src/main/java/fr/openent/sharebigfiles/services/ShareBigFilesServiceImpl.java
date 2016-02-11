@@ -47,18 +47,14 @@ public class ShareBigFilesServiceImpl extends MongoDbControllerHelper implements
 					swiftStorage.writeUploadFile(request, new Handler<JsonObject>() {
 						@Override
 						public void handle(JsonObject event) {
-							final String status = event.getString("ok");
+							final String status = event.getString("status");
 							if ("ok".equals(status)) {
 								final String idFile = event.getString("_id");
 								final JsonObject metadata = event.getObject("metadata");
 								if (idFile != null && !idFile.isEmpty()) {
-									RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
-										@Override
-										public void handle(JsonObject object) {
-											object.putString("file_id", idFile);
-											shareBigFileCrudService.create(object, user, notEmptyResponseHandler(request));
-										}
-									});
+									final JsonObject object = new JsonObject();
+									object.putString("file_id", idFile);
+									shareBigFileCrudService.create(object, user, notEmptyResponseHandler(request));
 								}
 							} else {
 								log.debug("uploadfile fails");
