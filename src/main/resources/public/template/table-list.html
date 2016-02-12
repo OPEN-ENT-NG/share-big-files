@@ -7,19 +7,19 @@
     			</th>
     			<th class="icon" />
     			<th class="content">
-					<a translate content="title" ng-click="orderBy('title')"></a>
+					<span translate content="title" ng-click="orderBy('title')"></span>
 				</th>
     			<th class="user">
-					<a translate content="from" ng-click="orderBy('owner.displayName')"></a>
+					<span translate content="from" ng-click="orderBy('owner.displayName')"></span>
 				</th>
     			<th class="date">
-					<a translate content="date" ng-click="orderBy('modified.$date')"></a>
+					<span translate content="date" ng-click="orderBy('modified.$date')"></span>
 				</th>
     		</tr>
 		</thead>
 		<tbody>
-    		<tr ng-repeat="sharebigfiles in sharebigfilesList.all | filter:filterSharebigfiles:true | orderBy:ordering" ng-class="{ checked: sharebigfiles.selected }">
-    			<td class="icon">
+    		<tr ng-repeat="sharebigfiles in uploads.all | orderBy:ordering" ng-class="{ checked: sharebigfiles.selected }">
+				<td class="icon">
 					<behaviour name="manager" resource="sharebigfiles">
 						<input type="checkbox" ng-model="sharebigfiles.selected"/>
 					</behaviour>
@@ -33,14 +33,14 @@
     			</td>
     			<td class="content">
                     <a ng-click="openSharebigfiles(sharebigfiles)">
-						[[sharebigfiles.title]]
+						[[sharebigfiles.name]]
 					</a>
                 </td>
     			<td class="user">
                     <a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[sharebigfiles.owner.displayName]]</a>
                 </td>
     			<td class="date">
-                    [[$root.longDate(sharebigfiles.modified.$date)]]
+                    [[$root.longDate(sharebigfiles.startDate)]]
                 </td>
     		</tr>
 		</tbody>

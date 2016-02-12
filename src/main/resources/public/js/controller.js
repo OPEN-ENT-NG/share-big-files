@@ -19,6 +19,8 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	$scope.expDateList = {tab:[1,5,10,30]};
 	$scope.newItem = new Upload();
 
+	$scope.uploads = model.uploads;
+
 	route({
 		defaultView: function(){
 			template.open('main', 'library')
@@ -46,7 +48,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 
 				var formData = new FormData()
 				formData.append('file', attachmentObj.file)
-
+				formData.append('expDate', $scope.newItem.expDate)
 				$scope.newItem.postAttachment(formData, {
 					xhr: function() {
 						var xhr = new window.XMLHttpRequest();
@@ -169,10 +171,10 @@ function FolderController($scope, $rootScope, model, template){
 
 	$scope.switchAll = function(){
 		if($scope.select.all){
-			selectMultiple($scope.sharebigfilesList.filter(sharebigfilesObjectFiltering).filter(function(item){ return item.myRights.manager !== undefined }))
+			$scope.uploads.selectAll();
 		}
 		else{
-			$scope.sharebigfilesList.deselectAll();
+			$scope.uploads.deselectAll();
 		}
 	}
 

@@ -90,6 +90,9 @@ model.build = function(){
 	this.makeModels([Sharebigfiles, SharebigfilesCollection, Upload])
 
 	this.sharebigfilesCollection = new SharebigfilesCollection()
+	this.collection(Upload,{
+		sync:"/sharebigfiles/public/json/bigfilesList.json"
+	});
 }
 
 ///////////////////////
