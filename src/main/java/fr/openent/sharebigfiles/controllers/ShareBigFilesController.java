@@ -6,24 +6,21 @@ import fr.openent.sharebigfiles.services.ShareBigFilesServiceImpl;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
-import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.events.EventStore;
 import org.entcore.common.events.EventStoreFactory;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
-import org.entcore.common.user.UserInfos;
-import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.RouteMatcher;
-import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Container;
 
 import java.util.Map;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
 
 /**
  * Vert.x backend controller for the application using Mongodb.
@@ -53,12 +50,10 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 
 	/**
 	 * Creates a new controller.
-	 * @param collection Name of the collection stored in the mongoDB database.
 	 */
-	public ShareBigFilesController(Vertx vertx, String collection, Container container) {
-		super(collection);
-		final JsonObject config = container.config();
-		shareBigFilesService = new ShareBigFilesServiceImpl(vertx, config, collection);
+	public ShareBigFilesController(Vertx vertx, final Container container) {
+		super(ShareBigFiles.SHARE_BIG_FILE_COLLECTION);
+		shareBigFilesService = new ShareBigFilesServiceImpl(vertx, container, ShareBigFiles.SHARE_BIG_FILE_COLLECTION);
 	}
 
 	@Get("")
@@ -67,7 +62,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	public void view(HttpServerRequest request) {
 		renderView(request);
 
-		// Create event "access to application CollaborativeWall" and store it, for module "statistics"
+		// Create event "access to application ShareBigFile" and store it, for module "statistics"
 		eventStore.createAndStoreEvent(ShareBigFilesEvent.ACCESS.name(), request);
 	}
 
@@ -78,17 +73,27 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	@Post("")
 	@SecuredAction(modify)
 	public void create(final HttpServerRequest request) {
-				shareBigFilesService.create(request);
+		/*request.expectMultiPart(true);
+		if (request.formAttributes().get("expiryDate") == null || request.formAttributes().get("fileNameLabel") == null) {
+			if (request.formAttributes().get("expiryDate") == null) {
+				if (log.isDebugEnabled()) {
+					log.debug("expiryDate not found in a formData.");
+				}
+				notFound(request, "formdata.notfound.expiryDate");
+			} else {
+				if (log.isDebugEnabled()) {
+					log.debug("fileNameLabel not found in a formData.");
+				}
+				notFound(request, "formdata.notfound.fileNameLabel");
+			}
+		}*/
+		shareBigFilesService.create(request);
 	}
 
-	@Get("/download")
+	@Get("/download:id")
 	@SecuredAction(value = view_ressource, type = ActionType.RESOURCE)
 	public void download(final HttpServerRequest request) {
-		RequestUtils.bodyToJson(request, pathPrefix + "getFile", new Handler<JsonObject>() {
-			public void handle(JsonObject data) {
-				shareBigFilesService.download(request);
-			}
-		});
+		shareBigFilesService.download(request);
 	}
 
 	//TODO
@@ -113,15 +118,8 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	 */
 	@Get("/list")
 	@SecuredAction(value = read_only, type = ActionType.AUTHENTICATED)
-	public void listGeneric_app(final HttpServerRequest request) {
-		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-			public void handle(final UserInfos user) {
-				if (user != null) {
-					Handler<Either<String, JsonArray>> handler = arrayResponseHandler(request);
-					//shareBigFilesService.listGeneric_app(user, handler);
-				}
-			}
-		});
+	public void list(final HttpServerRequest request) {
+		shareBigFilesService.list(request);
 	}
 
 	/**
@@ -144,34 +142,8 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	 */
 	@Delete("/:id")
 	@SecuredAction(value = manage_ressource, type = ActionType.RESOURCE)
-	public void deleteGeneric_app(final HttpServerRequest request) {
-		//shareBigFilesService.deleteGeneric_app(request.params().get("id"), defaultResponseHandler(request));
-	}
-
-	///////////////////
-	//// TRASH BIN ////
-	///////////////////
-
-	/**
-	 * Puts a generic_app into the trash bin.
-	 * @param request Client request containing the id.
-	 */
-	@Put("/:id/trash")
-	@SecuredAction(value = manage_ressource, type = ActionType.RESOURCE)
-	public void trashGeneric_app(final HttpServerRequest request) {
-		final String id = request.params().get("id");
-		//shareBigFilesService.trashGeneric_app(id, defaultResponseHandler(request));
-	}
-
-	/**
-	 * Recovers a generic_app from the trash bin.
-	 * @param request Client request containing the id.
-	 */
-	@Put("/:id/recover")
-	@SecuredAction(value = manage_ressource, type = ActionType.RESOURCE)
-	public void recoverGeneric_app(final HttpServerRequest request) {
-		final String id = request.params().get("id");
-		//shareBigFilesService.recoverGeneric_app(id, defaultResponseHandler(request));
+	public void delete(final HttpServerRequest request) {
+		shareBigFilesService.delete(request);
 	}
 
 	/////////////////

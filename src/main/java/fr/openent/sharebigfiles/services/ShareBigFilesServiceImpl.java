@@ -1,20 +1,31 @@
 package fr.openent.sharebigfiles.services;
 
+import com.mongodb.QueryBuilder;
+import fr.openent.sharebigfiles.ShareBigFiles;
+import fr.wseduc.mongodb.MongoDb;
+import fr.wseduc.mongodb.MongoQueryBuilder;
+import fr.wseduc.mongodb.MongoUpdateBuilder;
+import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
-import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
 import org.entcore.common.service.CrudService;
+import org.entcore.common.service.VisibilityFilter;
 import org.entcore.common.service.impl.MongoDbCrudService;
 import org.entcore.common.storage.Storage;
 import org.entcore.common.storage.StorageFactory;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
+import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.platform.Container;
 
-//TODO si on garde
+import java.text.ParseException;
+import static org.entcore.common.http.response.DefaultResponseHandler.leftToResponse;
 import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
 
 /**
@@ -23,18 +34,30 @@ import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyRe
  */
 public class ShareBigFilesServiceImpl extends MongoDbControllerHelper implements ShareBigFilesService {
 	/**
+	 * Log
+	 */
+	private final Logger log;
+
+	/**
 	 * Mongo CRUD service
 	 */
 	private final CrudService shareBigFileCrudService;
+
+	/**
+	 * Mongo instance
+	 */
+	private final MongoDb mongo = MongoDb.getInstance();
+
 	/**
 	 * Swift client
 	 */
 	private final Storage swiftStorage;
 
-	public ShareBigFilesServiceImpl(Vertx vertx, final JsonObject config, final String collection) {
+	public ShareBigFilesServiceImpl(Vertx vertx, final Container container, final String collection) {
 		super(collection);
+		log = container.logger();
 		this.shareBigFileCrudService = new MongoDbCrudService(collection);
-		this.swiftStorage = new StorageFactory(vertx, config).getStorage();
+		this.swiftStorage = new StorageFactory(vertx, container.config()).getStorage();
 	}
 
 
@@ -47,23 +70,31 @@ public class ShareBigFilesServiceImpl extends MongoDbControllerHelper implements
 					swiftStorage.writeUploadFile(request, new Handler<JsonObject>() {
 						@Override
 						public void handle(JsonObject event) {
-							final String status = event.getString("status");
-							if ("ok".equals(status)) {
-								final String idFile = event.getString("_id");
-								final JsonObject metadata = event.getObject("metadata");
-								if (idFile != null && !idFile.isEmpty()) {
-									final JsonObject object = new JsonObject();
-									object.putString("file_id", idFile);
-									shareBigFileCrudService.create(object, user, notEmptyResponseHandler(request));
-								}
+							if ("ok".equals(event.getString("status"))) {
+								final JsonObject object = new JsonObject();
+								object.putString("fileId", event.getString("_id"));
+								//get Attributes from the dataform
+								object.putString("fileNameLabel", request.formAttributes().get("fileNameLabel"));
+								//TODO what is the date format from frontend :
+								//TODO uncomment
+								/*try {
+									object.putObject("expiryDate", new JsonObject().putValue("$date", MongoDb.parseDate(request.formAttributes().get("expiryDate")).getTime()));
+								} catch (ParseException e) {
+									log.error(e.getMessage(), e);
+								}*/
+								object.putArray("downloadLogs", new JsonArray());
+								object.putObject("fileMetadata", event.getObject("metadata"));
+								shareBigFileCrudService.create(object, user, notEmptyResponseHandler(request));
 							} else {
-								log.debug("uploadfile fails");
-								Renders.renderError(request);
+								log.error("upload file fails");
+								Renders.renderError(request, event);
 							}
 						}
 					});
 				} else {
-					log.debug("User not found in session.");
+					if (log.isDebugEnabled()) {
+						log.debug("User not found in session.");
+					}
 					Renders.unauthorized(request);
 				}
 			}
@@ -72,70 +103,111 @@ public class ShareBigFilesServiceImpl extends MongoDbControllerHelper implements
 
 	@Override
 	public void download(final HttpServerRequest request) {
-		RequestUtils.bodyToJson(request, new Handler<JsonObject>() {
+		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
 			@Override
-			public void handle(JsonObject object) {
-				swiftStorage.sendFile(object.getString("_idFile"),object.getString("fileName"),request,true,null);
+			public void handle(final UserInfos user) {
+				if (user != null) {
+					final String id = request.params().get("id");
+					shareBigFileCrudService.retrieve(id, user, new Handler<Either<String, JsonObject>>() {
+						@Override
+						public void handle(Either<String, JsonObject> event) {
+							if (event.isRight() && event.right().getValue() != null) {
+								final JsonObject object = event.right().getValue();
+
+								swiftStorage.sendFile(object.getString("fileId"), object.getString("fileNameLabel"), request, false, object.getObject("fileMetadata"), new Handler<AsyncResult<Void>>() {
+									@Override
+									public void handle(AsyncResult<Void> event) {
+										final QueryBuilder query = QueryBuilder.start("_id").is(id);
+
+										final String userDisplayName = user.getFirstName() + " " + user.getLastName();
+										final JsonObject logElem = new JsonObject().putString("userDisplayName", userDisplayName).putObject("downloadDate", MongoDb.now());
+										final MongoUpdateBuilder modifier = new MongoUpdateBuilder();
+										modifier.addToSet("downloadLogs", logElem);
+										mongo.update(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(query),
+												modifier.build());
+									}
+								});
+							} else {
+								leftToResponse(request, event.left());
+							}
+						}
+					});
+				} else {
+					if (log.isDebugEnabled()) {
+						log.debug("User not found in session.");
+					}
+					Renders.unauthorized(request);
+				}
 			}
 		});
 	}
 
-
-
-	/*TODO NETTOYAGE
-
-	public void createGeneric_app(UserInfos user, JsonObject data, Handler<Either<String, JsonObject>> handler) {
-		data.putNumber("trashed", 0);
-		data.putString("name", data.getString("title"));
-
-		super.create(data, user, handler);
+	@Override
+	public void delete(final HttpServerRequest request) {
+		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+			@Override
+			public void handle(final UserInfos user) {
+				if (user != null) {
+					final String id = request.params().get("id");
+					shareBigFileCrudService.retrieve(id, user, new Handler<Either<String, JsonObject>>() {
+						@Override
+						public void handle(Either<String, JsonObject> event) {
+							if (event.isRight() && event.right().getValue() != null) {
+								final JsonObject object = event.right().getValue();
+								swiftStorage.removeFile(object.getString("fileId"), new Handler<JsonObject>() {
+									@Override
+									public void handle(JsonObject event) {
+										if ("ok".equals(event.getString("status"))) {
+											shareBigFileCrudService.delete(id, user, notEmptyResponseHandler(request));
+										} else {
+											Renders.renderError(request, event);
+										}
+									}
+								});
+							} else {
+								leftToResponse(request, event.left());
+							}
+						}
+					});
+				} else {
+					if (log.isDebugEnabled()) {
+						log.debug("User not found in session.");
+					}
+					Renders.unauthorized(request);
+				}
+			}
+		});
 	}
 
-	public void listGeneric_app(UserInfos user, Handler<Either<String, JsonArray>> handler) {
-		List<DBObject> groups = new ArrayList<DBObject>();
-		groups.add(QueryBuilder.start("userId").is(user.getUserId()).get());
-		for (String gpId : user.getGroupsIds()) {
-			groups.add(QueryBuilder.start("groupId").is(gpId).get());
-		}
+	public void list(final HttpServerRequest request) {
+		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+			@Override
+			public void handle(final UserInfos user) {
+				String filter = request.params().get("filter");
+				VisibilityFilter v = VisibilityFilter.ALL;
+				if (filter != null) {
+					try {
+						v = VisibilityFilter.valueOf(filter.toUpperCase());
+					} catch (IllegalArgumentException | NullPointerException e) {
+						v = VisibilityFilter.ALL;
+						if (log.isDebugEnabled()) {
+							log.debug("Invalid filter " + filter);
+						}
+					}
+				}
 
-		QueryBuilder query = new QueryBuilder().or(
-				QueryBuilder.start("owner.userId").is(user.getUserId()).get(),
-				QueryBuilder.start("shared").elemMatch(new QueryBuilder().or(groups.toArray(new DBObject[groups.size()])).get()).get());
+				shareBigFileCrudService.list(v, user, new Handler<Either<String, JsonArray>>() {
+					@Override
+					public void handle(Either<String, JsonArray> event) {
+						if (event.isRight()) {
+							Renders.renderJson(request, event.right().getValue());
+						} else {
+							leftToResponse(request, event.left());
+						}
+					}
 
-		JsonObject projection = new JsonObject();
-
-		mongo.find(collection, MongoQueryBuilder.build(query), new JsonObject(), projection, MongoDbResult.validResultsHandler(handler));
+				});
+			}
+		});
 	}
-
-	public void getGeneric_app(String id, Handler<Either<String, JsonObject>> handler) {
-		mongo.findOne(collection, MongoQueryBuilder.build(QueryBuilder.start("_id").is(id)), MongoDbResult.validResultHandler(handler));
-	}
-
-	public void updateGeneric_app(String id, JsonObject data, Handler<Either<String, JsonObject>> handler) {
-		String thumbnail = data.getString("thumbnail");
-		data.putString("thumbnail", thumbnail == null ? "" : thumbnail);
-		if(data.containsField("title"))
-			data.putString("name", data.getString("title"));
-		super.update(id, data, handler);
-	}
-
-	public void trashGeneric_app(String id, Handler<Either<String, JsonObject>> handler) {
-		JsonObject data = new JsonObject();
-		data.putNumber("trashed", 1);
-
-		super.update(id, data, handler);
-	}
-
-	public void recoverGeneric_app(String id, Handler<Either<String, JsonObject>> handler) {
-		JsonObject data = new JsonObject();
-		data.putNumber("trashed", 0);
-
-		super.update(id, data, handler);
-	}
-
-	public void deleteGeneric_app(String id, Handler<Either<String, JsonObject>> handler) {
-		super.delete(id, handler);
-	}
-	*/
-
 }

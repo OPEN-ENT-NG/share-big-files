@@ -15,13 +15,13 @@
         "mode" : "${mode}",
         "entcore.port" : 8009,
         "swift": {
-              "uri": "http://129.181.25.243:32768",
+              "uri": "http://192.168.226.128:32768",
               "container": "testcontainer" ,
                "user":  "test:tester",
               "key":  "testing"
          },
         "purgeFilesCron" : "0 0 23 * * ?",
-        "purgeMaxDelayAlive" : 30,
+        "purgeMinDelayAlive" : 1,
         "publicConf": {
             <% if ("true".equals(xitiSwitch)) { %>
             "xiti": {
