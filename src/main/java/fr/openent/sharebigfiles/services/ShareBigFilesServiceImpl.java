@@ -26,7 +26,7 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 	}
 
 	@Override
-	public void updateDownloadLogs(final String id, final UserInfos user) {
+	public void updateDownloadLogs(final String id, final UserInfos user, final Handler<JsonObject> handler) {
 		final QueryBuilder query = QueryBuilder.start("_id").is(id);
 
 		final String userDisplayName = user.getFirstName() + " " + user.getLastName();
@@ -34,7 +34,17 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 		final MongoUpdateBuilder modifier = new MongoUpdateBuilder();
 		modifier.addToSet("downloadLogs", logElem);
 		mongo.update(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(query),
-				modifier.build());
+				modifier.build(), new Handler<Message<JsonObject>>() {
+					@Override
+					public void handle(Message<JsonObject> event) {
+						if ("ok".equals(event.body().getString("status"))) {
+							handler.handle(new JsonObject().putString("status", "ok"));
+						} else {
+							handler.handle(new JsonObject().putString("status", "error")
+									.putString("message", event.body().getString("message")));
+						}
+					}
+				});
 	}
 
 	@Override

@@ -12,8 +12,9 @@ public interface ShareBigFilesService {
 	 * updateDownloadLogs
 	 * @param id id
 	 * @param user user info
+	 * @param handler callback
      */
-	void updateDownloadLogs(final String id, final UserInfos user);
+	void updateDownloadLogs(final String id, final UserInfos user, final Handler<JsonObject> handler);
 
 	/**
 	 * getQuotaData

@@ -209,8 +209,15 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 								storage.sendFile(object.getString("fileId"), object.getString("fileNameLabel"), request, false, object.getObject("fileMetadata"), new Handler<AsyncResult<Void>>() {
 									@Override
 									public void handle(AsyncResult<Void> event) {
-										//TODO add call back
-										shareBigFilesService.updateDownloadLogs(sbfId, user);
+										shareBigFilesService.updateDownloadLogs(sbfId, user, new Handler<JsonObject>() {
+											@Override
+											public void handle(JsonObject event) {
+												if ("error".equals(event.getString("status"))) {
+													log.error("Error updated user download log in collection " + ShareBigFiles.SHARE_BIG_FILE_COLLECTION +
+															" : " + event.getString("message"));
+												}
+											}
+										});
 									}
 								});
 							} else {
