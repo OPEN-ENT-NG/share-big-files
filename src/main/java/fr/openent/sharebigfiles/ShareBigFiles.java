@@ -8,6 +8,7 @@ import fr.openent.sharebigfiles.cron.DeleteOldFile;
 import org.entcore.common.http.BaseServer;
 import org.entcore.common.http.filter.ShareAndOwner;
 import org.entcore.common.mongodb.MongoDbConf;
+import org.entcore.common.notification.TimelineHelper;
 import org.entcore.common.service.CrudService;
 import org.entcore.common.service.impl.MongoDbCrudService;
 import org.entcore.common.storage.Storage;
@@ -16,7 +17,8 @@ import java.text.ParseException;
 
 public class ShareBigFiles extends BaseServer {
 
-	public final static String SHARE_BIG_FILE_COLLECTION = "bigfile";
+	public static final String SHARE_BIG_FILE_COLLECTION = "bigfile";
+	public static final String SHARE_BIG_FILE = "shareBigFiles";
 
 	@Override
 	public void start() {
@@ -47,11 +49,12 @@ public class ShareBigFiles extends BaseServer {
 		setDefaultResourceFilter(new ShareAndOwner());
 
 		final String purgeFilesCron = container.config().getString("purgeFilesCron");
+		final TimelineHelper timelineHelper = new TimelineHelper(vertx, vertx.eventBus(), container);
 
 		if (purgeFilesCron != null && !purgeFilesCron.isEmpty()) {
 			try {
 				new CronTrigger(vertx, purgeFilesCron).schedule(
-						new DeleteOldFile(vertx, storage)
+						new DeleteOldFile(timelineHelper, storage)
 						);
 			} catch (ParseException e) {
 				log.fatal("[Share Big File] Invalid cron expression.", e);
