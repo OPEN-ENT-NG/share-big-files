@@ -32,9 +32,10 @@
 					</div>
     			</td>
     			<td class="content">
-                    <a ng-click="openSharebigfiles(sharebigfiles)">
+                    <a ng-click="openSharebigfiles(sharebigfiles)" href="/sharebigfiles/file" download>
 						[[sharebigfiles.name]]
 					</a>
+
                 </td>
     			<td class="user">
                     <a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[sharebigfiles.owner.displayName]]</a>

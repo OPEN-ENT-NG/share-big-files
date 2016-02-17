@@ -31,6 +31,10 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		return date.create(dateStr.split(' ')[0]).format('DD MMMM YYYY')
 	}
 
+	$scope.openNewFolderView = function(){
+		template.open('lightbox', 'share')
+	}
+
 	$scope.postFiles = function(){
 			_.forEach($scope.newItem.newFiles, function(targetAttachment){
 				var attachmentObj = {
@@ -42,13 +46,15 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 				}
 
 				if($scope.newItem.loadingAttachments)
-					$scope.newItem.loadingAttachments.push(attachmentObj)
+					$scope.newItem.loadingAttachments.push(attachmentObj);
 				else
-					$scope.newItem.loadingAttachments = [attachmentObj]
+					$scope.newItem.loadingAttachments = [attachmentObj];
 
-				var formData = new FormData()
-				formData.append('file', attachmentObj.file)
-				formData.append('expDate', $scope.newItem.expDate)
+				var formData = new FormData();
+				formData.append('file', attachmentObj.file);
+				formData.append('expDate', $scope.newItem.expDate);
+				formData.append('label', $scope.newItem.label);
+
 				$scope.newItem.postAttachment(formData, {
 					xhr: function() {
 						var xhr = new window.XMLHttpRequest();

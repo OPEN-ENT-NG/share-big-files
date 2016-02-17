@@ -47,11 +47,13 @@
 	<div class="row">
 		<attachments apps="['workspace']" ng-model="ticket.newAttachments"></attachments>
 	</div>
-	<strong>Upload :</strong>
+	<strong>Upload </strong>
 	<input type="file" files-input-change="postFiles()" ng-model="newItem.newFiles" />
 	</br>
-
-	<strong>Expiration :</strong>
+	<strong>Nom du fichier :</strong>
+	<input type="text" ng-model="newItem.label" maxlength="50"/>
+	</br>
+	<strong>Expirations :</strong>
 	<select name="expiration" ng-model="newItem.expDate" ng-options="exp for exp in expDateList.tab">
 	</select>
 	<!--Test-->
@@ -73,6 +75,7 @@
 				<behaviour name="manager" resource="sharebigfilesList.selection()">
 					<button class="cell" translate content="remove" ng-click="removesharebigfiles()"/>
 				</behaviour>
+			</div>
 		</div>
 	</section>
 
@@ -108,4 +111,4 @@
 	<!--</article>-->
 	<!--</div>-->
 
-</div class="row">
+</div>

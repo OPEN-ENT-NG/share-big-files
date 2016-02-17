@@ -20,20 +20,20 @@
 
 		<ul>
 			<li>
-				<a ng-click="template.open('exemple', 'share')">Catégorie 1</a>
+				<a ng-click="openNewFolderView()">Catégorie 11</a>
 			</li>
 			<li>
-				<a ng-click="template.open('exemple', 'exemples/patchwork2')">Catégorie 2<a>
+				<a ng-click="template.open('exemple', 'exemples/patchwork2')">Catégorie 2</a>
 			</li>
 			<li>
-				<a ng-click="template.open('exemple', 'exemples/patchwork3')">Catégorie 3</a>
+				<a ng-click="openNewFolderView()">Catégorie 3</a>
 			</li>
 			<li>
 				<a ng-click="template.close('exemple')">Fermer</a>
 			</li>
 		</ul>
 		<p ng-if="template.isEmpty('exemple')">Le conteneur est vide</p>
-		<container template="exemple"></container>
+		<container template="lightbox"></container>
 	</body>
 
 </html>
