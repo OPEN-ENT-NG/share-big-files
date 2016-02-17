@@ -1,17 +1,24 @@
 package fr.openent.sharebigfiles.services;
 
-import org.vertx.java.core.http.HttpServerRequest;
+import org.entcore.common.user.UserInfos;
+import org.vertx.java.core.Handler;
+import org.vertx.java.core.json.JsonObject;
 
 /**
- * Generic REST service for Generic_app.
+ * MongoDB service.
  */
 public interface ShareBigFilesService {
-	public void create(final HttpServerRequest request);
+	/**
+	 * updateDownloadLogs
+	 * @param id id
+	 * @param user user info
+     */
+	void updateDownloadLogs(final String id, final UserInfos user);
 
-	public void download(final HttpServerRequest request);
-
-	public void delete(final HttpServerRequest request);
-
-	public void list(final HttpServerRequest request);
-
+	/**
+	 * getQuotaData
+	 * @param userId user id
+	 * @param handler handler
+     */
+	void getQuotaData(final String userId, final Handler<JsonObject> handler);
 }
