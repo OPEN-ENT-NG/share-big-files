@@ -26,7 +26,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 			template.open('main', 'library')
 		}
 	})
-
+//
 	$rootScope.longDate = function(dateStr){
 		return date.create(dateStr.split(' ')[0]).format('DD MMMM YYYY')
 	}
