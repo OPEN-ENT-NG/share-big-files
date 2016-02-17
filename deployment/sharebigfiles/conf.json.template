@@ -19,9 +19,9 @@
               "container": "testcontainer" ,
                "user":  "test:tester",
               "key":  "testing"
-         },
+        },
+        "maxQuota" : 2147483648,
         "purgeFilesCron" : "0 0 23 * * ?",
-        "purgeMinDelayAlive" : 1,
         "publicConf": {
             <% if ("true".equals(xitiSwitch)) { %>
             "xiti": {
