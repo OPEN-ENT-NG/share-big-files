@@ -117,8 +117,6 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 						@Override
 						public void handle(JsonObject event) {
 							if ("ok".equals(event.getString("status"))) {
-								//fixme check file size : The file size of httpuploadrequest is null
-								//fixme Damien : An another idea ?
 								final String idFile = event.getString("_id");
 								final JsonObject metadata = event.getObject("metadata");
 								shareBigFilesService.getQuotaData(user.getUserId(), new Handler<JsonObject>() {
@@ -171,6 +169,8 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 		final JsonObject object = new JsonObject();
 		object.putString("fileId", idFile);
 		object.putString("fileNameLabel", fileNameLabel);
+		//for the cron task knows the locale of user
+		object.putString("locale", I18n.acceptLanguage(request));
 
 		Date expiryDate = new Date();
 		try {
@@ -209,6 +209,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 								storage.sendFile(object.getString("fileId"), object.getString("fileNameLabel"), request, false, object.getObject("fileMetadata"), new Handler<AsyncResult<Void>>() {
 									@Override
 									public void handle(AsyncResult<Void> event) {
+										//TODO add call back
 										shareBigFilesService.updateDownloadLogs(sbfId, user);
 									}
 								});
