@@ -1,0 +1,36 @@
+<div class="row">
+    <h1 class="six cell" data-reload>
+        <a><i class="sharebigfiles"></i><span translate content="sharebigfiles.downloadedFileLog"></span></a>
+    </h1>
+    <div class="action-buttons right-magnet">
+        <button ng-click="$location.url('http://localhost:8090/sharebigfiles'))">Retour</button>
+    </div>
+    <div class="row">
+        <span translate content="file">film_classe_3</span>
+    </div>
+</div>
+
+<article class="list-view">
+    <table class="twelve">
+        <thead class="tableheader whiteheader">
+        <tr>
+            <th class="user">
+                <span translate content="user" ng-click="orderBy('owner.displayName')"></span>
+            </th>
+            <th class="content">
+                <span translate content="downloadDate" ng-click="orderBy('modified.$date')"></span>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="sharebigfiles in logs.all | orderBy:ordering" ng-class="{ checked: sharebigfiles.selected }">
+            <td class="user">
+                <a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[sharebigfiles.user]]</a>
+            </td>
+            <td class="content">
+                [[sharebigfiles.date]]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</article>

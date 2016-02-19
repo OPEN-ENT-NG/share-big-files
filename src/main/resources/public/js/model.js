@@ -75,6 +75,9 @@ function SharebigfilesCollection(){
 	})
 }
 
+function Log(data) {
+}
+
 function Upload(data) {
 }
 
@@ -87,11 +90,14 @@ Upload.prototype.postAttachment = function (attachment, options) {
 
 model.build = function(){
 	model.me.workflow.load(['sharebigfiles'])
-	this.makeModels([Sharebigfiles, SharebigfilesCollection, Upload])
+	this.makeModels([Sharebigfiles, SharebigfilesCollection, Upload, Log])
 
 	this.sharebigfilesCollection = new SharebigfilesCollection()
 	this.collection(Upload,{
 		sync:"/sharebigfiles/public/json/bigfilesList.json"
+	});
+	this.collection(Log,{
+		sync:"/sharebigfiles/public/json/fileDownload.json"
 	});
 }
 

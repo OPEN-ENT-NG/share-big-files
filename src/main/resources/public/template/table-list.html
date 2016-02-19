@@ -1,3 +1,17 @@
+<div class="row">
+
+	<nav class="contextual-buttons twelve cell">
+		<div class="action-buttons">
+			<button ng-click="openNewFolderView()">Upload</button>
+		</div>
+		<lightbox show="lightbox.show" on-close="lightbox.show=false">
+			<container template="lightbox"></container>
+		</lightbox>
+	</nav>
+
+</div>
+<div class="row">
+</div>
 <article class="list-view">
 	<table class="twelve">
 		<thead class="tableheader whiteheader">
@@ -11,6 +25,9 @@
 				</th>
     			<th class="user">
 					<span translate content="from" ng-click="orderBy('owner.displayName')"></span>
+				</th>
+				<th class="user">
+					<span translate content="downloaded" ng-click="orderBy('owner.displayName')"></span>
 				</th>
     			<th class="date">
 					<span translate content="date" ng-click="orderBy('modified.$date')"></span>
@@ -35,13 +52,17 @@
                     <a ng-click="openSharebigfiles(sharebigfiles)" href="/sharebigfiles/file" download>
 						[[sharebigfiles.name]]
 					</a>
-
                 </td>
     			<td class="user">
                     <a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[sharebigfiles.owner.displayName]]</a>
                 </td>
+				<td class="user">
+					<a ng-click="downloadFileLog()">
+						[[sharebigfiles.downloaded]] fois
+					</a>
+				</td>
     			<td class="date">
-                    [[$root.longDate(sharebigfiles.startDate)]]
+                    	[[$root.longDate(sharebigfiles.startDate)]]
                 </td>
     		</tr>
 		</tbody>

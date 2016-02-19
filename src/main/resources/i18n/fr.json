@@ -1,19 +1,26 @@
 {
-	"sharebigfiles.title"					: "Sharebigfiles",
+	"sharebigfiles.title"								: "Sharebigfiles",
 
-	"sharebigfiles.notify.saved"				: "La donnée a été sauvegardée",
-	"sharebigfiles.notify.modified"			: "La donnée a été modifiée",
-	"sharebigfiles.notify.deleted"			: "La donnée a été supprimée",
-	"sharebigfiles.notify.shared"			: "La donnée a été partagée",
-	"sharebigfiles.notify.trashed"			: "La donnée a été mise à la corbeille",
+	"sharebigfiles.notify.saved"						: "La donnée a été sauvegardée",
+	"sharebigfiles.notify.modified"						: "La donnée a été modifiée",
+	"sharebigfiles.notify.deleted"						: "La donnée a été supprimée",
+	"sharebigfiles.notify.shared"						: "La donnée a été partagée",
+	"sharebigfiles.notify.trashed"						: "La donnée a été mise à la corbeille",
 
-	"sharebigfiles.mine"						: "Mes sharebigfiles",
-	"sharebigfiles.shared"					: "Sharebigfiles partagés avec moi",
-	"sharebigfiles.trash"					: "Corbeille",
+	"sharebigfiles.too.large"							: "Espace insuffisant pour stocker le fichier",
+	"sharebigfiles.too.large.limit"						: "Fichier(s) trop volumineux. Taille maximum autorisée : ",
+	"sharebigfiles.too.large.max"						: "Espace insuffisant pour stocker le(s) fichier(s). Espace restant : ",
 
-	"sharebigfiles.manager"					: "Gestion",
-	"sharebigfiles.contrib"					: "Contribution",
-	"sharebigfiles.read"						: "Lecture",
+	"sharebigfiles.mine"								: "Mes sharebigfiles",
+	"sharebigfiles.shared"								: "Sharebigfiles partagés avec moi",
+	"sharebigfiles.trash"								: "Corbeille",
+
+	"sharebigfiles.upload"								: "Upload",
+	"sharebigfiles.downloadedFileLog"					: "Journal de téléchargement",
+
+	"sharebigfiles.manager"								: "Gestion",
+	"sharebigfiles.contrib"								: "Contribution",
+	"sharebigfiles.read"								: "Lecture",
 
 	"unsetImage"										: "Supprimer l'image",
 
@@ -33,6 +40,13 @@
 	"title"												: "Titre",
 	"from"												: "De",
 	"date"												: "Date",
+	"downloaded"										: "Téléchargé",
+	"user"												: "Utilisateur",
+	"downloadDate"										: "Téléchargé le",
+	"file"												: "Fichier : ",
+
+	"mb"												: "Mo",
+	"max.file.size"										: "2000000",
 
 	"loading"											: "Chargement",
 	"import.file"										: "Importer",

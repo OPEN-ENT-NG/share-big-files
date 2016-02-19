@@ -5,7 +5,8 @@
   "size":"128",
   "startDate":"05/01/2016",
   "endDate":"05/02/2016",
-    "owner":{"userId":"96325db2-02d9-4f83-9ed8-11f8134a7edc"}
+  "downloaded":"3",
+  "owner":{"userId":"96325db2-02d9-4f83-9ed8-11f8134a7edc"}
   },
   {
     "name":"File 2",
@@ -13,6 +14,7 @@
     "size":"128",
     "startDate":"05/01/2016",
     "endDate":"05/02/2016",
+    "downloaded":"5",
     "owner":{"userId":"96325db2-02d9-4f83-9ed8-11f8134a7edc"}
   }
 ]

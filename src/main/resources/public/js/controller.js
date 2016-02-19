@@ -3,6 +3,9 @@
 **/
 routes.define(function($routeProvider){
 	$routeProvider
+		.when('/downloadFileLog', {
+			action: 'downloadFileLog'
+		})
 		.otherwise({
 			action: 'defaultView'
 		})
@@ -18,12 +21,20 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	$scope.template = template
 	$scope.expDateList = {tab:[1,5,10,30]};
 	$scope.newItem = new Upload();
+	$scope.newLog = new Log();
 
+	$scope.maxFileSize = parseInt(lang.translate('max.file.size'));
+	$scope.lightbox = {}
 	$scope.uploads = model.uploads;
+	$scope.logs = model.logs;
 
 	route({
 		defaultView: function(){
 			template.open('main', 'library')
+		},
+		downloadFileLog: function(){
+			template.open('list', 'downloadFileLog')
+			//$scope.readMail(new Mail({ id: params.mailId }));
 		}
 	})
 
@@ -32,8 +43,37 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	}
 
 	$scope.openNewFolderView = function(){
-		template.open('lightbox', 'share')
+		//ui.showLightbox();
+		$scope.lightbox.show = true;
+		template.open('lightbox', 'importFile')
 	}
+
+	$scope.maxSize = function(){
+		var leftOvers = model.quota.max - model.quota.used;
+		if(model.quota.unit === 'gb'){
+			leftOvers *= 1000;
+		}
+		return leftOvers;
+	};
+
+	$scope.totalFilesSize = function(fileList){
+		var size = 0
+		if(!fileList.files)
+			return size
+		for(var i = 0; i < fileList.files.length; i++){
+			size += fileList.files[i].size
+		}
+		return size
+	}
+
+	$scope.goShareBigFiles = function() {
+		template.open('main', 'sharebigfiles')
+	};
+
+	$scope.downloadFileLog = function(){
+		template.open('list', 'downloadFileLog');
+		//setCurrentFile(file, true);
+	};
 
 	$scope.postFiles = function(){
 			_.forEach($scope.newItem.newFiles, function(targetAttachment){
