@@ -59,8 +59,6 @@
 	"share.search.placeholder"							: "Ex : Sabine, Dupont, Enseignants de l'école...",
 	"seemore"											: "Voir la suite",
 
-
-	"sharebigfiles.cron.message.subject"				: "Suppression automatique du fichier {0} expiré le {1}",
-	"sharebigfiles.cron.message.body"				    : "Votre fichier {0}, déposé le {1}, expirant le {2}, a été détruit le {3} de l'application 'partage de fichier lourd'.",
+	"sharebigfiles.cron.notify.body"				    : "Votre fichier déposé le {0}, expirant le {1}, a été détruit de l'application.",
 	"sharebigfiles.exceeded.quota"                      : "Le fichier {0} est trop volumineux, veuillez ne pas dépasser le quota."
 }

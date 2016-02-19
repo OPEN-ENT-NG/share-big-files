@@ -113,7 +113,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 			@Override
 			public void handle(final UserInfos user) {
 				if (user != null) {
-					storage.writeUploadFile(request,  ShareBigFilesController.this.maxQuota, new Handler<JsonObject>() {
+					storage.writeUploadFile(request, ShareBigFilesController.this.maxQuota, new Handler<JsonObject>() {
 						@Override
 						public void handle(JsonObject event) {
 							if ("ok".equals(event.getString("status"))) {
@@ -125,9 +125,8 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 										if ("ok".equals(event.getString("status"))) {
 											Long residualQuota = event.getLong("residualQuota");
 											residualQuota = residualQuota - metadata.getLong("size");
-											residualQuota = (residualQuota < 0) ? -1L : residualQuota;
 
-											if (residualQuota.equals(-1L)) {
+											if (residualQuota < 0) {
 												storage.removeFile(idFile, new Handler<JsonObject>() {
 													@Override
 													public void handle(JsonObject event) {
@@ -143,6 +142,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 											} else {
 												final String date = request.formAttributes().get("expiryDate");
 												final String fileNameLabel = request.formAttributes().get("fileNameLabel");
+
 												ShareBigFilesController.this.create(date, fileNameLabel, idFile, metadata, user, request);
 											}
 										} else {

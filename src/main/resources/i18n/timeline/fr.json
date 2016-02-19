@@ -1,3 +1,4 @@
 {
-    "timeline.sharebigfile.has.shared": "vous a partagé un fichier"
+    "timeline.sharebigfile.has.shared": "vous a partagé un fichier",
+    "timeline.notify.delete": "Suppression automatique du fichier"
 }
