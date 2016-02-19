@@ -12,6 +12,7 @@ routes.define(function($routeProvider){
 })
 
 /**
+ *
 	Wrapper controller
 	------------------
 	Main controller.
