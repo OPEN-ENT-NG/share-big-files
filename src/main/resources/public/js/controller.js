@@ -20,8 +20,13 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 
 	$scope.template = template
 	$scope.expDateList = {tab:[1,5,10,30]};
+	$scope.expDateTest = [1,5,10,30,50,100];
+
 	$scope.newItem = new Upload();
 	$scope.newLog = new Log();
+
+	$scope.newItem.expDate = 1;
+	$scope.date = new Date();
 
 	$scope.maxFileSize = parseInt(lang.translate('max.file.size'));
 	$scope.lightbox = {}
@@ -49,21 +54,46 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	}
 
 	$scope.maxSize = function(){
-		var leftOvers = model.quota.max - model.quota.used;
-		if(model.quota.unit === 'gb'){
-			leftOvers *= 1000;
-		}
-		return leftOvers;
+		//var leftOvers = model.quota.max - model.quota.used;
+		//if(model.quota.unit === 'gb'){
+		//	leftOvers *= 1000;
+		//}
+		//return leftOvers;
 	};
 
 	$scope.totalFilesSize = function(fileList){
 		var size = 0
-		if(!fileList.files)
-			return size
-		for(var i = 0; i < fileList.files.length; i++){
-			size += fileList.files[i].size
-		}
+		//if(!fileList.files)
+		//	return size
+		//for(var i = 0; i < fileList.files.length; i++){
+		//	size += fileList.files[i].size
+		//}
 		return size
+	}
+
+	$scope.getAppropriateDataUnit = function(bytes){
+		var order = 0
+		var orders = {
+			0: lang.translate("byte"),
+			1: "Ko",
+			2: "Mo",
+			3: "Go",
+			4: "To"
+		}
+		var finalNb = bytes
+		while(finalNb >= 1024 && order < 4){
+			finalNb = finalNb / 1024
+			order++
+		}
+		return {
+			nb: finalNb,
+			order: orders[order]
+		}
+	}
+
+	$scope.formatDocumentSize = function(size){
+		var formattedData = $scope.getAppropriateDataUnit(size)
+		return (Math.round(formattedData.nb*10)/10)+" "+formattedData.order
 	}
 
 	$scope.goShareBigFiles = function() {
@@ -73,6 +103,48 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	$scope.downloadFileLog = function(){
 		template.open('list', 'downloadFileLog');
 		//setCurrentFile(file, true);
+	};
+
+	$scope.shareBigFilesOpen = function(){
+		template.open('list', 'table-list');
+		//setCurrentFile(file, true);
+	};
+
+	$scope.shortDate = function(dateItem){
+		if(!dateItem){
+			return moment().format('L');
+		}
+
+		if(typeof dateItem === "number")
+			return date.format(dateItem, 'L')
+
+		if(typeof dateItem === "string")
+			return date.format(dateItem.split(' ')[0], 'L')
+
+		return moment().format('L');
+	}
+
+	$scope.longDate = function(dateString){
+		if(!dateString){
+			return moment().format('D MMMM YYYY');
+		}
+
+		return date.format(dateString.split(' ')[0], 'D MMMM YYYY')
+	}
+
+	$scope.fileList = function(){
+		var list = $scope.newItem.log();
+
+		//$scope.newItem.getList(
+        //
+		//).done(function(result){
+		//	for(var i = 0; i < result.length; i++){
+		//		$scope.newItem.attachments.push(JSON.parse(JSON.stringify(result)))
+		//	}
+		//}).e400(function(e){
+		//	var error = JSON.parse(e.responseText);
+		//	notify.error(error.error);
+		//})
 	};
 
 	$scope.postFiles = function(){
@@ -92,8 +164,8 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 
 				var formData = new FormData();
 				formData.append('file', attachmentObj.file);
-				formData.append('expDate', $scope.newItem.expDate);
-				formData.append('label', $scope.newItem.label);
+				formData.append('expiryDate', "2016-02-25 10:00.30.555");
+				formData.append('fileNameLabel', $scope.newItem.label);
 
 				$scope.newItem.postAttachment(formData, {
 					xhr: function() {
@@ -249,8 +321,18 @@ function FolderController($scope, $rootScope, model, template){
 		template.open('list', 'sharebigfiles-infos')
 	}
 
+	$scope.download = false;
+
 	$scope.removeIcon = function(){
 		$scope.sharebigfiles.thumbnail = ""
+	}
+	$scope.downloadsharebigfiles = function() {
+		if($scope.download == false){
+			$scope.download = true;
+		}
+		else {
+			$scope.download = false;
+		}
 	}
 
 	$scope.removesharebigfiles = function(){

@@ -26,16 +26,22 @@
     			<th class="user">
 					<span translate content="from" ng-click="orderBy('owner.displayName')"></span>
 				</th>
-				<th class="user">
-					<span translate content="downloaded" ng-click="orderBy('owner.displayName')"></span>
+				<th class="date">
+					<span translate content="date" ng-click="orderBy('modified.$date')"></span>
 				</th>
     			<th class="date">
-					<span translate content="date" ng-click="orderBy('modified.$date')"></span>
+					<span translate content="Expire" ng-click="orderBy('modified.$date')"></span>
+				</th>
+				<th class="content">
+					<span translate content="downloaded" ng-click="orderBy('owner.displayName')"></span>
+				</th>
+				<th class="content">
+					<span translate content="size" ng-click="orderBy('owner.displayName')"></span>
 				</th>
     		</tr>
 		</thead>
 		<tbody>
-    		<tr ng-repeat="sharebigfiles in uploads.all | orderBy:ordering" ng-class="{ checked: sharebigfiles.selected }">
+    		<tr ng-repeat="sharebigfiles in logs.all | orderBy:ordering" ng-class="{ checked: sharebigfiles.selected }">
 				<td class="icon">
 					<behaviour name="manager" resource="sharebigfiles">
 						<input type="checkbox" ng-model="sharebigfiles.selected"/>
@@ -50,20 +56,26 @@
     			</td>
     			<td class="content">
                     <a ng-click="openSharebigfiles(sharebigfiles)" href="/sharebigfiles/file" download>
-						[[sharebigfiles.name]]
+						[[sharebigfiles.fileNameLabel]]
 					</a>
                 </td>
     			<td class="user">
                     <a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[sharebigfiles.owner.displayName]]</a>
                 </td>
-				<td class="user">
-					<a ng-click="downloadFileLog()">
-						[[sharebigfiles.downloaded]] fois
-					</a>
+				<td class="date">
+					[[sharebigfiles.creationDate()]]
 				</td>
     			<td class="date">
-                    	[[$root.longDate(sharebigfiles.startDate)]]
+					[[sharebigfiles.expireDate()]]
                 </td>
+				<td class="content">
+					<a ng-click="downloadFileLog()">
+						[[sharebigfiles.downloadLogs.length]] fois
+					</a>
+				</td>
+				<td class="content">
+					[[formatDocumentSize(sharebigfiles.fileMetadata.size)]]
+				</td>
     		</tr>
 		</tbody>
 	</table>

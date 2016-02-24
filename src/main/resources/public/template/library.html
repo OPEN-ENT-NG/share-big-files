@@ -4,11 +4,6 @@
 			<a><i class="sharebigfiles"></i><span translate content="sharebigfiles.title"></span></a>
 		</h1>
 		<nav class="contextual-buttons eight cell">
-			<div class="action-buttons">
-				<button workflow="sharebigfiles.create" workflow="sharebigfiles.create" ng-click="newsharebigfiles()">
-					<i class="add"></i><span translate content="create"></span>
-				</button>
-			</div>
 			<div class="display-buttons" ng-if="template.contains('list', 'table-list') || template.contains('list', 'icons-list')">
 				<i class="show-list"
 				   ng-class="{ selected: template.contains('list', 'table-list') }"
@@ -21,24 +16,8 @@
 	</div>
 
 	<div class="row">
-		<section class="vertical four cell">
-			<nav class="vertical">
-				<ul>
-					<li ng-repeat="(name, folderProps) in folders">
-						<a ng-if="!folderProps.workflow"
-						   ng-click="folderProps.list()"
-						   translate content="sharebigfiles.[[name]]"
-						   ng-class="{ selected: sharebigfilesList.folder === name }"/>
-						<a ng-if="folderProps.workflow"
-						   workflow="[[folderProps.workflow]]"
-						   ng-click="folderProps.list()"
-						   translate content="sharebigfiles.[[name]]"
-						   ng-class="{ selected: sharebigfilesList.folder === name }"/>
-					</li>
-				</ul>
-			</nav>
-		</section>
-		<section class="eight cell">
+
+		<section class="ten cell right-magnet">
 			<div ng-include="template.containers.list" class="row"></div>
 		</section>
 
@@ -63,6 +42,13 @@
 				<behaviour name="manager" resource="sharebigfilesList.selection()">
 					<button class="cell" translate content="remove" ng-click="removesharebigfiles()"/>
 				</behaviour>
+				<behaviour name="manager" resource="sharebigfilesList.selection()">
+					<button class="cell" translate content="download" ng-click="downloadsharebigfiles()"/>
+				</behaviour>
+				<div ng-show="$scope.download" class="four cells right-magnet">
+					<progress-bar max="100" filled="35" unit="%"></progress-bar>
+				</div>
+
 			</div>
 		</div>
 	</section>

@@ -5,13 +5,14 @@
             <div class="twelve cell reduce-block-eight">
 
                 <strong>Nom du fichier :</strong>
-                <input type="text" ng-model="newItem.label" maxlength="50"/>
+                <input ng-required="true" type="text" ng-model="newItem.label" maxlength="50"/>
                 </br>
                 <strong>Expirations :</strong>
-                <select name="expiration" ng-model="newItem.expDate" ng-options="exp for exp in expDateList.tab">
+                <select name="expiration" ng-model="newItem.expDate" ng-options="exp for exp in expDateTest">
                 </select>
+                jours, soit le [[date | date:'dd/MM/yyyy']]
                 </br>
-
+                <!--[[$scope.expDateList.tab(0)]]-->
                 <input type="file" files-input-change="postFiles()" ng-model="newItem.newFiles" />
 
                 <div ng-if="newFile.blockIdentical && newFile.warnIdentical">
@@ -23,11 +24,15 @@
                 <div ng-if="!(totalFilesSize(newFile) >= maxFileSize) && totalFilesSize(newFile) >= (maxSize() * 1024 * 1024)">
                     <div class="warning">[[lang.translate('file.too.large.max') + maxSize() + lang.translate('mb')]]</div>
                 </div>
+                </br>
+                <span ng-if="newItem.loadingAttachments.length > 0">
+                    <progress-bar max="100" filled="newItem.loadingAttachments[0].progress.completion" unit="%"></progress-bar>
+                </span>
 
 
             </div>
             <div class="lightbox-buttons fluid right-magnet">
-                <button ng-click="">Enregistrer</button>
+                <button ng-click="fileList()">Enregistrer</button>
             </div>
         </div>
     </div>
