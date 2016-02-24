@@ -95,6 +95,11 @@ Upload.prototype.getList = function () {
 	return http().get("/sharebigfiles/list")
 };
 
+Upload.prototype.getQuota = function () {
+	return http().get("/sharebigfiles/quota")
+};
+
+
 ///////////////////////
 ///   MODEL.BUILD   ///
 

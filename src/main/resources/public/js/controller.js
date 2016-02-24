@@ -20,18 +20,21 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 
 	$scope.template = template
 	$scope.expDateList = {tab:[1,5,10,30]};
-	$scope.expDateTest = [1,5,10,30,50,100];
 
 	$scope.newItem = new Upload();
 	$scope.newLog = new Log();
 
 	$scope.newItem.expDate = 1;
-	$scope.date = new Date();
+	$scope.newItem.residualQuota = 0;
+
+	var myDate = new Date();
+	$scope.date = myDate.setDate(myDate.getDate() + $scope.newItem.expDate);
 
 	$scope.maxFileSize = parseInt(lang.translate('max.file.size'));
 	$scope.lightbox = {}
 	$scope.uploads = model.uploads;
 	$scope.logs = model.logs;
+
 
 	route({
 		defaultView: function(){
@@ -51,6 +54,12 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		//ui.showLightbox();
 		$scope.lightbox.show = true;
 		template.open('lightbox', 'importFile')
+	}
+
+	$scope.updateExpirationDate = function() {
+		myDate = new Date();
+		myDate.setDate(myDate.getDate() + $scope.newItem.expDate);
+		$scope.date = myDate;
 	}
 
 	$scope.maxSize = function(){
@@ -136,7 +145,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		var list = $scope.newItem.log();
 
 		//$scope.newItem.getList(
-        //
+		//
 		//).done(function(result){
 		//	for(var i = 0; i < result.length; i++){
 		//		$scope.newItem.attachments.push(JSON.parse(JSON.stringify(result)))
@@ -145,6 +154,17 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		//	var error = JSON.parse(e.responseText);
 		//	notify.error(error.error);
 		//})
+	};
+
+	$scope.getQuota = function(){
+		$scope.newItem.getQuota(
+
+		).done(function(result){
+			$scope.newItem.residualQuota = result.residualQuota;
+		}).e400(function(e){
+			var error = JSON.parse(e.responseText);
+			notify.error(error.error);
+		})
 	};
 
 	$scope.postFiles = function(){
