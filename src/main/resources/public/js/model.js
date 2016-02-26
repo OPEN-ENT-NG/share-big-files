@@ -76,15 +76,19 @@ function SharebigfilesCollection(){
 }
 
 function Log(data) {
+
+}
+
+function Upload(data) {
 	this.creationDate = function(){
 		return moment(parseInt(this.created.$date)).format('DD/MM/YYYY HH:mm')
 	};
 	this.expireDate = function(){
 		return moment(parseInt(this.expiryDate.$date)).format('DD/MM/YYYY HH:mm')
 	};
-}
-
-function Upload(data) {
+	this.downloadedDate = function(){
+		return moment(parseInt(this.downloadDate.$date)).format('DD/MM/YYYY HH:mm')
+	};
 }
 
 Upload.prototype.postAttachment = function (attachment, options) {
@@ -99,6 +103,13 @@ Upload.prototype.getQuota = function () {
 	return http().get("/sharebigfiles/quota")
 };
 
+Upload.prototype.getExpirationDateList = function () {
+	return http().get("/sharebigfiles/expirationDateList")
+};
+
+Upload.prototype.downloadFile = function (id) {
+	return "/sharebigfiles/download/"+id;
+};
 
 ///////////////////////
 ///   MODEL.BUILD   ///
@@ -109,15 +120,15 @@ model.build = function(){
 
 	this.sharebigfilesCollection = new SharebigfilesCollection()
 	this.collection(Upload,{
-		sync:"/sharebigfiles/public/json/bigfilesList.json"
-	});
-	this.collection(Log,{
 		sync:function() {
 			var that = this;
 			http().get('/sharebigfiles/list').done(function (data) {
 				that.load(data)
 			})
 		}
+	});
+	this.collection(Log,{
+		sync:"/sharebigfiles/public/json/fileDownload.json"
 	});
 }
 

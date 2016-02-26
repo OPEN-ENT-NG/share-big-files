@@ -57,6 +57,8 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 
 	private final Long maxQuota;
 
+	private JsonArray expirationDateList;
+
 	private static final I18n i18n = I18n.getInstance();
 
 	/**
@@ -83,10 +85,11 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	 * Creates a new controller.
 	 */
 	public ShareBigFilesController(final Storage storage, CrudService crudService,
-								   ShareBigFilesService shareBigFilesService, final Logger log, final Long maxQuota) {
+								   ShareBigFilesService shareBigFilesService, final Logger log, final Long maxQuota, final JsonArray expirationDateList) {
 		super(ShareBigFiles.SHARE_BIG_FILE_COLLECTION);
 		this.log = log;
 		this.maxQuota = maxQuota;
+		this.expirationDateList = expirationDateList;
 		this.storage = storage;
 		this.shareBigFileCrudService = crudService;
 		this.shareBigFilesService = shareBigFilesService;
@@ -188,7 +191,6 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	}
 
 	@Get("/download/:id")
-	@SecuredAction(value = view_ressource, type = ActionType.RESOURCE)
 	public void download(final HttpServerRequest request) {
 		final String sbfId = request.params().get("id");
 		if (sbfId == null || sbfId.trim().isEmpty()) {
@@ -235,12 +237,19 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 		});
 	}
 
+	@Get("/expirationDateList")
+	@SecuredAction(value = read_only, type = ActionType.AUTHENTICATED)
+	public void getSkins(final  HttpServerRequest request) {
+		renderJson(request, new JsonObject().putArray("expirationDateList", expirationDateList)
+				, 200);
+	}
+
 	/**
 	 * Returns the associated data.
 	 * @param request Client request containing the id.
 	 */
 	@Get("/quota")
-	@SecuredAction(value = contrib_ressource, type = ActionType.RESOURCE)
+//	@SecuredAction(value = view_ressource, type = ActionType.RESOURCE)
 	public void getQuota(final HttpServerRequest request) {
 		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
 			@Override

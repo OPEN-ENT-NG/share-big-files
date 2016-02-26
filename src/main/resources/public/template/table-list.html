@@ -38,10 +38,12 @@
 				<th class="content">
 					<span translate content="size" ng-click="orderBy('owner.displayName')"></span>
 				</th>
+				<th class="content">
+				</th>
     		</tr>
 		</thead>
 		<tbody>
-    		<tr ng-repeat="sharebigfiles in logs.all | orderBy:ordering" ng-class="{ checked: sharebigfiles.selected }">
+    		<tr ng-repeat="sharebigfiles in uploads.all | orderBy:ordering" ng-class="{ checked: sharebigfiles.selected }">
 				<td class="icon">
 					<behaviour name="manager" resource="sharebigfiles">
 						<input type="checkbox" ng-model="sharebigfiles.selected"/>
@@ -55,7 +57,7 @@
 					</div>
     			</td>
     			<td class="content">
-                    <a ng-click="openSharebigfiles(sharebigfiles)" href="/sharebigfiles/file" download>
+                    <a ng-click="downloadFile('[[sharebigfiles._id]]')">
 						[[sharebigfiles.fileNameLabel]]
 					</a>
                 </td>
@@ -69,12 +71,20 @@
 					[[sharebigfiles.expireDate()]]
                 </td>
 				<td class="content">
-					<a ng-click="downloadFileLog()">
+					<a ng-if="[[sharebigfiles.downloadLogs.length]]>0" ng-click="downloadFileLog('[[sharebigfiles.fileId]]')">
 						[[sharebigfiles.downloadLogs.length]] fois
 					</a>
+					<div ng-if="[[sharebigfiles.downloadLogs.length]]==0" >
+						0 fois
+					</div>
 				</td>
 				<td class="content">
 					[[formatDocumentSize(sharebigfiles.fileMetadata.size)]]
+				</td>
+				<td class="content">
+					<a ng-click="editFile('[[sharebigfiles._id]]')">
+						Editer
+					</a>
 				</td>
     		</tr>
 		</tbody>

@@ -23,6 +23,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 
 	$scope.newItem = new Upload();
 	$scope.newLog = new Log();
+	$scope.newLogId = "90243a8e-3774-4912-8cef-f57df06ff674";
 
 	$scope.newItem.expDate = 1;
 	$scope.newItem.residualQuota = 0;
@@ -109,8 +110,9 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		template.open('main', 'sharebigfiles')
 	};
 
-	$scope.downloadFileLog = function(){
+	$scope.downloadFileLog = function(logId){
 		template.open('list', 'downloadFileLog');
+		$scope.newLogId = logId;
 		//setCurrentFile(file, true);
 	};
 
@@ -156,6 +158,12 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		//})
 	};
 
+	$scope.criteriaMatch = function( criteria ) {
+		return function( item ) {
+			return item.fileId === criteria;
+		};
+	};
+
 	$scope.getQuota = function(){
 		$scope.newItem.getQuota(
 
@@ -165,6 +173,31 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 			var error = JSON.parse(e.responseText);
 			notify.error(error.error);
 		})
+	};
+
+	$scope.getExpirationDateList = function(){
+		$scope.newItem.getExpirationDateList(
+		).done(function(result){
+			$scope.newItem.expirationDateList = result.expirationDateList;
+		}).e400(function(e){
+			var error = JSON.parse(e.responseText);
+			notify.error(error.error);
+		})
+	};
+
+	$scope.downloadFile = function(id){
+
+			window.location.href = $scope.newItem.downloadFile(id);
+	};
+
+	$scope.editFile = function(idFile) {
+		$scope.lightbox.show = true;
+		template.open('lightbox', 'editFile')
+	};
+
+	$scope.closeImportView = function() {
+		$scope.lightbox.show=false;
+		window.location.reload();
 	};
 
 	$scope.postFiles = function(){

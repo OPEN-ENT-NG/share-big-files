@@ -1,5 +1,5 @@
 {
-	"sharebigfiles.title"								: "Sharebigfiles",
+	"sharebigfiles.title"								: "Fichiers volumineux",
 
 	"sharebigfiles.notify.saved"						: "La donnée a été sauvegardée",
 	"sharebigfiles.notify.modified"						: "La donnée a été modifiée",
@@ -42,7 +42,7 @@
 	"date"												: "Date",
 "expire"												: "Expire le",
 	"downloaded"										: "Téléchargé",
-	"size"												: "Taille : ",
+	"size"												: "Taille",
 	"user"												: "Utilisateur",
 	"downloadDate"										: "Téléchargé le",
 	"file"												: "Fichier : ",

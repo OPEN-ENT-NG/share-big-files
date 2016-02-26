@@ -10,7 +10,7 @@
 		<script type="text/ng-template" id="empty"></script>
 	</head>
 
-	<body ng-controller="SharebigfilesController" data-ng-init="getQuota()">
+	<body ng-controller="SharebigfilesController" data-ng-init="getQuota(); getExpirationDateList()">
 		<portal>
 			<div class="twelve cell" ng-include="template.containers.main"></div>
 		</portal>

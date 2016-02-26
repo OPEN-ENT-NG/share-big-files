@@ -15,11 +15,12 @@
         "mode" : "${mode}",
         "entcore.port" : 8009,
         "swift": {
-              "uri": "http://192.168.226.128:32768",
+              "uri": "http://129.181.25.233:32768",
               "container": "testcontainer" ,
                "user":  "test:tester",
               "key":  "testing"
         },
+        "expirationDateList" : [1,5,10,30],
         "maxQuota" : 2147483648,
         "purgeFilesCron" : "0 0 23 * * ?",
         "publicConf": {

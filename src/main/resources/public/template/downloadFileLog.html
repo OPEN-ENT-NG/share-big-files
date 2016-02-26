@@ -7,7 +7,7 @@
 
     </div>
     <div class="row">
-        <span translate content="file">film_classe_3</span>
+        <span translate content="file">test</span>
     </div>
 </div>
 
@@ -19,17 +19,17 @@
                 <span translate content="user" ng-click="orderBy('owner.displayName')"></span>
             </th>
             <th class="content">
-                <span translate content="downloadDate" ng-click="orderBy('modified.$date')"></span>
+                <span translate content="" ng-click="orderBy('modified.$date')"></span>
             </th>
         </tr>
         </thead>
-        <tbody>
-        <tr ng-repeat="sharebigfiles in logs.all | orderBy:ordering" ng-class="{ checked: sharebigfiles.selected }">
+        <tbody ng-repeat="sharebigfiles in uploads.all | filter:{'fileId': newLogId}:true">
+        <tr ng-repeat="downloadLog in sharebigfiles.downloadLogs ">
             <td class="user">
-                <a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[sharebigfiles.user]]</a>
+                <a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[downloadLog.userDisplayName]]</a>
             </td>
             <td class="content">
-                [[sharebigfiles.date]]
+                [[downloadLog.downloadDate()]]
             </td>
         </tr>
         </tbody>

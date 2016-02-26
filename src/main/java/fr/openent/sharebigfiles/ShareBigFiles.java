@@ -13,6 +13,8 @@ import org.entcore.common.service.CrudService;
 import org.entcore.common.service.impl.MongoDbCrudService;
 import org.entcore.common.storage.Storage;
 import org.entcore.common.storage.StorageFactory;
+import org.vertx.java.core.json.JsonArray;
+
 import java.text.ParseException;
 
 public class ShareBigFiles extends BaseServer {
@@ -37,6 +39,12 @@ public class ShareBigFiles extends BaseServer {
 			confIsOk = false;
 		}
 
+		final JsonArray expirationDateList = config.getArray("expirationDateList");
+		if (expirationDateList == null) {
+			log.fatal("[Share Big File] Error : Module property 'expirationDateList' must be defined");
+			confIsOk = false;
+		}
+
 		if (!confIsOk) {
 			vertx.stop();
 		}
@@ -44,7 +52,7 @@ public class ShareBigFiles extends BaseServer {
 		final CrudService shareBigFileCrudService = new MongoDbCrudService(SHARE_BIG_FILE_COLLECTION);
 		final ShareBigFilesService shareBigFilesService = new ShareBigFilesServiceImpl(maxQuota);
 		final Storage storage = new StorageFactory(vertx, container.config()).getStorage();
-		addController(new ShareBigFilesController(storage, shareBigFileCrudService, shareBigFilesService, log, maxQuota));
+		addController(new ShareBigFilesController(storage, shareBigFileCrudService, shareBigFilesService, log, maxQuota, expirationDateList));
 
 		setDefaultResourceFilter(new ShareAndOwner());
 
