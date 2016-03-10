@@ -21,16 +21,18 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 
 	private final Long maxQuota;
 
-	public ShareBigFilesServiceImpl(final Long maxQuota) {
+	private final Long maxRepositoryQuota;
+
+	public ShareBigFilesServiceImpl(final Long maxQuota, final Long maxRepositoryQuota) {
 		this.maxQuota = maxQuota;
+		this.maxRepositoryQuota = maxRepositoryQuota;
 	}
 
 	@Override
 	public void updateDownloadLogs(final String id, final UserInfos user, final Handler<JsonObject> handler) {
 		final QueryBuilder query = QueryBuilder.start("_id").is(id);
 
-		final String userDisplayName = user.getFirstName() + " " + user.getLastName();
-		final JsonObject logElem = new JsonObject().putString("userDisplayName", userDisplayName).putObject("downloadDate", MongoDb.now());
+		final JsonObject logElem = new JsonObject().putString("userDisplayName", user.getUsername()).putObject("downloadDate", MongoDb.now());
 		final MongoUpdateBuilder modifier = new MongoUpdateBuilder();
 		modifier.addToSet("downloadLogs", logElem);
 		mongo.update(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(query),
@@ -49,7 +51,7 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 
 	@Override
 	public void getQuotaData(final String userId, final Handler<JsonObject> handler) {
-		final QueryBuilder query = QueryBuilder.start("owner.userId").is(userId).put("fileMetadata.size").exists(true);
+		final QueryBuilder query = QueryBuilder.start("fileMetadata.size").exists(true);
 
 		mongo.find(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(query), new Handler<Message<JsonObject>>() {
 			@Override
@@ -59,16 +61,25 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 				final JsonObject j = new JsonObject();
 
 				if ("ok".equals(status) && res != null) {
-					Long total = 0L;
+					Long totalRepository = 0L;
+					Long totalUser = 0L;
 					for (Object object : res) {
 						if (!(object instanceof JsonObject)) continue;
-						total += ((JsonObject) object).getObject("fileMetadata").getLong("size");
+						final JsonObject jo = (JsonObject) object;
+						final Long size = jo.getObject("fileMetadata").getLong("size");
+						totalRepository += size;
+						if (userId.equals(jo.getString("owner.userId"))) {
+							totalUser += size;
+						}
 					}
-					final Long residual = ShareBigFilesServiceImpl.this.maxQuota - total;
-					final Long residualMaxSize = (residual < 0) ? 0L : residual;
+					final Long residualUser = ShareBigFilesServiceImpl.this.maxQuota - totalUser;
+					final Long residualUserSize = (residualUser < 0) ? 0L : residualUser;
 
-					handler.handle(j.putNumber("residualQuota", residualMaxSize)
-							.putString("status", "ok"));
+					final Long residualRepository = ShareBigFilesServiceImpl.this.maxRepositoryQuota - totalRepository;
+					final Long residualRepositorySize = (residualRepository < 0) ? 0L : residualRepository;
+
+					handler.handle(j.putNumber("residualQuota", residualUserSize).putNumber("residualRepositoryQuota",
+							residualRepositorySize).putString("status", "ok"));
 
 				} else {
 					handler.handle(j.putString("status", status));

@@ -11,6 +11,8 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +26,11 @@ public class DeleteOldFile implements Handler<Long> {
     private final Storage storage;
     private final TimelineHelper timelineHelper;
     private static final I18n i18n = I18n.getInstance();
+    private static final Logger log = LoggerFactory.getLogger(DeleteOldFile.class);
 
     public DeleteOldFile(final TimelineHelper timelineHelper, final Storage storage) {
-       this.storage = storage;
-       this.timelineHelper = timelineHelper;
+        this.storage = storage;
+        this.timelineHelper = timelineHelper;
     }
 
     @Override
@@ -69,7 +72,14 @@ public class DeleteOldFile implements Handler<Long> {
                     storage.removeFiles(ids, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject event) {
-                            mongo.delete(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, query);
+                            mongo.delete(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, query, new Handler<Message<JsonObject>>() {
+                                @Override
+                                public void handle(Message<JsonObject> event) {
+                                    if (!"ok".equals(event.body().getString("status"))) {
+                                        log.error(event.body().getString("message"));
+                                    }
+                                }
+                            });
                         }
                     });
                 }

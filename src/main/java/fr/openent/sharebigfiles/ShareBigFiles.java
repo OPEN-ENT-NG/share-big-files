@@ -27,49 +27,33 @@ public class ShareBigFiles extends BaseServer {
 		super.start();
 		MongoDbConf.getInstance().setCollection(SHARE_BIG_FILE_COLLECTION);
 
-		Boolean confIsOk = true;
 		if (config.getObject("swift") == null) {
 			log.fatal("[Share Big File] Error : Module property 'swift' must be defined");
-			confIsOk = false;
-		}
-
-		final Long maxQuota = config.getLong("maxQuota");
-		if (maxQuota == null) {
-			log.fatal("[Share Big File] Error : Module property 'maxQuota' must be defined");
-			confIsOk = false;
-		}
-
-		final JsonArray expirationDateList = config.getArray("expirationDateList");
-		if (expirationDateList == null) {
-			log.fatal("[Share Big File] Error : Module property 'expirationDateList' must be defined");
-			confIsOk = false;
-		}
-
-		if (!confIsOk) {
 			vertx.stop();
 		}
 
+		final Long maxQuota = config.getLong("maxQuota", 1073741824L);
+		final Long maxRepositoryQuota = config.getLong("maxQuota", 1099511627776L);
+		final JsonArray expirationDateList = config.getArray("expirationDateList",
+				new JsonArray(new String[]{"1", "5", "10", "30"}));
+
 		final CrudService shareBigFileCrudService = new MongoDbCrudService(SHARE_BIG_FILE_COLLECTION);
-		final ShareBigFilesService shareBigFilesService = new ShareBigFilesServiceImpl(maxQuota);
+		final ShareBigFilesService shareBigFilesService = new ShareBigFilesServiceImpl(maxQuota, maxRepositoryQuota);
 		final Storage storage = new StorageFactory(vertx, container.config()).getStorage();
-		addController(new ShareBigFilesController(storage, shareBigFileCrudService, shareBigFilesService, log, maxQuota, expirationDateList));
+		addController(new ShareBigFilesController(storage, shareBigFileCrudService, shareBigFilesService, log, maxQuota,
+				maxRepositoryQuota, expirationDateList));
 
 		setDefaultResourceFilter(new ShareAndOwner());
 
-		final String purgeFilesCron = container.config().getString("purgeFilesCron");
+		final String purgeFilesCron = container.config().getString("purgeFilesCron", "0 0 23 * * ?");
 		final TimelineHelper timelineHelper = new TimelineHelper(vertx, vertx.eventBus(), container);
 
-		if (purgeFilesCron != null && !purgeFilesCron.isEmpty()) {
-			try {
-				new CronTrigger(vertx, purgeFilesCron).schedule(
-						new DeleteOldFile(timelineHelper, storage)
-						);
-			} catch (ParseException e) {
-				log.fatal("[Share Big File] Invalid cron expression.", e);
-				vertx.stop();
-			}
-		} else {
-			log.fatal("[Share Big File] Error : Module property 'purgeFilesCron' must be defined");
+		try {
+			new CronTrigger(vertx, purgeFilesCron).schedule(
+					new DeleteOldFile(timelineHelper, storage)
+			);
+		} catch (ParseException e) {
+			log.fatal("[Share Big File] Invalid cron expression.", e);
 			vertx.stop();
 		}
 	}

@@ -57,6 +57,8 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 
 	private final Long maxQuota;
 
+	private final Long maxRepositoryQuota;
+
 	private JsonArray expirationDateList;
 
 	private static final I18n i18n = I18n.getInstance();
@@ -68,11 +70,11 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 
 	//Permissions
 	private static final String
-		read_only 			= "sharebigfile.view",
-		modify 				= "sharebigfile.create",
-		manage_ressource	= "sharebigfile.manager",
-		contrib_ressource	= "sharebigfile.contrib",
-		view_ressource		= "sharebigfile.read";
+			read_only 			= "sharebigfile.view",
+			modify 				= "sharebigfile.create",
+			manage_ressource	= "sharebigfile.manager",
+			contrib_ressource	= "sharebigfile.contrib",
+			view_ressource		= "sharebigfile.read";
 
 	@Override
 	public void init(Vertx vertx, Container container, RouteMatcher rm,
@@ -85,10 +87,12 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	 * Creates a new controller.
 	 */
 	public ShareBigFilesController(final Storage storage, CrudService crudService,
-								   ShareBigFilesService shareBigFilesService, final Logger log, final Long maxQuota, final JsonArray expirationDateList) {
+								   ShareBigFilesService shareBigFilesService, final Logger log, final Long maxQuota,
+								   final Long maxRepositoryQuota, final JsonArray expirationDateList) {
 		super(ShareBigFiles.SHARE_BIG_FILE_COLLECTION);
 		this.log = log;
 		this.maxQuota = maxQuota;
+		this.maxRepositoryQuota = maxRepositoryQuota;
 		this.expirationDateList = expirationDateList;
 		this.storage = storage;
 		this.shareBigFileCrudService = crudService;
@@ -129,7 +133,11 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 											Long residualQuota = event.getLong("residualQuota");
 											residualQuota = residualQuota - metadata.getLong("size");
 
-											if (residualQuota < 0) {
+											Long residualRepositoryQuota = event.getLong("residualRepositoryQuota");
+											residualRepositoryQuota = residualRepositoryQuota - metadata.getLong("size");
+											final Boolean isErrorQuotaUser = residualQuota < 0;
+
+											if (isErrorQuotaUser || residualRepositoryQuota < 0) {
 												storage.removeFile(idFile, new Handler<JsonObject>() {
 													@Override
 													public void handle(JsonObject event) {
@@ -138,7 +146,10 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 														}
 
 														Renders.badRequest(request,
-																i18n.translate("sharebigfiles.exceeded.quota", I18n.acceptLanguage(request),
+																i18n.translate((isErrorQuotaUser) ?
+																				"sharebigfiles.exceeded.quota" :
+																				"sharebigfiles.exceeded.repository.quota",
+																		I18n.acceptLanguage(request),
 																		metadata.getString("filename")));
 													}
 												});
@@ -177,12 +188,12 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 
 		Date expiryDate = new Date();
 		try {
-            if (date != null && !date.isEmpty()) {
-                expiryDate = parseDate(date);
-            }
-        } catch (ParseException e) {
-            log.error(e.getMessage(), e);
-        }
+			if (date != null && !date.isEmpty()) {
+				expiryDate = parseDate(date);
+			}
+		} catch (ParseException e) {
+			log.error(e.getMessage(), e);
+		}
 
 		object.putObject("expiryDate", new JsonObject().putValue("$date", expiryDate.getTime()));
 		object.putArray("downloadLogs", new JsonArray());
@@ -191,6 +202,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	}
 
 	@Get("/download/:id")
+	@SecuredAction(value = view_ressource, type = ActionType.RESOURCE)
 	public void download(final HttpServerRequest request) {
 		final String sbfId = request.params().get("id");
 		if (sbfId == null || sbfId.trim().isEmpty()) {
@@ -249,7 +261,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	 * @param request Client request containing the id.
 	 */
 	@Get("/quota")
-//	@SecuredAction(value = view_ressource, type = ActionType.RESOURCE)
+	@SecuredAction(value = contrib_ressource, type = ActionType.RESOURCE)
 	public void getQuota(final HttpServerRequest request) {
 		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
 			@Override
@@ -261,6 +273,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 							if ("ok".equals(event.getString("status"))) {
 								event.removeField("status");
 								event.putNumber("maxFileQuota", ShareBigFilesController.this.maxQuota);
+								event.putNumber("maxRepositoryQuota", ShareBigFilesController.this.maxRepositoryQuota);
 								Renders.renderJson(request, event);
 							} else {
 								Renders.renderError(request);
