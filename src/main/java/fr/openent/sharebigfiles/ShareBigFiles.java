@@ -33,7 +33,7 @@ public class ShareBigFiles extends BaseServer {
 		}
 
 		final Long maxQuota = config.getLong("maxQuota", 1073741824L);
-		final Long maxRepositoryQuota = config.getLong("maxQuota", 1099511627776L);
+		final Long maxRepositoryQuota = config.getLong("maxRepositoryQuota", 1099511627776L);
 		final JsonArray expirationDateList = config.getArray("expirationDateList",
 				new JsonArray(new String[]{"1", "5", "10", "30"}));
 
