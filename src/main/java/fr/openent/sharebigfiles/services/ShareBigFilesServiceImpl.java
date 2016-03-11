@@ -10,12 +10,16 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.logging.Logger;
+import org.vertx.java.core.logging.impl.LoggerFactory;
 
 /**
  * MongoDB implementation of the REST service.
  * Methods are usually self-explanatory.
  */
 public class ShareBigFilesServiceImpl implements ShareBigFilesService {
+
+	private static final Logger log = LoggerFactory.getLogger(ShareBigFilesServiceImpl.class);
 
 	private final MongoDb mongo = MongoDb.getInstance();
 
@@ -51,7 +55,7 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 
 	@Override
 	public void getQuotaData(final String userId, final Handler<JsonObject> handler) {
-		final QueryBuilder query = QueryBuilder.start("fileMetadata.size").exists(true);
+		final QueryBuilder query = QueryBuilder.start("owner.userId").is(userId).put("fileMetadata.size").exists(true);
 
 		mongo.find(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(query), new Handler<Message<JsonObject>>() {
 			@Override
@@ -61,29 +65,45 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 				final JsonObject j = new JsonObject();
 
 				if ("ok".equals(status) && res != null) {
-					Long totalRepository = 0L;
 					Long totalUser = 0L;
 					for (Object object : res) {
 						if (!(object instanceof JsonObject)) continue;
-						final JsonObject jo = (JsonObject) object;
-						final Long size = jo.getObject("fileMetadata").getLong("size");
-						totalRepository += size;
-						if (userId.equals(jo.getString("owner.userId"))) {
-							totalUser += size;
-						}
+						totalUser += ((JsonObject) object).getObject("fileMetadata").getLong("size");
 					}
 					final Long residualUser = ShareBigFilesServiceImpl.this.maxQuota - totalUser;
 					final Long residualUserSize = (residualUser < 0) ? 0L : residualUser;
 
-					final Long residualRepository = ShareBigFilesServiceImpl.this.maxRepositoryQuota - totalRepository;
-					final Long residualRepositorySize = (residualRepository < 0) ? 0L : residualRepository;
-
-					handler.handle(j.putNumber("residualQuota", residualUserSize).putNumber("residualRepositoryQuota",
-							residualRepositorySize).putString("status", "ok"));
-
+					getQuotaRepository(new Handler<Long>() {
+						@Override
+						public void handle(Long event) {
+							handler.handle(j.putNumber("residualQuota", residualUserSize).putNumber("residualRepositoryQuota",
+									event).putString("status", "ok"));
+						}
+					});
 				} else {
 					handler.handle(j.putString("status", status));
 				}
+			}
+		});
+	}
+
+	private void getQuotaRepository(final Handler<Long> handler) {
+		final QueryBuilder query = QueryBuilder.start("_id").is(ShareBigFiles.ID_REPOSITORY_CONSUMED);
+		mongo.findOne(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(query), new Handler<Message<JsonObject>>() {
+			@Override
+			public void handle(Message<JsonObject> event) {
+				JsonObject res = event.body().getObject("result");
+				Long totalRepositoryConsumed = 0L;
+				if ("ok".equals(event.body().getString("status"))) {
+					if (res != null) {
+						totalRepositoryConsumed = (Long) res.getNumber("sizeConsumed", 0);
+					}
+				} else {
+					log.error(event.body().getString("message"));
+				}
+				final Long residualRepository = ShareBigFilesServiceImpl.this.maxRepositoryQuota - totalRepositoryConsumed;
+				final Long residualRepositorySize = (residualRepository < 0) ? 0L : residualRepository;
+				handler.handle(residualRepositorySize);
 			}
 		});
 	}

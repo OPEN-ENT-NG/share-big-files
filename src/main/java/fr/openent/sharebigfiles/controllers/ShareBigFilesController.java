@@ -251,9 +251,8 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 
 	@Get("/expirationDateList")
 	@SecuredAction(value = read_only, type = ActionType.AUTHENTICATED)
-	public void getSkins(final  HttpServerRequest request) {
-		renderJson(request, new JsonObject().putArray("expirationDateList", expirationDateList)
-				, 200);
+	public void getExpirationList(final  HttpServerRequest request) {
+		renderJson(request, new JsonObject().putArray("expirationDateList", expirationDateList));
 	}
 
 	/**
