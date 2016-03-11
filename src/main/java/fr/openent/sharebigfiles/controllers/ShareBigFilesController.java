@@ -156,8 +156,10 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 											} else {
 												final String date = request.formAttributes().get("expiryDate");
 												final String fileNameLabel = request.formAttributes().get("fileNameLabel");
+												final String description = request.formAttributes().get("description");
 
-												ShareBigFilesController.this.create(date, fileNameLabel, idFile, metadata, user, request);
+												ShareBigFilesController.this.create(description, date, fileNameLabel,
+														idFile, metadata, user, request);
 											}
 										} else {
 											Renders.renderError(request);
@@ -179,12 +181,14 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 		});
 	}
 
-	private void create(String date, String fileNameLabel, String idFile, JsonObject metadata, UserInfos user, HttpServerRequest request) {
+	private void create(String description, String date, String fileNameLabel, String idFile, JsonObject metadata,
+						UserInfos user, HttpServerRequest request) {
 		final JsonObject object = new JsonObject();
 		object.putString("fileId", idFile);
 		object.putString("fileNameLabel", fileNameLabel);
 		//for the cron task knows the locale of user
 		object.putString("locale", I18n.acceptLanguage(request));
+		object.putString("description", description);
 
 		Date expiryDate = new Date();
 		try {
