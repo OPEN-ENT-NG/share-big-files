@@ -36,7 +36,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	$scope.lightbox = {}
 	$scope.uploads = model.uploads;
 	$scope.logs = model.logs;
-
+	$scope.me = model.me;
 
 	route({
 		defaultView: function(){
@@ -59,9 +59,8 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	}
 
 	$scope.updateExpirationDate = function() {
-		myDate = new Date();
-		myDate.setDate(myDate.getDate() + $scope.newItem.expDate);
-		$scope.expiryDate = myDate;
+		newExpDate = moment(new Date()).add($scope.newItem.expDate, 'days');
+		$scope.expiryDate = moment(newExpDate, 'YYYY-MM-DD HH:mm.ss.SSS');
 	}
 
 	$scope.maxSize = function(){
@@ -188,6 +187,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 
 	$scope.downloadFile = function(id){
 		window.location.href = $scope.newItem.downloadFile(id);
+		model.uploads.sync();
 	};
 
 	$scope.editFile = function(editFileId) {
@@ -204,11 +204,17 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 
 	$scope.closeImportView = function() {
 		$scope.lightbox.show=false;
-		window.location.reload();
+		//window.location.reload();
+		model.uploads.sync();
 	};
 
 	$scope.updateFile = function(fileId) {
-		$scope.newItem.updateFile(fileId)(
+		var data = {
+					"fileNameLabel": $scope.newItem.label,
+					"expiryDate": $scope.newItem.expiryDate,
+					"description": $scope.newItem.description
+		};
+		$scope.newItem.updateFile(fileId, data)(
 		).done(function(result){
 		}).e400(function(e){
 			var error = JSON.parse(e.responseText);
@@ -234,6 +240,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 				formData.append('file', attachmentObj.file);
 				formData.append('expiryDate', $scope.expiryDate);
 				formData.append('fileNameLabel', $scope.newItem.label);
+				formData.append('description', $scope.newItem.description);
 
 				$scope.newItem.postAttachment(formData, {
 					xhr: function() {

@@ -1,5 +1,5 @@
 {
-	"sharebigfiles.title"								: "Sharebigfiles",
+	"sharebigfiles.title"								: "Fichiers volumineux",
 
 	"sharebigfiles.notify.saved"						: "La donnée a été sauvegardée",
 	"sharebigfiles.notify.modified"						: "La donnée a été modifiée",
@@ -38,9 +38,11 @@
 	"group.class.Relative"								: "Tous les parents de la classe {0}.",
 
 	"title"												: "Titre",
-	"from"												: "De",
+	"from"												: "Propriétaire",
 	"date"												: "Date",
+	"expire"											: "Expire le",
 	"downloaded"										: "Téléchargé",
+	"size"												: "Taille",
 	"user"												: "Utilisateur",
 	"downloadDate"										: "Téléchargé le",
 	"file"												: "Fichier : ",
@@ -50,6 +52,7 @@
 
 	"loading"											: "Chargement",
 	"import.file"										: "Importer",
+	"import.description"								: "Description",
 	"share.users" 										: "Utilisateurs",
 	"share.groups" 										: "Groupes",
 	"root" 												: "Racine",

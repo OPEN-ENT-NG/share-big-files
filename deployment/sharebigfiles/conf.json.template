@@ -15,7 +15,7 @@
         "mode" : "${mode}",
         "entcore.port" : 8009,
         "swift": {
-              "uri": "http://129.181.25.233:32768",
+              "uri": "http://129.181.25.238:32768",
               "container": "testcontainer" ,
                "user":  "test:tester",
               "key":  "testing"

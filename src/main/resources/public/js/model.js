@@ -103,8 +103,8 @@ Upload.prototype.getQuota = function () {
 	return http().get("/sharebigfiles/quota")
 };
 
-Upload.prototype.updateFile = function (fileId) {
-	return http().put("/:"+fileId)
+Upload.prototype.updateFile = function (fileId, data) {
+	return http().putJson("sharebigfiles/"+fileId, data)
 };
 
 Upload.prototype.getExpirationDateList = function () {
