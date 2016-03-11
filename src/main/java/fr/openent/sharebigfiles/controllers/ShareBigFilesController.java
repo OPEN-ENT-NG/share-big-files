@@ -260,7 +260,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	 * @param request Client request containing the id.
 	 */
 	@Get("/quota")
-	@SecuredAction(value = contrib_ressource, type = ActionType.RESOURCE)
+	@SecuredAction(value = read_only, type = ActionType.AUTHENTICATED)
 	public void getQuota(final HttpServerRequest request) {
 		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
 			@Override
