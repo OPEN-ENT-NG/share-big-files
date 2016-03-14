@@ -1,18 +1,18 @@
 <form id="upload-form" name="importForm" method="post" enctype="multipart/form-data" class="twelve cell">
     <div class="row fixed-block">
-        <h2 class="subtitle">Edition de fichier</h2>
+        <h2 class="subtitle" translate content="sharebigfiles.editBigFiles"></h2>
         <div style="display:inline;" ng-repeat="file in uploads.all | filter:{'fileId': editFileId}:true">
 
             <div class="row">
                 <div class="twelve cell reduce-block-eight">
 
-                   <span>Il vous reste : <strong>[[formatDocumentSize(newItem.residualQuota)]]</strong> sur votre espace de stockage</span>
+                    <span translate content="sharebigfiles.sizeLeft"></span><strong> [[formatDocumentSize(newItem.residualQuota)]] </strong><span translate content="sharebigfiles.onStorage"></span>
                     </br></br>
-                    <strong>Expirations :</strong>
+                    <strong translate content="sharebigfiles.expirations"></strong>
                         <input ng-model="newItem.expDate" ng-change="updateExpirationDate()" type="number" min="0" max="editMaxDate(file.created.$date)" name="time" id="time" value="0" style="width: 30px;" />
-                        jours, soit le [[expirationDate | date:'dd/MM/yyyy']]
+                        <span translate content="sharebigfiles.expirationDays"></span> [[expirationDate | date:'dd/MM/yyyy']]
                         </br>                </br>
-                        <strong>Nom du fichier :</strong>
+                        <strong translate content="sharebigfiles.fileName"></strong>
                         <input ng-required="true" type="text" ng-model="file.fileNameLabel" maxlength="50"/>
                         <label class="twelve cell"><strong><i18n>import.description</i18n></strong></label>
                         <textarea style="height: 60px;" maxlength="100" class="twelve cell" ng-model="file.description"/>
@@ -35,7 +35,7 @@
 
                 </div>
                 <div class="lightbox-buttons fluid right-magnet">
-                    <button ng-click="updateFile(file.fileId); closeImportView()">Enregistrer</button>
+                    <button ng-click="updateFile(file.fileId); closeImportView()"><i18n>save</i18n></button>
                 </div>
             </div>
         </div>

@@ -1,17 +1,17 @@
 <form id="upload-form" name="importForm" method="post" enctype="multipart/form-data" class="twelve cell">
     <div class="row fixed-block">
-        <h2 class="subtitle">Upload fichier lourd</h2>
+        <h2 class="subtitle" translate content="sharebigfiles.uploadBigFiles"></h2>
         <div class="row">
             <div class="twelve cell reduce-block-eight">
 
-               <span>Il vous reste : <strong>[[formatDocumentSize(newItem.residualQuota)]]</strong> sur votre espace de stockage</span>
+               <span translate content="sharebigfiles.sizeLeft"></span><strong> [[formatDocumentSize(newItem.residualQuota)]] </strong><span translate content="sharebigfiles.onStorage"></span>
                 </br></br>
-                <strong>Expirations :</strong>
+                <strong translate content="sharebigfiles.expirations"></strong>
                 <select name="expiration" ng-change="updateExpirationDate()" ng-model="newItem.expDate" ng-options="exp for exp in newItem.expirationDateList">
                 </select>
-                jours, soit le [[expiryDate | date:'DD/MM/YYYY']]
+                <span translate content="sharebigfiles.expirationDays"></span> [[expiryDate | date:'DD/MM/YYYY']]
                 </br>
-                <strong>Nom du fichier :</strong>
+                <strong translate content="sharebigfiles.fileName"></strong>
                 <input ng-required="true" type="text" ng-model="newItem.label" maxlength="50"/>
                 <label class="twelve cell"><strong><i18n>import.description</i18n></strong></label>
                 <textarea style="height: 60px;" maxlength="100" class="twelve cell" ng-model="newItem.description"/>
@@ -36,8 +36,8 @@
 
             </div>
             <div class="lightbox-buttons fluid right-magnet">
-                <button ng-click="importForm.$valid && postFiles()">Importer</button>
-                <button ng-click="closeImportView()">Terminer</button>
+                <button ng-click="importForm.$valid && postFiles()"><i18n>upload</i18n></button>
+                <button ng-click="closeImportView()"><i18n>save</i18n></button>
             </div>
         </div>
     </div>

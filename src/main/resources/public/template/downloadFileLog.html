@@ -3,11 +3,11 @@
         <a><i class="sharebigfiles"></i><span translate content="sharebigfiles.downloadedFileLog"></span></a>
     </h1>
     <div class="action-buttons right-magnet">
-        <button ng-click="shareBigFilesOpen()">Retour</button>
+        <button ng-click="shareBigFilesOpen()"><i18n>back</i18n></button>
 
     </div>
     <div class="row">
-        <span translate content="file">test</span>
+        <span translate content="file"></span>
     </div>
 </div>
 
@@ -19,7 +19,7 @@
                 <span translate content="user" ng-click="orderBy('owner.displayName')"></span>
             </th>
             <th class="content">
-                <span translate content="" ng-click="orderBy('modified.$date')"></span>
+                <span translate content="downloadDate" ng-click="orderBy('modified.$date')"></span>
             </th>
         </tr>
         </thead>

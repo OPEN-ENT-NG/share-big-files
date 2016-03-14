@@ -15,6 +15,17 @@
 	"sharebigfiles.shared"								: "Sharebigfiles partagés avec moi",
 	"sharebigfiles.trash"								: "Corbeille",
 
+	"sharebigfiles.uploadBigFiles"						: "Téléchargement de fichiers lourds",
+	"sharebigfiles.fileName"							: "Nom du fichier :",
+	"sharebigfiles.expirationDays"						: "jours, soit le",
+	"sharebigfiles.expirations"							: "Expirations :",
+	"sharebigfiles.sizeLeft"							: "Il vous reste : ",
+	"sharebigfiles.onStorage"							: "sur votre espace de stockage",
+
+	"sharebigfiles.editBigFiles"						: "Edition de fichier",
+
+
+
 	"sharebigfiles.upload"								: "Upload",
 	"sharebigfiles.downloadedFileLog"					: "Journal de téléchargement",
 
