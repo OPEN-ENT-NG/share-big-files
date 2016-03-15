@@ -6,6 +6,9 @@ routes.define(function($routeProvider){
 		.when('/downloadFileLog', {
 			action: 'downloadFileLog'
 		})
+		.when('/downloadFile/:id', {
+			action: 'downloadFile'
+		})
 		.otherwise({
 			action: 'defaultView'
 		})
@@ -45,6 +48,9 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		downloadFileLog: function(){
 			template.open('list', 'downloadFileLog')
 			//$scope.readMail(new Mail({ id: params.mailId }));
+		},
+		downloadFile: function(params){
+			$scope.downloadFile(params.id);
 		}
 	})
 
