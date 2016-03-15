@@ -96,7 +96,7 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 				Long totalRepositoryConsumed = 0L;
 				if ("ok".equals(event.body().getString("status"))) {
 					if (res != null) {
-						totalRepositoryConsumed = (Long.getLong(res.getNumber("sizeConsumed", 0).toString()));
+						totalRepositoryConsumed = Long.parseLong(res.getNumber("sizeConsumed", 0).toString());
 					}
 				} else {
 					log.error(event.body().getString("message"));
