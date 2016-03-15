@@ -24,13 +24,13 @@ routes.define(function($routeProvider){
  **/
 function SharebigfilesController($scope, $rootScope, model, template, route, date){
 
-	$scope.template = template
+	$scope.template = template;
 	$scope.expDateList = {tab:[1,5,10,30]};
 
 	$scope.newItem = new Upload();
 	$scope.newLog = new Log();
 	$scope.newLogId = "";
-	$scope.editFileId = "48efd526-1de4-4407-9771-900711f74ccd";
+	$scope.editFileId = "";
 
 	$scope.newItem.expDate = 1;
 	$scope.newItem.residualQuota = 0;
@@ -39,10 +39,12 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	$scope.expiryDate = myDate.setDate(myDate.getDate() + $scope.newItem.expDate);
 
 	$scope.maxFileSize = parseInt(lang.translate('max.file.size'));
-	$scope.lightbox = {}
+	$scope.lightbox = {};
 	$scope.uploads = model.uploads;
 	$scope.logs = model.logs;
 	$scope.me = model.me;
+
+	$scope.dateMaxExpirationDays = 30;
 
 	route({
 		defaultView: function(){
@@ -218,12 +220,6 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 
 		template.open('lightbox', 'editFile');
 	};
-
-	$scope.editMaxDate = function(createdDate) {
-		var timeDiff = Math.abs($scope.expiryDate.getTime() - createdDate.getTime());
-		var maxDate = Math.ceil(timeDiff / (1000 * 3600 * 24));
-		return maxDate;
-	}
 
 	$scope.closeImportView = function() {
 		$scope.lightbox.show=false;
