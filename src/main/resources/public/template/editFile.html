@@ -1,43 +1,33 @@
 <form id="upload-form" name="importForm" method="post" enctype="multipart/form-data" class="twelve cell">
     <div class="row fixed-block">
         <h2 class="subtitle" translate content="sharebigfiles.editBigFiles"></h2>
-        <div style="display:inline;" ng-repeat="file in uploads.all | filter:{'fileId': editFileId}:true">
+        <!--<div style="display:inline;" ng-repeat="file in uploads.all | filter:{'_id': editFileId}:true">-->
 
-            <div class="row">
-                <div class="twelve cell reduce-block-eight">
+        <div class="row">
+            <div class="twelve cell reduce-block-eight">
 
-                    <span translate content="sharebigfiles.sizeLeft"></span><strong> [[formatDocumentSize(newItem.residualQuota)]] </strong><span translate content="sharebigfiles.onStorage"></span>
-                    </br></br>
-                    <strong translate content="sharebigfiles.expirations"></strong>
-                        <input ng-model="newItem.expDate" ng-change="updateExpirationDate()" type="number" min="0" max="editMaxDate(file.created.$date)" name="time" id="time" value="0" style="width: 30px;" />
-                        <span translate content="sharebigfiles.expirationDays"></span> [[expirationDate | date:'dd/MM/yyyy']]
-                        </br>                </br>
-                        <strong translate content="sharebigfiles.fileName"></strong>
-                        <input ng-required="true" type="text" ng-model="file.fileNameLabel" maxlength="50"/>
-                        <label class="twelve cell"><strong><i18n>import.description</i18n></strong></label>
-                        <textarea style="height: 60px;" maxlength="100" class="twelve cell" ng-model="file.description"/>
-                    </br></br>
-                    <!--[[$scope.expDateList.tab(0)]]-->
+                <span translate content="sharebigfiles.sizeLeft"></span><strong> [[formatDocumentSize(newItem.residualQuota)]] </strong><span translate content="sharebigfiles.onStorage"></span>
+                </br></br>
+                <strong translate content="sharebigfiles.expirations"></strong>
+                <input ng-model="newItem.expDate" ng-change="updateExpirationDateUpgrade()" type="number" min="0" max="editMaxDate(newItem.created.$date)" name="time" id="time" value="0" style="width: 30px;" />
+                <span translate content="sharebigfiles.expirationDays"></span> [[newItem.expiryDate.$date | date:'dd/MM/yyyy']]
+                </br>                </br>
+                <strong translate content="sharebigfiles.fileName"></strong>
+                <input ng-required="true" type="text" ng-model="newItem.fileNameLabel" maxlength="50"/>
+                <label class="twelve cell"><strong><i18n>import.description</i18n></strong></label>
+                <textarea style="height: 60px;" maxlength="100" class="twelve cell" ng-model="newItem.description"/>
+                </br></br>
+                <!--[[$scope.expDateList.tab(0)]]-->
 
-                    <div ng-if="newFile.blockIdentical && newFile.warnIdentical">
-                        <div class="warning" translate content="files.warning.identical"></div>
-                    </div>
-                    <div ng-if="totalFilesSize(newFile) >= maxFileSize">
-                        <div class="warning">[[lang.translate('file.too.large.limit') + (maxFileSize/1024/1024) + lang.translate('mb')]]</div>
-                    </div>
-                    <div ng-if="!(totalFilesSize(newFile) >= maxFileSize) && totalFilesSize(newFile) >= (maxSize() * 1024 * 1024)">
-                        <div class="warning">[[lang.translate('file.too.large.max') + maxSize() + lang.translate('mb')]]</div>
-                    </div>
-                    </br>
-                    <span ng-if="newItem.loadingAttachments.length > 0">
-                        <progress-bar max="100" filled="newItem.loadingAttachments[0].progress.completion" unit="%"></progress-bar>
-                    </span>
 
-                </div>
-                <div class="lightbox-buttons fluid right-magnet">
-                    <button ng-click="updateFile(file.fileId); closeImportView()"><i18n>save</i18n></button>
-                </div>
+                </br>
+
+
+            </div>
+            <div class="lightbox-buttons fluid right-magnet">
+                <button ng-click="updateFile(newItem._id); closeImportView()"><i18n>save</i18n></button>
             </div>
         </div>
+    </div>
     </div>
 </form>

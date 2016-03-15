@@ -3,22 +3,56 @@ function Sharebigfiles(){}
 Sharebigfiles.prototype = {
 	API_PATH 	: "/sharebigfiles",
 
-	delete 		: function(){ return http().delete	(this.API_PATH + '/' + this._id).done(function(){ notify.info('sharebigfiles.notify.deleted') }) },
+	delete 		: function(icb, cb, cbe){
+		return http().delete(this.API_PATH + '/' + this._id)
+				.done(function(){
+					icb();
+					if(typeof cb === 'function'){
+						cb();
+					}
+				}).error(function(e){
+					if(typeof cbe === 'function'){
+						cbe(model.parseError(e));
+					}
+				});
+	},
+	//fixme kevin what the fuck, we don't have a trash microservice
 	trash 		: function(){ return http().put		(this.API_PATH + '/' + this._id + '/trash').done(function(){ notify.info('sharebigfiles.notify.trashed') }) },
+	//fixme kevin what the fuck, we don't have a recover microservice
 	restore 	: function(){ return http().put		(this.API_PATH + '/' + this._id + '/recover').done(function(){ notify.info('sharebigfiles.notify.restored') }) },
-	create 		: function(hook){
+	create 		: function(cb, cbe){
 		var sharebigfiles = this
 		return http().postJson(this.API_PATH, {
 			"title": 		sharebigfiles.title,
 			"thumbnail": 	(sharebigfiles.thumbnail === undefined ? "" : sharebigfiles.thumbnail)
-		}).done(function(){ notify.info('sharebigfiles.notify.saved'); hook() })
+		}).done(function(){
+			//fixme kevin bad notify or must be in callback function
+			notify.info('sharebigfiles.notify.saved');
+			if(typeof cb === 'function'){
+				cb();
+			}
+		}).error(function(e){
+			if(typeof cbe === 'function'){
+				cbe(model.parseError(e));
+			}
+		});
 	},
-	update : function(hook){
+	update : function(cb, cbe){
 		var sharebigfiles = this
 		return http().putJson(this.API_PATH + '/' + this._id, {
 			"title": 		sharebigfiles.title,
 			"thumbnail": 	sharebigfiles.thumbnail
-		}).done(function(){ notify.info('sharebigfiles.notify.modified'); hook() })
+		}).done(function(){
+			//fixme kevin bad notify or must be in callback function
+			notify.info('sharebigfiles.notify.modified');
+			if(typeof cb === 'function'){
+				cb();
+			}
+		}).error(function(e){
+			if(typeof cbe === 'function'){
+				cbe(model.parseError(e));
+			}
+		});
 	},
     get : function(hook){
         var sharebigfiles = this
@@ -44,17 +78,18 @@ function SharebigfilesCollection(){
 				this.all.forEach(function(item){ delete item.data })
 			}.bind(this))
 		},
-		remove: function(){
+		remove: function(cb, cbe){
 			collection = this
 			var parsedCount = 0
 			this.selection().forEach(function(item){
 				if(collection.folder === 'trash'){
-					item.delete().done(function(){
+					item.delete(function() {
 						if(++parsedCount === collection.selection().length)
 							collection.sync()
-					})
+					},cb, cbe);
 				}
 				else{
+					//fixme kevin what the fuck, we don't have a trash microservice
 					item.trash().done(function(){
 						if(++parsedCount === collection.selection().length)
 							collection.sync()
@@ -62,6 +97,7 @@ function SharebigfilesCollection(){
 				}
 			})
 		},
+		//fixme kevin what the fuck, we don't have a trash microservice
 		restore: function(){
 			collection = this
 			var parsedCount = 0
@@ -91,8 +127,19 @@ function Upload(data) {
 	};
 }
 
-Upload.prototype.postAttachment = function (attachment, options) {
+Upload.prototype.postAttachment = function (attachment, options, attachmentObj, cb, cbe) {
 	return http().postFile("/sharebigfiles", attachment, options)
+		.done(function(result) {
+			if(typeof cb === 'function'){
+				cb(result.id, attachmentObj);
+			}
+		})
+		.error(function(e){
+			if(typeof cbe === 'function'){
+				cbe(model.parseError(e));
+			}
+		});
+
 };
 
 Upload.prototype.getList = function () {
@@ -103,8 +150,12 @@ Upload.prototype.getQuota = function () {
 	return http().get("/sharebigfiles/quota")
 };
 
-Upload.prototype.updateFile = function (fileId, data) {
-	return http().putJson("sharebigfiles/"+fileId, data)
+Upload.prototype.updateFile = function (fileId, data, cbe) {
+	return http().putJson("sharebigfiles/"+fileId, data).error(function(e){
+		if(typeof cbe === 'function'){
+			cbe(model.parseError(e));
+		}
+	})
 };
 
 Upload.prototype.getExpirationDateList = function () {
@@ -113,6 +164,20 @@ Upload.prototype.getExpirationDateList = function () {
 
 Upload.prototype.downloadFile = function (id) {
 	return "/sharebigfiles/download/"+id;
+};
+
+
+model.parseError = function(e) {
+	var error = {};
+	try {
+		error = JSON.parse(e.responseText);
+	}
+	catch (err) {
+		error.error = "search.engine.error.unknown";
+	}
+	error.status = e.status;
+
+	return error;
 };
 
 ///////////////////////

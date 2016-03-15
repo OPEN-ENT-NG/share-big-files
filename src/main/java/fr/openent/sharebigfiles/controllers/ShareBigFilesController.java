@@ -440,12 +440,31 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 			@Override
 			public void handle(final UserInfos user) {
 				if (user != null) {
-					//TODO check the front
-					JsonObject params = new JsonObject();
+					final JsonObject params = new JsonObject();
 					params.putString("uri", "/userbook/annuaire#" + user.getUserId() + "#" + user.getType());
 					params.putString("username", user.getUsername());
-					params.putString("shareBigFileUri", "/sharebigfile#/view/" + id);
-					shareJsonSubmit(request, "notify-sharebigfile-shared.html", false, params, "name");
+					params.putString("shareBigFileDownloadUri", "/sharebigfiles#/downloadFile/" + id);
+					params.putString("shareBigFileAccessUri", "/sharebigfiles#/editFile/" + id);
+					shareBigFileCrudService.retrieve(id, new Handler<Either<String, JsonObject>>() {
+							@Override
+							public void handle(Either<String, JsonObject> event) {
+								if (event.isRight() && event.right().getValue() != null) {
+									params.putString("resourceName", event.right().getValue().getString("fileNameLabel",""));
+
+									final String description =  event.right().getValue().getString("description", "");
+									if (!description.isEmpty()) {
+										params.putString("description", i18n.translate("timeline.sharebigfile.label.description",
+											I18n.acceptLanguage(request)) + description);
+									} else {
+										params.putString("description", "");
+									}
+									shareJsonSubmit(request, "notify-sharebigfile-shared.html", false, params, "name");
+								} else {
+									leftToResponse(request, event.left());
+								}
+							}
+						}
+					);
 				}
 			}
 		});

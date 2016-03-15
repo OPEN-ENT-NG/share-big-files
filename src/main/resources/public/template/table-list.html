@@ -15,78 +15,78 @@
 <article class="list-view">
 	<table class="twelve">
 		<thead class="tableheader whiteheader">
-    		<tr>
-    			<th class="icon">
-    				<input type="checkbox" ng-model="select.all" ng-change="switchAll()"/>
-    			</th>
-    			<th class="icon" />
-    			<th class="content">
-					<span translate content="title" ng-click="orderBy('title')"></span>
-				</th>
-    			<th class="user">
-					<span translate content="from" ng-click="orderBy('owner.displayName')"></span>
-				</th>
-				<th class="date">
-					<span translate content="date" ng-click="orderBy('modified.$date')"></span>
-				</th>
-    			<th class="date">
-					<span translate content="Expire" ng-click="orderBy('modified.$date')"></span>
-				</th>
-				<th class="content">
-					<span translate content="downloaded" ng-click="orderBy('owner.displayName')"></span>
-				</th>
-				<th class="content">
-					<span translate content="size" ng-click="orderBy('owner.displayName')"></span>
-				</th>
-				<th class="content">
-				</th>
-    		</tr>
+		<tr>
+			<th class="icon">
+				<input type="checkbox" ng-model="select.all" ng-change="switchAll()"/>
+			</th>
+			<th class="icon" />
+			<th class="content">
+				<span translate content="title" ng-click="orderBy('title')"></span>
+			</th>
+			<th class="user">
+				<span translate content="from" ng-click="orderBy('owner.displayName')"></span>
+			</th>
+			<th class="date">
+				<span translate content="date" ng-click="orderBy('modified.$date')"></span>
+			</th>
+			<th class="date">
+				<span translate content="Expire" ng-click="orderBy('modified.$date')"></span>
+			</th>
+			<th class="content">
+				<span translate content="downloaded" ng-click="orderBy('owner.displayName')"></span>
+			</th>
+			<th class="content">
+				<span translate content="size" ng-click="orderBy('owner.displayName')"></span>
+			</th>
+			<th class="content">
+			</th>
+		</tr>
 		</thead>
 		<tbody>
-    		<tr ng-repeat="sharebigfiles in uploads.all | orderBy:ordering" ng-class="{ checked: sharebigfiles.selected }">
-				<td class="icon">
-					<behaviour name="manager" resource="sharebigfiles">
-						<input type="checkbox" ng-model="sharebigfiles.selected"/>
-					</behaviour>
-				</td>
-    			<td class="icon">
-    				<div class="twelve cell">
-    					<img class="twelve" skin-src="/img/illustrations/sharebigfiles-default.png" ng-if="sharebigfiles.thumbnail === undefined || sharebigfiles.thumbnail.trim().length === 0"/>
-    					<img class="twelve" ng-src="[[sharebigfiles.thumbnail]]?thumbnail=20x20" ng-if="sharebigfiles.thumbnail !== undefined && sharebigfiles.thumbnail.trim().length > 0" />
-						<i ng-if="sharebigfiles.shared !== undefined && sharebigfiles.shared.length > 0 && sharebigfilesList.folder !== 'trash'" class="shared"></i>
-					</div>
-    			</td>
-    			<td class="content">
-                    <a ng-click="downloadFile('[[sharebigfiles._id]]')">
-						[[sharebigfiles.fileNameLabel]]
-					</a>
-                </td>
-    			<td class="user">
-                    <a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[sharebigfiles.owner.displayName]]</a>
-                </td>
-				<td class="date">
-					[[sharebigfiles.creationDate()]]
-				</td>
-    			<td class="date">
-					[[sharebigfiles.expireDate()]]
-                </td>
-				<td class="content">
-					<a ng-if="[[sharebigfiles.downloadLogs.length]]>0" ng-click="downloadFileLog('[[sharebigfiles.fileId]]')">
-						[[sharebigfiles.downloadLogs.length]] fois
-					</a>
-					<div ng-if="[[sharebigfiles.downloadLogs.length]]==0" >
-						0 fois
-					</div>
-				</td>
-				<td class="content">
-					[[formatDocumentSize(sharebigfiles.fileMetadata.size)]]
-				</td>
-				<td class="content">
-					<a ng-click="editFile('[[sharebigfiles.fileId]]')">
-						Editer
-					</a>
-				</td>
-    		</tr>
+		<tr ng-repeat="sharebigfiles in uploads.all | orderBy:ordering" ng-class="{ checked: sharebigfiles.selected }">
+			<td class="icon">
+				<behaviour name="manager" resource="sharebigfiles">
+					<input type="checkbox" ng-model="sharebigfiles.selected"/>
+				</behaviour>
+			</td>
+			<td class="icon">
+				<div class="twelve cell">
+					<img class="twelve" skin-src="/img/illustrations/sharebigfiles-default.png" ng-if="sharebigfiles.thumbnail === undefined || sharebigfiles.thumbnail.trim().length === 0"/>
+					<img class="twelve" ng-src="[[sharebigfiles.thumbnail]]?thumbnail=20x20" ng-if="sharebigfiles.thumbnail !== undefined && sharebigfiles.thumbnail.trim().length > 0" />
+					<i ng-if="sharebigfiles.shared !== undefined && sharebigfiles.shared.length > 0 && sharebigfilesList.folder !== 'trash'" class="shared"></i>
+				</div>
+			</td>
+			<td class="content">
+				<a ng-click="downloadFile('[[sharebigfiles._id]]')">
+					[[sharebigfiles.fileNameLabel]]
+				</a>
+			</td>
+			<td class="user">
+				<a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[sharebigfiles.owner.displayName]]</a>
+			</td>
+			<td class="date">
+				[[sharebigfiles.creationDate()]]
+			</td>
+			<td class="date">
+				[[sharebigfiles.expireDate()]]
+			</td>
+			<td class="content">
+				<a ng-if="[[sharebigfiles.downloadLogs.length]]>0" ng-click="downloadFileLog('[[sharebigfiles.fileId]]')">
+					[[sharebigfiles.downloadLogs.length]] fois
+				</a>
+				<div ng-if="[[sharebigfiles.downloadLogs.length]]==0" >
+					0 fois
+				</div>
+			</td>
+			<td class="content">
+				[[formatDocumentSize(sharebigfiles.fileMetadata.size)]]
+			</td>
+			<td class="content">
+				<a ng-click="editFile(sharebigfiles)">
+					Editer
+				</a>
+			</td>
+		</tr>
 		</tbody>
 	</table>
 </article>

@@ -1,24 +1,27 @@
 /**
-	Application routes.
-**/
+ Application routes.
+ **/
 routes.define(function($routeProvider){
 	$routeProvider
-		.when('/downloadFileLog', {
-			action: 'downloadFileLog'
-		})
-		.when('/downloadFile/:id', {
-			action: 'downloadFile'
-		})
-		.otherwise({
-			action: 'defaultView'
-		})
+			.when('/downloadFileLog', {
+				action: 'downloadFileLog'
+			})
+			.when('/downloadFile/:id', {
+				action: 'downloadFile'
+			})
+			.when('/view/:id', {
+				action: 'editFile'
+			})
+			.otherwise({
+				action: 'defaultView'
+			})
 })
 
 /**
-	Wrapper controller
-	------------------
-	Main controller.
-**/
+ Wrapper controller
+ ------------------
+ Main controller.
+ **/
 function SharebigfilesController($scope, $rootScope, model, template, route, date){
 
 	$scope.template = template
@@ -51,6 +54,10 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		},
 		downloadFile: function(params){
 			$scope.downloadFile(params.id);
+		},
+		editFile: function(params){
+			template.open('main', 'library')
+			$scope.editFile(params.id);
 		}
 	})
 
@@ -62,6 +69,11 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		//ui.showLightbox();
 		$scope.lightbox.show = true;
 		template.open('lightbox', 'importFile')
+	}
+
+	$scope.updateExpirationDateUpgrade = function() {
+		newExpDate = moment($scope.newItem.expiryDate.$date).add($scope.newItem.expDate, 'days');
+		$scope.newItem.expiryDate.$date = moment(newExpDate, 'YYYY-MM-DD HH:mm.ss.SSS').valueOf();
 	}
 
 	$scope.updateExpirationDate = function() {
@@ -196,10 +208,15 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		model.uploads.sync();
 	};
 
-	$scope.editFile = function(editFileId) {
+	$scope.editFile = function(file) {
 		$scope.lightbox.show = true;
+		$scope.newItem.fileNameLabel = file.fileNameLabel;
+		$scope.newItem.created = file.created;
+		$scope.newItem.expiryDate = file.expiryDate;
+		$scope.newItem.description = file.description;
+		$scope.newItem._id = file._id;
+
 		template.open('lightbox', 'editFile');
-		$scope.editFileId = editFileId;
 	};
 
 	$scope.editMaxDate = function(createdDate) {
@@ -216,31 +233,28 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 
 	$scope.updateFile = function(fileId) {
 		var data = {
-					"fileNameLabel": $scope.newItem.label,
-					"expiryDate": $scope.newItem.expiryDate,
-					"description": $scope.newItem.description
+			"fileNameLabel": $scope.newItem.fileNameLabel,
+			"expiryDate": moment($scope.newItem.expiryDate.$date).format('YYYY-MM-DD HH:mm.ss.SSS'),
+			"description": $scope.newItem.description
 		};
-		$scope.newItem.updateFile(fileId, data)(
-		).done(function(result){
-		}).e400(function(e){
-			var error = JSON.parse(e.responseText);
-			notify.error(error.error);
-		})
+		$scope.newItem.updateFile(fileId, data, function (e) {
+			bigFilesError(e);
+		});
 	}
 	$scope.postFiles = function(){
-			_.forEach($scope.newItem.newFiles, function(targetAttachment){
-				var attachmentObj = {
-					file: targetAttachment,
-					progress: {
-						total: 100,
-						completion: 0
-					}
+		_.forEach($scope.newItem.newFiles, function(targetAttachment){
+			var attachmentObj = {
+				file: targetAttachment,
+				progress: {
+					total: 100,
+					completion: 0
 				}
+			}
 
-				if($scope.newItem.loadingAttachments)
-					$scope.newItem.loadingAttachments.push(attachmentObj);
-				else
-					$scope.newItem.loadingAttachments = [attachmentObj];
+			if($scope.newItem.loadingAttachments) {
+				$scope.newItem.loadingAttachments.push(attachmentObj);
+			} else {
+				$scope.newItem.loadingAttachments = [attachmentObj];
 
 				var formData = new FormData();
 				formData.append('file', attachmentObj.file);
@@ -249,45 +263,60 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 				formData.append('description', $scope.newItem.description);
 
 				$scope.newItem.postAttachment(formData, {
-					xhr: function() {
-						var xhr = new window.XMLHttpRequest();
+							xhr: function () {
+								var xhr = new window.XMLHttpRequest();
 
-						xhr.upload.addEventListener("progress", function(e) {
-							if (e.lengthComputable) {
-								var percentage = Math.round((e.loaded * 100) / e.total)
-								attachmentObj.progress.completion = percentage
-								$scope.$apply()
+								xhr.upload.addEventListener("progress", function (e) {
+									if (e.lengthComputable) {
+										var percentage = Math.round((e.loaded * 100) / e.total)
+										attachmentObj.progress.completion = percentage
+										$scope.$apply();
+									}
+								}, false);
+
+								return xhr;
 							}
-						}, false);
+						},
+						attachmentObj,
+						function (id, attachmentObj) {
+							attachmentObj.id = id;
+							attachmentObj.filename = attachmentObj.file.name;
+							attachmentObj.size = attachmentObj.file.size;
+							attachmentObj.contentType = attachmentObj.file.type;
+							if (!$scope.newItem.attachments)
+								$scope.newItem.attachments = [];
+							$scope.newItem.attachments.push(attachmentObj);
+							$scope.getQuota();
+						},
+						function (e) {
+							bigFilesError(e);
+						}
+				)
+			}
+		})
+	}
 
-						return xhr;
-					}
-				}).done(function(result){
-					attachmentObj.id = result.id
-					attachmentObj.filename = attachmentObj.file.name
-					attachmentObj.size = attachmentObj.file.size
-					attachmentObj.contentType = attachmentObj.file.type
-					if(!$scope.newItem.attachments)
-						$scope.newItem.attachments = []
-					$scope.newItem.attachments.push(attachmentObj)
-					$scope.getQuota()
-				}).e400(function(e){
-					var error = JSON.parse(e.responseText);
-					notify.error(error.error);
-				})
-			})
-		}
+	var bigFilesError = function(e){
+		notify.error(e.error);
+		$scope.currentErrors.push(e);
+		$scope.$apply();
+	};
+
+	var bigFilesOk = function(i18n){
+		notify.info(i18n);
+		$scope.$apply();
+	};
 }
 
 /**
-	FolderController
-	----------------
-	Sharebigfiles are split in 3 "folders" :
-		- Ownermade
-		- Shared
-		- Deleted
-	This controller helps dealing with these 3 views.
-**/
+ FolderController
+ ----------------
+ Sharebigfiles are split in 3 "folders" :
+ - Ownermade
+ - Shared
+ - Deleted
+ This controller helps dealing with these 3 views.
+ **/
 function FolderController($scope, $rootScope, model, template){
 
 	$scope.sharebigfilesList = model.sharebigfilesCollection.sharebigfiless
@@ -417,21 +446,35 @@ function FolderController($scope, $rootScope, model, template){
 	}
 
 	$scope.removesharebigfiles = function(){
-		$scope.sharebigfilesList.remove()
+		$scope.sharebigfilesList.remove(function () {
+			bigFilesOk('sharebigfiles.notify.deleted');
+		},function (e) {
+			bigFilesError(e);
+		});
 		if(template.contains('list', 'sharebigfiles-infos'))
 			$scope.closeInfos()
 	}
 
-	$scope.saveInfos = function(){
+	$scope.saveInfos = function(id){
 		if(!$scope.sharebigfiles.title){
 			notify.error('sharebigfiles.title.missing')
 			return;
 		}
-		if($scope.sharebigfiles._id){
-			$scope.sharebigfiles.update(DEFAULT_VIEW)
+
+		if (id) {
+			$scope.sharebigfiles._id = id;
 		}
-		else{
-			$scope.sharebigfiles.create(DEFAULT_VIEW)
+
+		if($scope.sharebigfiles._id) {
+			$scope.sharebigfiles.update(DEFAULT_VIEW,
+					function (e) {
+						bigFilesError(e);
+					});
+		} else {
+			$scope.sharebigfiles.create(DEFAULT_VIEW,
+					function (e) {
+						bigFilesError(e);
+					});
 		}
 	}
 
@@ -447,6 +490,17 @@ function FolderController($scope, $rootScope, model, template){
 	$rootScope.$on('share-updated', function(){
 		$scope.sharebigfilesList.sync()
 	})
+
+	var bigFilesError = function(e){
+		notify.error(e.error);
+		$scope.currentErrors.push(e);
+		$scope.$apply();
+	};
+
+	var bigFilesOk = function(i18n){
+		notify.info(i18n);
+		$scope.$apply();
+	};
 
 	//Default view displayed on opening
 	DEFAULT_VIEW()
