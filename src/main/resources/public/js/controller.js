@@ -18,13 +18,13 @@ routes.define(function($routeProvider){
 **/
 function SharebigfilesController($scope, $rootScope, model, template, route, date){
 
-	$scope.template = template
+	$scope.template = template;
 	$scope.expDateList = {tab:[1,5,10,30]};
 
 	$scope.newItem = new Upload();
 	$scope.newLog = new Log();
 	$scope.newLogId = "";
-	$scope.editFileId = "48efd526-1de4-4407-9771-900711f74ccd";
+	$scope.editFileId = "";
 
 	$scope.newItem.expDate = 1;
 	$scope.newItem.residualQuota = 0;
@@ -33,10 +33,12 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	$scope.expiryDate = myDate.setDate(myDate.getDate() + $scope.newItem.expDate);
 
 	$scope.maxFileSize = parseInt(lang.translate('max.file.size'));
-	$scope.lightbox = {}
+	$scope.lightbox = {};
 	$scope.uploads = model.uploads;
 	$scope.logs = model.logs;
 	$scope.me = model.me;
+
+	$scope.dateMaxExpirationDays = 30;
 
 	route({
 		defaultView: function(){
@@ -58,9 +60,27 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		template.open('lightbox', 'importFile')
 	}
 
-	$scope.updateExpirationDate = function() {
-		newExpDate = moment(new Date()).add($scope.newItem.expDate, 'days');
-		$scope.expiryDate = moment(newExpDate, 'YYYY-MM-DD HH:mm.ss.SSS');
+	$scope.updateExpirationDate = function(createdDate) {
+		var exDate = $scope.newItem.expDate;
+		var myDate = new Date();
+		myDate.setDate(myDate.getDate() + exDate);
+		$scope.expiryDate = myDate;
+	}
+
+	$scope.editExpirationDate = function(createdDate) {
+		var exDate = $scope.newItem.expDate;
+		var myDate = new Date();
+		myDate.setDate(myDate.getDate() + exDate);
+		$scope.expirationDate = myDate;
+		newExpDate = moment(new Date()).add(exDate, 'days');
+		$scope.expiryDate = newExpDate;
+		//createdDate = moment(createdDate).format('YYYY-MM-DD');
+
+		var startMoment = moment(createdDate).utc().milliseconds(0);
+		var endMoment = moment($scope.expiryDate).utc().milliseconds(0);
+		var duration = endMoment.diff(startMoment, 'days');
+
+		$scope.dateMaxExpirationDays = $scope.newItem.expirationDateList[$scope.newItem.expirationDateList.length-1]-duration;
 	}
 
 	$scope.maxSize = function(){
@@ -195,12 +215,6 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		template.open('lightbox', 'editFile');
 		$scope.editFileId = editFileId;
 	};
-
-	$scope.editMaxDate = function(createdDate) {
-		var timeDiff = Math.abs($scope.expiryDate.getTime() - createdDate.getTime());
-		var maxDate = Math.ceil(timeDiff / (1000 * 3600 * 24));
-		return maxDate;
-	}
 
 	$scope.closeImportView = function() {
 		$scope.lightbox.show=false;
