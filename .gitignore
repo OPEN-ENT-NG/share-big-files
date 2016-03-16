@@ -1,5 +1,6 @@
 /build
 /bin
+/node_modules
 .DS_Store
 .gradle
 .idea
@@ -11,6 +12,8 @@
 bin
 build
 */build
+node_modules
+*/node_modules
 target
 out
 *.iml
