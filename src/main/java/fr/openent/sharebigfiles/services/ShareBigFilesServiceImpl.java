@@ -25,11 +25,8 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 
 	private final Long maxQuota;
 
-	private final Long maxRepositoryQuota;
-
-	public ShareBigFilesServiceImpl(final Long maxQuota, final Long maxRepositoryQuota) {
+	public ShareBigFilesServiceImpl(final Long maxQuota) {
 		this.maxQuota = maxQuota;
-		this.maxRepositoryQuota = maxRepositoryQuota;
 	}
 
 	@Override
@@ -73,37 +70,10 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 					final Long residualUser = ShareBigFilesServiceImpl.this.maxQuota - totalUser;
 					final Long residualUserSize = (residualUser < 0) ? 0L : residualUser;
 
-					getQuotaRepository(new Handler<Long>() {
-						@Override
-						public void handle(Long event) {
-							handler.handle(j.putNumber("residualQuota", residualUserSize).putNumber("residualRepositoryQuota",
-									event).putString("status", "ok"));
-						}
-					});
+					handler.handle(j.putNumber("residualQuota", residualUserSize).putString("status", "ok"));
 				} else {
 					handler.handle(j.putString("status", status));
 				}
-			}
-		});
-	}
-
-	private void getQuotaRepository(final Handler<Long> handler) {
-		final QueryBuilder query = QueryBuilder.start("_id").is(ShareBigFiles.ID_REPOSITORY_CONSUMED);
-		mongo.findOne(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(query), new Handler<Message<JsonObject>>() {
-			@Override
-			public void handle(Message<JsonObject> event) {
-				JsonObject res = event.body().getObject("result");
-				Long totalRepositoryConsumed = 0L;
-				if ("ok".equals(event.body().getString("status"))) {
-					if (res != null) {
-						totalRepositoryConsumed = Long.parseLong(res.getNumber("sizeConsumed", 0).toString());
-					}
-				} else {
-					log.error(event.body().getString("message"));
-				}
-				final Long residualRepository = ShareBigFilesServiceImpl.this.maxRepositoryQuota - totalRepositoryConsumed;
-				final Long residualRepositorySize = (residualRepository < 0) ? 0L : residualRepository;
-				handler.handle(residualRepositorySize);
 			}
 		});
 	}

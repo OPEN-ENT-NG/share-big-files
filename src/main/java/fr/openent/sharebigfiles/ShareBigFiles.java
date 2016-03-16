@@ -1,7 +1,6 @@
 package fr.openent.sharebigfiles;
 
 import fr.openent.sharebigfiles.controllers.ShareBigFilesController;
-import fr.openent.sharebigfiles.cron.CalculateSizeRepositoryConsumed;
 import fr.openent.sharebigfiles.services.ShareBigFilesService;
 import fr.openent.sharebigfiles.services.ShareBigFilesServiceImpl;
 import fr.wseduc.cron.CronTrigger;
@@ -40,7 +39,7 @@ public class ShareBigFiles extends BaseServer {
 				new JsonArray(new Integer[]{1, 5, 10, 30}));
 
 		final CrudService shareBigFileCrudService = new MongoDbCrudService(SHARE_BIG_FILE_COLLECTION);
-		final ShareBigFilesService shareBigFilesService = new ShareBigFilesServiceImpl(maxQuota, maxRepositoryQuota);
+		final ShareBigFilesService shareBigFilesService = new ShareBigFilesServiceImpl(maxQuota);
 		final Storage storage = new StorageFactory(vertx, container.config()).getStorage();
 		addController(new ShareBigFilesController(storage, shareBigFileCrudService, shareBigFilesService, log, maxQuota,
 				maxRepositoryQuota, expirationDateList));
@@ -48,15 +47,11 @@ public class ShareBigFiles extends BaseServer {
 		setDefaultResourceFilter(new ShareAndOwner());
 
 		final String purgeFilesCron = container.config().getString("purgeFilesCron", "0 0 23 * * ?");
-		final String calculateSizeRepositoryCron = container.config().getString("sizeFilesCron", "0 30 23 * * ?");
 		final TimelineHelper timelineHelper = new TimelineHelper(vertx, vertx.eventBus(), container);
 
 		try {
 			new CronTrigger(vertx, purgeFilesCron).schedule(
 					new DeleteOldFile(timelineHelper, storage)
-			);
-			new CronTrigger(vertx, calculateSizeRepositoryCron).schedule(
-					new CalculateSizeRepositoryConsumed()
 			);
 		} catch (ParseException e) {
 			log.fatal("[Share Big File] Invalid cron expression.", e);
