@@ -14,10 +14,12 @@ import org.entcore.common.events.EventStoreFactory;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
 import org.entcore.common.service.CrudService;
 import org.entcore.common.service.VisibilityFilter;
+import org.entcore.common.storage.BucketStats;
 import org.entcore.common.storage.Storage;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.AsyncResult;
+import org.vertx.java.core.AsyncResultHandler;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -130,37 +132,40 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 									@Override
 									public void handle(JsonObject event) {
 										if ("ok".equals(event.getString("status"))) {
-											Long residualQuota = event.getLong("residualQuota");
-											residualQuota = residualQuota - metadata.getLong("size");
+											final Long residualQuota = event.getLong("residualQuota") - metadata.getLong("size");
 
-											Long residualRepositoryQuota = event.getLong("residualRepositoryQuota");
-											residualRepositoryQuota = residualRepositoryQuota - metadata.getLong("size");
-											final Boolean isErrorQuotaUser = residualQuota < 0;
+											getResidualRepositorySize(new Handler<Long>() {
+												@Override
+												public void handle(Long residualRepositorySize) {
+													final Long residualRepositoryQuota = residualRepositorySize - metadata.getLong("size");
+													final Boolean isErrorQuotaUser = residualQuota < 0;
 
-											if (isErrorQuotaUser || residualRepositoryQuota < 0) {
-												storage.removeFile(idFile, new Handler<JsonObject>() {
-													@Override
-													public void handle(JsonObject event) {
-														if ("error".equals(event.getString("status"))) {
-															log.error("swift orphaned file width id " + idFile);
-														}
+													if (isErrorQuotaUser || residualRepositoryQuota < 0) {
+														storage.removeFile(idFile, new Handler<JsonObject>() {
+															@Override
+															public void handle(JsonObject event) {
+																if ("error".equals(event.getString("status"))) {
+																	log.error("swift orphaned file width id " + idFile);
+																}
 
-														Renders.badRequest(request,
-																i18n.translate((isErrorQuotaUser) ?
-																				"sharebigfiles.exceeded.quota" :
-																				"sharebigfiles.exceeded.repository.quota",
-																		I18n.acceptLanguage(request),
-																		metadata.getString("filename")));
+																Renders.badRequest(request,
+																		i18n.translate((isErrorQuotaUser) ?
+																						"sharebigfiles.exceeded.quota" :
+																						"sharebigfiles.exceeded.repository.quota",
+																				I18n.acceptLanguage(request),
+																				metadata.getString("filename")));
+															}
+														});
+													} else {
+														final String date = request.formAttributes().get("expiryDate");
+														final String fileNameLabel = request.formAttributes().get("fileNameLabel");
+														final String description = request.formAttributes().get("description");
+
+														ShareBigFilesController.this.create(description, date, fileNameLabel,
+																idFile, metadata, user, request);
 													}
-												});
-											} else {
-												final String date = request.formAttributes().get("expiryDate");
-												final String fileNameLabel = request.formAttributes().get("fileNameLabel");
-												final String description = request.formAttributes().get("description");
-
-												ShareBigFilesController.this.create(description, date, fileNameLabel,
-														idFile, metadata, user, request);
-											}
+												}
+											});
 										} else {
 											Renders.renderError(request);
 										}
@@ -274,10 +279,18 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 						@Override
 						public void handle(JsonObject event) {
 							if ("ok".equals(event.getString("status"))) {
-								event.removeField("status");
-								event.putNumber("maxFileQuota", ShareBigFilesController.this.maxQuota);
-								event.putNumber("maxRepositoryQuota", ShareBigFilesController.this.maxRepositoryQuota);
-								Renders.renderJson(request, event);
+								final JsonObject result = event;
+								getResidualRepositorySize(new Handler<Long>() {
+									@Override
+									public void handle(Long residualRepositorySize) {
+										result.removeField("status");
+										result.putNumber("maxFileQuota", ShareBigFilesController.this.maxQuota);
+										result.putNumber("maxRepositoryQuota", ShareBigFilesController.this.maxRepositoryQuota);
+										result.putNumber("residualRepositoryQuota",
+												residualRepositorySize);
+										Renders.renderJson(request, result);
+									}
+								});
 							} else {
 								Renders.renderError(request);
 							}
@@ -289,6 +302,23 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 					}
 					Renders.unauthorized(request);
 				}
+			}
+		});
+	}
+
+	private void getResidualRepositorySize(final Handler<Long> handler) {
+		storage.stats(new AsyncResultHandler<BucketStats>() {
+			@Override
+			public void handle(AsyncResult<BucketStats> event) {
+				Long residualRepositorySize = 0L;
+				if (event.succeeded()) {
+					final Long sizeUsed = event.result().getStorageSize();
+					final Long residualRepository = ShareBigFilesController.this.maxRepositoryQuota - sizeUsed;
+					residualRepositorySize = (residualRepository < 0) ? 0L : residualRepository;
+				} else {
+					log.error("Can't get the repository stats : ", event.cause());
+				}
+				handler.handle(residualRepositorySize);
 			}
 		});
 	}
