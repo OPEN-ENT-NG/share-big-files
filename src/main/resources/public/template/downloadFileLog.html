@@ -6,9 +6,6 @@
         <button ng-click="shareBigFilesOpen()"><i18n>back</i18n></button>
 
     </div>
-    <div class="row">
-        <span translate content="file"></span>
-    </div>
 </div>
 
 <article class="list-view">
@@ -29,7 +26,7 @@
                 <a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[downloadLog.userDisplayName]]</a>
             </td>
             <td class="content">
-                [[downloadLog.downloadDate()]]
+                [[sharebigfiles.downloadedDate(downloadLog)]]
             </td>
         </tr>
         </tbody>

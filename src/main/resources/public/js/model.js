@@ -16,17 +16,13 @@ Sharebigfiles.prototype = {
 					}
 				});
 	},
-	//fixme kevin what the fuck, we don't have a trash microservice
-	trash 		: function(){ return http().put		(this.API_PATH + '/' + this._id + '/trash').done(function(){ notify.info('sharebigfiles.notify.trashed') }) },
-	//fixme kevin what the fuck, we don't have a recover microservice
-	restore 	: function(){ return http().put		(this.API_PATH + '/' + this._id + '/recover').done(function(){ notify.info('sharebigfiles.notify.restored') }) },
 	create 		: function(cb, cbe){
 		var sharebigfiles = this
 		return http().postJson(this.API_PATH, {
 			"title": 		sharebigfiles.title,
 			"thumbnail": 	(sharebigfiles.thumbnail === undefined ? "" : sharebigfiles.thumbnail)
 		}).done(function(){
-			//fixme kevin bad notify or must be in callback function
+			//fixme bad notify or must be in callback function
 			notify.info('sharebigfiles.notify.saved');
 			if(typeof cb === 'function'){
 				cb();
@@ -43,7 +39,7 @@ Sharebigfiles.prototype = {
 			"title": 		sharebigfiles.title,
 			"thumbnail": 	sharebigfiles.thumbnail
 		}).done(function(){
-			//fixme kevin bad notify or must be in callback function
+			//fixme bad notify or must be in callback function
 			notify.info('sharebigfiles.notify.modified');
 			if(typeof cb === 'function'){
 				cb();
@@ -89,7 +85,7 @@ function SharebigfilesCollection(){
 					},cb, cbe);
 				}
 				else{
-					//fixme kevin what the fuck, we don't have a trash microservice
+					//fixme trash microservice
 					item.trash().done(function(){
 						if(++parsedCount === collection.selection().length)
 							collection.sync()
@@ -97,17 +93,6 @@ function SharebigfilesCollection(){
 				}
 			})
 		},
-		//fixme kevin what the fuck, we don't have a trash microservice
-		restore: function(){
-			collection = this
-			var parsedCount = 0
-			this.selection().forEach(function(item){
-				item.restore().done(function(){
-					if(++parsedCount === collection.selection().length)
-						collection.sync()
-				})
-			})
-		}
 	})
 }
 
@@ -122,8 +107,8 @@ function Upload(data) {
 	this.expireDate = function(){
 		return moment(parseInt(this.expiryDate.$date)).format('DD/MM/YYYY HH:mm')
 	};
-	this.downloadedDate = function(){
-		return moment(parseInt(this.downloadDate.$date)).format('DD/MM/YYYY HH:mm')
+	this.downloadedDate = function(downloadlog){
+		return moment(parseInt(downloadlog.downloadDate.$date)).format('DD/MM/YYYY HH:mm')
 	};
 }
 
@@ -147,7 +132,7 @@ Upload.prototype.getList = function () {
 };
 
 Upload.prototype.getQuota = function () {
-	return http().get("/sharebigfiles/quota")
+	return http().get("/sharebigfiles/quota2")
 };
 
 Upload.prototype.updateFile = function (fileId, data, cbe) {

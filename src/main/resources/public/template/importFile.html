@@ -9,7 +9,7 @@
                 <strong translate content="sharebigfiles.expirations"></strong>
                 <select name="expiration" ng-change="updateExpirationDate()" ng-model="newItem.expDate" ng-options="exp for exp in newItem.expirationDateList">
                 </select>
-                <span translate content="sharebigfiles.expirationDays"></span> [[expiryDate | date:'DD/MM/YYYY']]
+                <span translate content="sharebigfiles.expirationDays"></span> [[expiryDate | date:'dd/MM/yyyy']]
                 </br>
                 <strong translate content="sharebigfiles.fileName"></strong>
                 <input ng-required="true" type="text" ng-model="newItem.label" maxlength="50"/>

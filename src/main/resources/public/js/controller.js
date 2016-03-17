@@ -36,7 +36,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	$scope.newItem.residualQuota = 0;
 
 	var myDate = new Date();
-	$scope.expiryDate = myDate.setDate(myDate.getDate() + $scope.newItem.expDate);
+	$scope.expiryDateUpgrade = $scope.expiryDate = myDate.setDate(myDate.getDate() + $scope.newItem.expDate);
 
 	$scope.maxFileSize = parseInt(lang.translate('max.file.size'));
 	$scope.lightbox = {};
@@ -73,14 +73,14 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		template.open('lightbox', 'importFile')
 	}
 
-	$scope.updateExpirationDateUpgrade = function() {
-		newExpDate = moment($scope.newItem.expiryDate.$date).add($scope.newItem.expDate, 'days');
-		$scope.newItem.expiryDate.$date = moment(newExpDate, 'YYYY-MM-DD HH:mm.ss.SSS').valueOf();
-	}
-
 	$scope.updateExpirationDate = function() {
 		newExpDate = moment(new Date()).add($scope.newItem.expDate, 'days');
-		$scope.expiryDate = moment(newExpDate, 'YYYY-MM-DD HH:mm.ss.SSS');
+		$scope.expiryDate = moment(newExpDate, 'YYYY-MM-DD HH:mm.ss.SSS').valueOf();
+	}
+
+	$scope.updateExpirationDateUpgrade = function() {
+		newExpDate = moment(new Date()).add($scope.newItem.expDate, 'days');
+		$scope.expiryDateUpgrade = $scope.newItem.expiryDate.$date = moment(newExpDate, 'YYYY-MM-DD HH:mm.ss.SSS').valueOf();
 	}
 
 	$scope.maxSize = function(){
@@ -186,12 +186,11 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 
 	$scope.getQuota = function(){
 		$scope.newItem.getQuota(
-
 		).done(function(result){
 			$scope.newItem.residualQuota = result.residualQuota;
-		}).e400(function(e){
+		}).e404(function(e){
 			var error = JSON.parse(e.responseText);
-			notify.error(error.error);
+			bigFilesError(error);
 		})
 	};
 
@@ -217,9 +216,17 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		$scope.newItem.expiryDate = file.expiryDate;
 		$scope.newItem.description = file.description;
 		$scope.newItem._id = file._id;
+		$scope.getExpirationMax(file);
 
 		template.open('lightbox', 'editFile');
 	};
+
+	$scope.getExpirationMax = function(file) {
+		var dateExp = moment(file.expiryDate.$date).format('MM/DD/YYYY');;
+		var dateCrea = moment(file.created.$date).format('MM/DD/YYYY');;
+		var diff = $scope.newItem.expirationDateList[$scope.newItem.expirationDateList.length-1] - moment(dateExp).diff(dateCrea, 'days');
+		$scope.expirationMax = diff;
+	}
 
 	$scope.closeImportView = function() {
 		$scope.lightbox.show=false;
@@ -438,6 +445,12 @@ function FolderController($scope, $rootScope, model, template){
 		}
 		else {
 			$scope.download = false;
+		}
+	}
+
+	$scope.lowerThan = function(val){
+		return function(item){
+			return item <= val;
 		}
 	}
 
