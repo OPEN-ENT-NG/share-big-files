@@ -32,11 +32,12 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	$scope.newLogId = "";
 	$scope.editFileId = "";
 
+	$scope.newItem.expDateUpgrade = 0;
 	$scope.newItem.expDate = 1;
 	$scope.newItem.residualQuota = 0;
 
 	var myDate = new Date();
-	$scope.expiryDateUpgrade = $scope.expiryDate = myDate.setDate(myDate.getDate() + $scope.newItem.expDate);
+	$scope.expiryDate = myDate.setDate(myDate.getDate() + $scope.newItem.expDate);
 
 	$scope.maxFileSize = parseInt(lang.translate('max.file.size'));
 	$scope.lightbox = {};
@@ -79,8 +80,8 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	}
 
 	$scope.updateExpirationDateUpgrade = function() {
-		newExpDate = moment(new Date()).add($scope.newItem.expDate, 'days');
-		$scope.expiryDateUpgrade = $scope.newItem.expiryDate.$date = moment(newExpDate, 'YYYY-MM-DD HH:mm.ss.SSS').valueOf();
+		newExpDate = moment($scope.newItem.expiryDate.$date).add($scope.newItem.expDateUpgrade, 'days');
+		$scope.expiryDateUpgrade = $scope.expDateUprade = moment(newExpDate, 'YYYY-MM-DD HH:mm.ss.SSS').valueOf();
 	}
 
 	$scope.maxSize = function(){
@@ -198,6 +199,8 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		$scope.newItem.getExpirationDateList(
 		).done(function(result){
 			$scope.newItem.expirationDateList = result.expirationDateList;
+			var expList = [0];
+			$scope.newItem.expirationDateListEdit = expList.concat($scope.newItem.expirationDateList);
 		}).e400(function(e){
 			var error = JSON.parse(e.responseText);
 			notify.error(error.error);
@@ -217,6 +220,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		$scope.newItem.description = file.description;
 		$scope.newItem._id = file._id;
 		$scope.getExpirationMax(file);
+		$scope.expiryDateUpgrade =  moment(file.expiryDate.$date).format('DD/MM/YYYY').valueOf();
 
 		template.open('lightbox', 'editFile');
 	};
@@ -235,6 +239,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	};
 
 	$scope.updateFile = function(fileId) {
+		$scope.newItem.expiryDate.$date = $scope.expDateUprade;
 		var data = {
 			"fileNameLabel": $scope.newItem.fileNameLabel,
 			"expiryDate": moment($scope.newItem.expiryDate.$date).format('YYYY-MM-DD HH:mm.ss.SSS'),

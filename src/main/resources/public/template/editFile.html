@@ -9,7 +9,7 @@
                 <span translate content="sharebigfiles.sizeLeft"></span><strong> [[formatDocumentSize(newItem.residualQuota)]] </strong><span translate content="sharebigfiles.onStorage"></span>
                 </br></br>
                 <strong translate content="sharebigfiles.expirations"></strong>
-                <select name="expiration" ng-change="updateExpirationDateUpgrade()" ng-model="newItem.expDate" ng-options="exp for exp in (newItem.expirationDateList | filter: lowerThan(expirationMax))">
+                <select name="expiration" ng-change="updateExpirationDateUpgrade()" ng-model="newItem.expDateUpgrade" ng-options="exp for exp in (newItem.expirationDateListEdit | filter: lowerThan(expirationMax))">
                 </select>
                 <span translate content="sharebigfiles.expirationDays"></span> [[expiryDateUpgrade | date:'dd/MM/yyyy']]
                 </br>                </br>
