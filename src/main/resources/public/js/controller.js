@@ -58,7 +58,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 			$scope.downloadFile(params.id);
 		},
 		editFile: function(params){
-			template.open('main', 'library')
+			template.open('main', 'library');
 			$scope.editFile(params.id);
 		}
 	})
