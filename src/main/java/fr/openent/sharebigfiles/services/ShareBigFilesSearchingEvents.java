@@ -24,7 +24,7 @@ public class ShareBigFilesSearchingEvents implements SearchingEvents {
 
 	@Override
 	public void searchResource(List<String> appFilters, String userId, JsonArray groupIds, JsonArray searchWords, Integer page, Integer limit,
-							   final JsonArray columnsHeader, final Handler<Either<String, JsonArray>> handler) {
+							   final JsonArray columnsHeader, final String locale, final Handler<Either<String, JsonArray>> handler) {
 		final List<String> returnFields = new ArrayList<String>();
 		returnFields.add("fileNameLabel");
 		returnFields.add("description");
@@ -46,11 +46,11 @@ public class ShareBigFilesSearchingEvents implements SearchingEvents {
 					} else {
 						handler.handle(new Either.Left<String, JsonArray>(event.left().getValue()));
 					}
+					if (log.isDebugEnabled()) {
+						log.debug("[ShareBigFilesSearchingEvents][searchResource] The resources searched by user are finded");
+					}
 				}
 			});
-			if (log.isDebugEnabled()) {
-				log.debug("[ShareBigFilesSearchingEvents][searchResource] The resources searched by user are finded");
-			}
 		} else {
 			handler.handle(new Right<String, JsonArray>(new JsonArray()));
 		}
