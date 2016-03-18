@@ -1,6 +1,7 @@
 package fr.openent.sharebigfiles;
 
 import fr.openent.sharebigfiles.controllers.ShareBigFilesController;
+import fr.openent.sharebigfiles.services.ShareBigFilesSearchingEvents;
 import fr.openent.sharebigfiles.services.ShareBigFilesService;
 import fr.openent.sharebigfiles.services.ShareBigFilesServiceImpl;
 import fr.wseduc.cron.CronTrigger;
@@ -11,6 +12,7 @@ import org.entcore.common.mongodb.MongoDbConf;
 import org.entcore.common.notification.TimelineHelper;
 import org.entcore.common.service.CrudService;
 import org.entcore.common.service.impl.MongoDbCrudService;
+import org.entcore.common.service.impl.MongoDbSearchService;
 import org.entcore.common.storage.Storage;
 import org.entcore.common.storage.StorageFactory;
 import org.vertx.java.core.json.JsonArray;
@@ -45,6 +47,8 @@ public class ShareBigFiles extends BaseServer {
 				maxRepositoryQuota, expirationDateList));
 
 		setDefaultResourceFilter(new ShareAndOwner());
+		// Subscribe to events published for searching
+		setSearchingEvents(new ShareBigFilesSearchingEvents(new MongoDbSearchService(SHARE_BIG_FILE_COLLECTION)));
 
 		final String purgeFilesCron = container.config().getString("purgeFilesCron", "0 0 23 * * ?");
 		final TimelineHelper timelineHelper = new TimelineHelper(vertx, vertx.eventBus(), container);
