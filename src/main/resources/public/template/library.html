@@ -43,10 +43,10 @@
 					<button class="cell" translate content="remove" ng-click="removesharebigfiles()"/>
 				</behaviour>
 				<behaviour name="manager" resource="sharebigfilesList.selection()">
-					<button class="cell" translate content="Télécharger" ng-click="downloadFile('sharebigfilesList.selection()')"/>
+					<button class="cell" translate content="Télécharger" ng-click="downloadAction()"/>
 				</behaviour>
 				<behaviour name="manager" resource="sharebigfilesList.selection()">
-					<button class="cell" translate content="properties" ng-click="downloadFile('sharebigfilesList.selection()')"/>
+					<button class="cell" translate content="properties" ng-click="editFileAction()"/>
 				</behaviour>
 				<div ng-show="$scope.download" class="four cells right-magnet">
 					<progress-bar max="100" filled="35" unit="%"></progress-bar>

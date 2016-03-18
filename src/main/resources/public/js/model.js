@@ -131,6 +131,10 @@ Upload.prototype.getList = function () {
 	return http().get("/sharebigfiles/list")
 };
 
+Upload.prototype.deleteItem = function (id) {
+	return http().delete("/sharebigfiles/"+id)
+};
+
 Upload.prototype.getQuota = function () {
 	return http().get("/sharebigfiles/quota2")
 };
