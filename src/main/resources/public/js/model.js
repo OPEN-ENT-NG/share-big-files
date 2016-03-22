@@ -136,7 +136,7 @@ Upload.prototype.deleteItem = function (id) {
 };
 
 Upload.prototype.getQuota = function () {
-	return http().get("/sharebigfiles/quota2")
+	return http().get("/sharebigfiles/quota")
 };
 
 Upload.prototype.updateFile = function (fileId, data, cbe) {
@@ -152,6 +152,11 @@ Upload.prototype.getExpirationDateList = function () {
 };
 
 Upload.prototype.downloadFile = function (id) {
+	for (var i = 0; i < model.uploads.all.length ; i++) {
+		if (model.uploads.all[i]._id=== (id)) {
+			model.uploads.all[i].downloadLogs.push({userDisplayName:model.me.username, downloadDate:new Date()});
+		}
+	}
 	return "/sharebigfiles/download/"+id;
 };
 

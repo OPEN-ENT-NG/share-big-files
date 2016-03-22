@@ -26,6 +26,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 
 	$scope.template = template;
 	$scope.expDateList = {tab:[1,5,10,30]};
+	$scope.sharebigfilesList = model.sharebigfilesCollection.sharebigfiless
 
 	$scope.newItem = new Upload();
 	$scope.newLog = new Log();
@@ -73,6 +74,10 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		$scope.lightbox.show = true;
 		template.open('lightbox', 'importFile')
 	}
+
+	$scope.selectedDocuments = function(){
+		return _.where($scope.openedFolder.content, {selected: true});
+	};
 
 	$scope.updateExpirationDate = function() {
 		newExpDate = moment(new Date()).add($scope.newItem.expDate, 'days');
@@ -209,7 +214,6 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 
 	$scope.downloadFile = function(id){
 		window.location.href = $scope.newItem.downloadFile(id);
-		model.uploads.sync();
 	};
 
 	$scope.downloadAction = function(){
@@ -218,6 +222,15 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 			$scope.downloadFile(item._id);
 
 		});
+	}
+
+	$scope.multipleSelection = function(){
+		if(model.uploads.selection().length>1){
+			$scope.multipleSelected = true;
+		}
+		else{
+			$scope.multipleSelected = false;
+		}
 	}
 
 	$scope.editFileAction = function(){
@@ -256,7 +269,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		$scope.newItem.expiryDate.$date = $scope.expDateUprade;
 		var data = {
 			"fileNameLabel": $scope.newItem.fileNameLabel,
-			"expiryDate": moment($scope.newItem.expiryDate.$date).format('YYYY-MM-DD HH:mm.ss.SSS'),
+			"expiryDate": moment($scope.expDateUprade).valueOf(),
 			"description": $scope.newItem.description
 		};
 		$scope.newItem.updateFile(fileId, data, function (e) {
@@ -278,9 +291,13 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 			} else {
 				$scope.newItem.loadingAttachments = [attachmentObj];
 
+			if(!$scope.newItem.description) {
+				$scope.newItem.description="";
+			}
+			var date = moment($scope.expiryDate).valueOf();
 				var formData = new FormData();
 				formData.append('file', attachmentObj.file);
-				formData.append('expiryDate', $scope.expiryDate);
+				formData.append('expiryDate',  date);
 				formData.append('fileNameLabel', $scope.newItem.label);
 				formData.append('description', $scope.newItem.description);
 
@@ -340,8 +357,8 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
  This controller helps dealing with these 3 views.
  **/
 function FolderController($scope, $rootScope, model, template){
-
 	$scope.sharebigfilesList = model.sharebigfilesCollection.sharebigfiless
+
 	$scope.filterSharebigfiles = {}
 	$scope.select = { all: false }
 	$scope.ordering = 'title'
