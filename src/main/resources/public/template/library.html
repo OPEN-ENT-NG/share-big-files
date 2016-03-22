@@ -36,7 +36,7 @@
 					<button class="cell" translate content="restore" ng-if="sharebigfilesList.folder === 'trash'" ng-click="sharebigfilesList.restore()"/>
 				</behaviour>
 				<behaviour name="manager" resource="sharebigfilesList.selection()">
-					<button class="cell" translate content="remove" ng-click="removesharebigfiles()"/>
+					<button class="cell" translate content="remove" ng-if="sharebigfilesList.selection().length === 1" ng-click="removesharebigfiles()"/>
 				</behaviour>
 				<behaviour name="manager" resource="sharebigfilesList.selection()">
 					<button class="cell" translate content="Télécharger" ng-click="downloadAction()"/>
