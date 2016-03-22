@@ -30,6 +30,7 @@ import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Container;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -463,7 +464,12 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 								@Override
 								public void handle(Either<String, JsonArray> event) {
 									if (event.isRight() && event.right().getValue() != null) {
-										storage.removeFiles(event.right().getValue(), new Handler<JsonObject>() {
+										final JsonArray ja = event.right().getValue();
+										final List<Object> fileIds = new ArrayList<Object>();
+										for (int i=0; i<ja.size(); i++) {
+											fileIds.add(((JsonObject)ja.get(i)).getString("fileId"));
+										}
+										storage.removeFiles(new JsonArray(fileIds), new Handler<JsonObject>() {
 											@Override
 											public void handle(JsonObject event) {
 												if ("ok".equals(event.getString("status"))) {
