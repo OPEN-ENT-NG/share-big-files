@@ -5,6 +5,8 @@ import fr.openent.sharebigfiles.ShareBigFiles;
 import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.mongodb.MongoQueryBuilder;
 import fr.wseduc.mongodb.MongoUpdateBuilder;
+import fr.wseduc.webutils.Either;
+import org.entcore.common.service.VisibilityFilter;
 import org.entcore.common.user.UserInfos;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
@@ -12,6 +14,12 @@ import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.List;
+
+import static org.entcore.common.mongodb.MongoDbResult.validActionResultHandler;
+import static org.entcore.common.mongodb.MongoDbResult.validResultsHandler;
 
 /**
  * MongoDB implementation of the REST service.
@@ -76,5 +84,19 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 				}
 			}
 		});
+	}
+
+	public void retrieves(List<String> ids, final JsonObject projection, UserInfos user, Handler<Either<String, JsonArray>> handler) {
+		QueryBuilder builder = QueryBuilder.start("_id").in(new HashSet<String>(ids));
+		if (user == null) {
+			builder.put("visibility").is(VisibilityFilter.PUBLIC.name());
+		}
+		mongo.find(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(builder),
+				null, projection, validResultsHandler(handler));
+	}
+
+	public void deletes(List<String> ids, Handler<Either<String, JsonObject>> handler) {
+		QueryBuilder q = QueryBuilder.start("_id").in(new HashSet<String>(ids));
+		mongo.delete(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(q), validActionResultHandler(handler));
 	}
 }

@@ -30,11 +30,9 @@ import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Container;
 
-import java.text.ParseException;
-import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
-import static fr.wseduc.mongodb.MongoDb.parseDate;
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
 /**
@@ -433,6 +431,54 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 							} else {
 								leftToResponse(request, event.left());
 							}
+						}
+					});
+				} else {
+					if (log.isDebugEnabled()) {
+						log.debug("User not found in session.");
+					}
+					Renders.unauthorized(request);
+				}
+			}
+		});
+	}
+
+	@Delete("/deletes")
+	@SecuredAction(value = manage_ressource, type = ActionType.RESOURCE)
+	public void deletes(final HttpServerRequest request) {
+		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+			@Override
+			public void handle(final UserInfos user) {
+				if (user != null) {
+					RequestUtils.bodyToJson(request, pathPrefix + "deletes", new Handler<JsonObject>() {
+						public void handle(JsonObject data) {
+							final List<String> ids = data.getArray("ids").toList();
+
+							final JsonObject projection = new JsonObject();
+							projection.putNumber("fileId", 1);
+							projection.putNumber("_id", 0);
+							//TODO add on extendedCRUD service in entcore : retrieve with List<Long> and deletes with list<Long>
+
+							shareBigFilesService.retrieves(ids, projection, user, new Handler<Either<String, JsonArray>>() {
+								@Override
+								public void handle(Either<String, JsonArray> event) {
+									if (event.isRight() && event.right().getValue() != null) {
+										storage.removeFiles(event.right().getValue(), new Handler<JsonObject>() {
+											@Override
+											public void handle(JsonObject event) {
+												if ("ok".equals(event.getString("status"))) {
+													shareBigFilesService.deletes(ids, notEmptyResponseHandler(request));
+												} else {
+													log.error("mongo orphaned objet without real storage file width id " + ids.toString());
+													Renders.renderError(request, event);
+												}
+											}
+										});
+									} else {
+										leftToResponse(request, event.left());
+									}
+								}
+							});
 						}
 					});
 				} else {
