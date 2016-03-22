@@ -23,7 +23,6 @@ public class ShareBigFiles extends BaseServer {
 
 	public static final String SHARE_BIG_FILE_COLLECTION = "bigfile";
 	public static final String SHARE_BIG_FILE = "shareBigFiles";
-	public static final String ID_REPOSITORY_CONSUMED = "0";
 
 	@Override
 	public void start() {

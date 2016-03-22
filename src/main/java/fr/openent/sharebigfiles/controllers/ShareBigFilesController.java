@@ -2,6 +2,7 @@ package fr.openent.sharebigfiles.controllers;
 
 import fr.openent.sharebigfiles.ShareBigFiles;
 import fr.openent.sharebigfiles.services.ShareBigFilesService;
+import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -158,10 +159,16 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 														});
 													} else {
 														final String date = request.formAttributes().get("expiryDate");
+														final Long expiryDate;
+														if (date != null && !date.isEmpty()) {
+															expiryDate = Long.parseLong(date);
+														} else {
+															expiryDate = 0L;
+														}
 														final String fileNameLabel = request.formAttributes().get("fileNameLabel");
 														final String description = request.formAttributes().get("description");
 
-														ShareBigFilesController.this.create(description, date, fileNameLabel,
+														ShareBigFilesController.this.create(description, expiryDate, fileNameLabel,
 																idFile, metadata, user, request);
 													}
 												}
@@ -186,7 +193,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 		});
 	}
 
-	private void create(String description, String date, String fileNameLabel, String idFile, JsonObject metadata,
+	private void create(String description, Long expiryDate, String fileNameLabel, String idFile, JsonObject metadata,
 						UserInfos user, HttpServerRequest request) {
 		final JsonObject object = new JsonObject();
 		object.putString("fileId", idFile);
@@ -194,17 +201,12 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 		//for the cron task knows the locale of user
 		object.putString("locale", I18n.acceptLanguage(request));
 		object.putString("description", description);
-
-		Date expiryDate = new Date();
-		try {
-			if (date != null && !date.isEmpty()) {
-				expiryDate = parseDate(date);
-			}
-		} catch (ParseException e) {
-			log.error(e.getMessage(), e);
+		if (expiryDate.equals(0L)) {
+			object.putObject("expiryDate", MongoDb.now());
+		} else {
+			object.putObject("expiryDate", new JsonObject().putValue("$date", expiryDate));
 		}
 
-		object.putObject("expiryDate", new JsonObject().putValue("$date", expiryDate.getTime()));
 		object.putArray("downloadLogs", new JsonArray());
 		object.putObject("fileMetadata", metadata);
 		shareBigFileCrudService.create(object, user, notEmptyResponseHandler(request));
@@ -380,6 +382,9 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 				if (user != null) {
 					RequestUtils.bodyToJson(request, pathPrefix + "update", new Handler<JsonObject>() {
 						public void handle(JsonObject data) {
+							final Long expiryDate = data.getNumber("expiryDate").longValue();
+							data.removeField("expiryDate");
+							data.putObject("expiryDate", new JsonObject().putValue("$date", expiryDate));
 							shareBigFileCrudService.update(sbfId, data, defaultResponseHandler(request));
 						}
 					});

@@ -4,7 +4,7 @@
 	"additionalProperties": false,
 	"properties": {
 		"fileNameLabel": 		{ "type": "string" },
-		"expiryDate": 	{ "type": "string" },
+		"expiryDate": 	{ "type": "number" },
 		"description": 	{ "type": "string" }
 	},
 	"required": [
