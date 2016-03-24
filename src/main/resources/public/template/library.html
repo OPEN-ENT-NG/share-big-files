@@ -22,7 +22,6 @@
 		</section>
 
 	</div>
-
 	<section class="toggle-buttons" ng-class="{ hide: uploads.selection().length === 0 }">
 		<div class="toggle block-container">
 			<div class="row">
@@ -36,14 +35,18 @@
 					<button class="cell" translate content="restore" ng-if="sharebigfilesList.folder === 'trash'" ng-click="sharebigfilesList.restore()"/>
 				</behaviour>
 				<behaviour name="manager" resource="sharebigfilesList.selection()">
-					<button class="cell" translate content="remove" ng-if="sharebigfilesList.selection().length === 1" ng-click="removesharebigfiles()"/>
+					<button class="cell" translate content="remove"  ng-click="removesharebigfiles()"></button>
 				</behaviour>
 				<behaviour name="manager" resource="sharebigfilesList.selection()">
-					<button class="cell" translate content="Télécharger" ng-click="downloadAction()"/>
+					<button class="cell" translate content="Télécharger" ng-if="selection.length === 1" ng-click="downloadAction()"></button>
 				</behaviour>
 				<behaviour name="manager" resource="sharebigfilesList.selection()">
-					<button class="cell" translate content="properties" ng-click="editFileAction()"/>
+					<button class="cell" translate content="properties" ng-if="selection.length === 1" ng-click="editFileAction()"></button>
 				</behaviour>
+				<behaviour name="manager" resource="sharebigfilesList.selection()">
+					<button class="cell" translate content="share" ng-click="shareSharebigfiles()"></button>
+				</behaviour>
+
 				<div ng-show="$scope.download" class="four cells right-magnet">
 					<progress-bar max="100" filled="35" unit="%"></progress-bar>
 				</div>

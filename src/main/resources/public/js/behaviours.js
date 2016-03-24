@@ -1,34 +1,89 @@
-Behaviours.register('sharebigfiles', {
-	rights: {
-		workflow: {
-			view: 'fr.openent.sharebigfiles.controllers.SharebigfilesController|view',
-			create: 'fr.openent.sharebigfiles.controllers.SharebigfilesController|createSharebigfiles'
+var sharebigfilesBehaviours = {
+	resources: {
+		read: {
+			right: "fr-openent-sharebigfiles-controllers-SharebigfilesController|listRights"
 		},
-		resource: {
-			read: {
-				right: "fr-openent-sharebigfiles-controllers-SharebigfilesController|getSharebigfiles"
-			},
-			contrib: {
-				right: "fr-openent-sharebigfiles-controllers-SharebigfilesController|updateSharebigfiles"
-			},
-			manager: {
-				right: "fr-openent-sharebigfiles-controllers-SharebigfilesController|addRights"
-			}
+		contrib: {
+			right: "fr-openent-sharebigfiles-controllers-SharebigfilesController|update"
+		},
+		manage: {
+			right: "fr-openent-sharebigfiles-controllers-SharebigfilesController|addRights"
 		}
 	},
+	workflow: {
+		view: 'fr.openent.sharebigfiles.controllers.SharebigfilesController|view',
+		create: 'fr.openent.sharebigfiles.controllers.SharebigfilesController|create'
+	}
+};
+
+Behaviours.register('sharebigfiles', {
+	behaviours:  sharebigfilesBehaviours,
+	/**
+	 * Allows to set rights for behaviours.
+	 */
+	resource : function(resource) {
+		var rightsContainer = resource;
+		if (!resource.myRights) {
+			resource.myRights = {};
+		}
+
+		for (var behaviour in sharebigfilesBehaviours.resources) {
+			if (model.me.hasRight(rightsContainer, sharebigfilesBehaviours.resources[behaviour]) || model.me.userId === resource.owner.userId || model.me.userId === rightsContainer.owner.userId) {
+				if (resource.myRights[behaviour] !== undefined) {
+					resource.myRights[behaviour] = resource.myRights[behaviour] && sharebigfilesBehaviours.resources[behaviour];
+				} else {
+					resource.myRights[behaviour] = sharebigfilesBehaviours.resources[behaviour];
+				}
+			}
+		}
+		return resource;
+	},
+
+	/**
+	 * Allows to load workflow rights according to rights defined by the
+	 * administrator for the current user in the console.
+	 */
+	workflow : function() {
+		var workflow = {};
+
+		var sharebigfilesWorkflow = sharebigfilesBehaviours.workflow;
+		for (var prop in sharebigfilesWorkflow) {
+			if (model.me.hasWorkflow(sharebigfilesWorkflow[prop])) {
+				workflow[prop] = true;
+			}
+		}
+
+		return workflow;
+	},
+
+	/**
+	 * Allows to define all rights to display in the share windows. Names are
+	 * defined in the server part with
+	 * <code>@SecuredAction(value = "xxxx.read", type = ActionType.RESOURCE)</code>
+	 * without the prefix <code>xxx</code>.
+	 */
+	resourceRights : function() {
+		return [ 'read', 'contrib', 'manager' ];
+	},
+
+	/**
+	 * Function required by the "linker" component to display the collaborative editor info
+	 */
 	loadResources: function(callback){
-		http().get('/sharebigfiles/list').done(function(sharebigfiles){
-			this.resources = _.map(_.where(sharebigfiles, { trashed: 0 }), function(sharebigfiles){
-				sharebigfiles.icon = sharebigfiles.icon || '/img/illustrations/sharebigfiles-default.png';
+		http().get('/sharebigfiles/list').done(function(results) {
+			this.resources = _.map(results, function(itemResult) {
 				return {
-					title: sharebigfiles.title,
-					owner: sharebigfiles.owner,
-					icon: sharebigfiles.icon,
-					path: '/sharebigfiles#/view-sharebigfiles/' + sharebigfiles._id,
-					_id: sharebigfiles._id
+					title : itemResult.fileNameLabel,
+					ownerName : itemResult.owner.displayName,
+					owner : itemResult.owner.userId,
+					icon : '/sharebigfiles/public/img/APPNAME-large.png',
+					path : '/sharebigfiles#/view/' + itemResult._id,
+					id : itemResult._id
 				};
-			});
-			callback(this.resources);
+			})
+			if(typeof callback === 'function'){
+				callback(this.resources);
+			}
 		}.bind(this));
 	}
 });

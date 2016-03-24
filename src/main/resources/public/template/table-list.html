@@ -7,6 +7,12 @@
 		<lightbox show="lightbox.show" on-close="lightbox.show=false">
 			<container template="lightbox"></container>
 		</lightbox>
+		<!-- Lightbox : Share sharebigfiles -->
+		<div ng-if="showSharePanel">
+			<lightbox show="showSharePanel" on-close="showSharePanel = false;">
+				<share-panel app-prefix="'sharebigfiles'" resources="sharedSharebigfiles"></share-panel>
+			</lightbox>
+		</div>
 	</nav>
 
 </div>
@@ -42,8 +48,8 @@
 		<tbody>
 		<tr ng-repeat="sharebigfiles in uploads.all | orderBy:modified.$date" ng-class="{ checked: sharebigfiles.selected }">
 			<td class="icon">
-				<behaviour name="manager" resource="sharebigfiles">
-					<input type="checkbox" ng-model="sharebigfiles.selected"/>
+				<behaviour name="read" resource="sharebigfiles">
+					<input type="checkbox" ng-click="selectedFile()" ng-model="sharebigfiles.selected"/>
 				</behaviour>
 			</td>
 			<td class="content">

@@ -33,9 +33,14 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	$scope.newLogId = "";
 	$scope.editFileId = "";
 
+// 	$scope.display.share = false;
+	$scope.showSharePanel = false;
+
 	$scope.newItem.expDateUpgrade = 0;
 	$scope.newItem.expDate = 1;
 	$scope.newItem.residualQuota = 0;
+	$scope.selection = model.uploads.selection();
+
 
 	var myDate = new Date();
 	$scope.expiryDate = myDate.setDate(myDate.getDate() + $scope.newItem.expDate);
@@ -66,7 +71,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	})
 
 	$rootScope.longDate = function(dateStr){
-		return date.create(dateStr.split(' ')[0]).format('DD MMMM YYYY')
+		return date.create(dsateStr.split(' ')[0]).format('DD MMMM YYYY')
 	}
 
 	$scope.openNewFolderView = function(){
@@ -259,7 +264,19 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 		$scope.expirationMax = diff;
 	}
 
+	$scope.selectedFile = function() {
+		$scope.selection = model.uploads.selection();
+	}
+
 	$scope.closeImportView = function() {
+		$scope.lightbox.show=false;
+		//window.location.reload();
+		model.uploads.sync();
+		$scope.newItem = new Upload();
+
+	};
+
+	$scope.closeEditView = function() {
 		$scope.lightbox.show=false;
 		//window.location.reload();
 		model.uploads.sync();
@@ -497,14 +514,33 @@ function FolderController($scope, $rootScope, model, template){
 	}
 
 	$scope.removesharebigfiles = function() {
-		model.uploads.selection().forEach(function (item) {
-			$scope.deleteItems(item);
-		});
+		if(model.uploads.selection().length==1){
+			$scope.deleteItem(item);
+		}
+		else {
+			var itemArray = [];
+			model.uploads.selection().forEach(function (item) {
+				itemArray.push(item._id);
+			});
+			$scope.deleteItems({ids:itemArray});
+		}
 	}
 
-	$scope.deleteItems = function(item){
+	$scope.deleteItem = function(item){
 		$scope.newItem.deleteItem(item._id, function () {
 			bigFilesOk('sharebigfiles.notify.deleted');
+			model.uploads.sync();
+		},function (e) {
+			bigFilesError(e);
+		});
+		if(template.contains('list', 'sharebigfiles-infos'))
+			$scope.closeInfos()
+	}
+
+	$scope.deleteItems = function(itemArray){
+		$scope.newItem.deleteItems(itemArray, function () {
+			bigFilesOk('sharebigfiles.notify.deleted');
+			model.uploads.sync();
 		},function (e) {
 			bigFilesError(e);
 		});
@@ -539,9 +575,11 @@ function FolderController($scope, $rootScope, model, template){
 		DEFAULT_VIEW()
 	}
 
-	$scope.sharesharebigfiles = function(){
-		$rootScope.sharedSharebigfiles = $scope.sharebigfilesList.selection()
-		template.open('lightbox', 'share')
+	$scope.shareSharebigfiles = function(){
+		$rootScope.sharedSharebigfiles = $scope.uploads.selection();
+// 		$scope.display.share = true;
+		$scope.showSharePanel = true;
+		template.open('share', 'share');
 	}
 
 	$rootScope.$on('share-updated', function(){

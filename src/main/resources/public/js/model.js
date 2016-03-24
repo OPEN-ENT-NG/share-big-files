@@ -135,6 +135,10 @@ Upload.prototype.deleteItem = function (id) {
 	return http().delete("/sharebigfiles/"+id)
 };
 
+Upload.prototype.deleteItems = function (itemArray) {
+	return http().deleteJson("/sharebigfiles/deletes", itemArray)
+};
+
 Upload.prototype.getQuota = function () {
 	return http().get("/sharebigfiles/quota")
 };
