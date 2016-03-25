@@ -22,14 +22,12 @@ routes.define(function($routeProvider){
  ------------------
  Main controller.
  **/
-function SharebigfilesController($scope, $rootScope, model, template, route, date){
+function SharebigfilesController($scope, model, template, route, date){
 
 	$scope.template = template;
 	$scope.expDateList = {tab:[1,5,10,30]};
-	$scope.sharebigfilesList = model.sharebigfilesCollection.sharebigfiless
 
 	$scope.newItem = new Upload();
-	$scope.newLog = new Log();
 	$scope.newLogId = "";
 	$scope.editFileId = "";
 
@@ -40,6 +38,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	$scope.newItem.expDate = 1;
 	$scope.newItem.residualQuota = 0;
 	$scope.selection = model.uploads.selection();
+    $scope.ordering = 'title';
 
 
 	var myDate = new Date();
@@ -52,6 +51,8 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 	$scope.me = model.me;
 
 	$scope.dateMaxExpirationDays = 30;
+
+    template.open('list', 'table-list');
 
 	route({
 		defaultView: function(){
@@ -69,10 +70,6 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 			$scope.editFile(params.id);
 		}
 	})
-
-	$rootScope.longDate = function(dateStr){
-		return date.create(dsateStr.split(' ')[0]).format('DD MMMM YYYY')
-	}
 
 	$scope.openNewFolderView = function(){
 		//ui.showLightbox();
@@ -164,14 +161,6 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 			return date.format(dateItem.split(' ')[0], 'L')
 
 		return moment().format('L');
-	}
-
-	$scope.longDate = function(dateString){
-		if(!dateString){
-			return moment().format('D MMMM YYYY');
-		}
-
-		return date.format(dateString.split(' ')[0], 'D MMMM YYYY')
 	}
 
 	$scope.fileList = function(){
@@ -350,168 +339,7 @@ function SharebigfilesController($scope, $rootScope, model, template, route, dat
 				)
 			}
 		})
-	}
-
-	var bigFilesError = function(e){
-		notify.error(e.error);
-		$scope.currentErrors.push(e);
-		$scope.$apply();
 	};
-
-	var bigFilesOk = function(i18n){
-		notify.info(i18n);
-		$scope.$apply();
-	};
-}
-
-/**
- FolderController
- ----------------
- Sharebigfiles are split in 3 "folders" :
- - Ownermade
- - Shared
- - Deleted
- This controller helps dealing with these 3 views.
- **/
-function FolderController($scope, $rootScope, model, template){
-	$scope.sharebigfilesList = model.sharebigfilesCollection.sharebigfiless
-
-	$scope.filterSharebigfiles = {}
-	$scope.select = { all: false }
-	$scope.ordering = 'title'
-
-	var DEFAULT_VIEW = function(){
-		if(model.me.workflow.sharebigfiles.create !== true)
-			$scope.folders["shared"].list()
-		else
-			$scope.folders["mine"].list()
-	}
-
-	//////////////////////
-	// Sharebigfiles listing //
-	//////////////////////
-
-	var refreshListing = function(folder){
-		$scope.select.all = false
-		$scope.sharebigfilesList.sync()
-		if(typeof folder === "string")
-			$scope.sharebigfilesList.folder = folder
-		if(!template.contains('list', 'table-list') && !template.contains('list', 'icons-list'))
-			template.open('list', 'table-list')
-	}
-
-	$scope.folders = {
-		"mine": {
-			list: function(){
-				$scope.filterSharebigfiles = {
-					"owner.userId": model.me.userId,
-					"trashed": 0
-				}
-				refreshListing("mine")
-			},
-			workflow: "sharebigfiles.create"
-		},
-		"shared": {
-			list: function(){
-				$scope.filterSharebigfiles = function(item){
-					return item.owner.userId !== model.me.userId
-				}
-				refreshListing("shared")
-			}
-		},
-		"trash": {
-			list: function(){
-				$scope.filterSharebigfiles = {
-					"trashed": 1
-				}
-				refreshListing("trash")
-			},
-			workflow: "sharebigfiles.create"
-		}
-	}
-
-	//Deep filtering an Object based on another Object properties
-	//Supports "dot notation" for accessing nested objects, ex: ({a {b: 1}} can be filtered using {"a.b": 1})
-	var deepObjectFilter = function(object, filter){
-		for(var prop in filter){
-			var splitted_prop 	= prop.split(".")
-			var obj_value 		= object
-			var filter_value 	= filter[prop]
-			for(i = 0; i < splitted_prop.length; i++){
-				obj_value 		= obj_value[splitted_prop[i]]
-			}
-			if(filter_value instanceof Object && obj_value instanceof Object){
-				if(!deepObjectFilter(obj_value, filter_value))
-					return false
-			} else if(obj_value !== filter_value)
-				return false
-		}
-		return true
-	}
-	var sharebigfilesObjectFiltering = function(item){ return deepObjectFilter(item, $scope.filterSharebigfiles) }
-	var selectMultiple = function(items){
-		_.forEach(items, function(item){ item.selected = true })
-	}
-
-	$scope.download = function(items){
-		_.forEach(items, function(item){
-			$scope.downloadFile(item._id);
-		})
-	}
-
-	$scope.switchAll = function(){
-		if($scope.select.all){
-			$scope.uploads.selectAll();
-		}
-		else{
-			$scope.uploads.deselectAll();
-		}
-	}
-
-	$scope.orderBy = function(what){
-		$scope.ordering = ($scope.ordering === what ? '-' + what : what)
-	}
-
-	$scope.opensharebigfiles = function(sharebigfiles){
-		$rootScope.sharebigfiles = sharebigfiles
-		template.open('main', 'sharebigfiles')
-	}
-
-	/////////////////////////////////////
-	// Sharebigfiles creation /modification //
-	/////////////////////////////////////
-
-	$scope.newsharebigfiles = function(){
-		$scope.sharebigfiles = new Sharebigfiles()
-		$scope.sharebigfilesList.deselectAll()
-		$scope.select.all = false
-		template.open('list', 'sharebigfiles-infos')
-	}
-
-	$scope.editInfos = function(){
-		$scope.sharebigfiles = $scope.sharebigfilesList.selection()[0]
-		template.open('list', 'sharebigfiles-infos')
-	}
-
-	$scope.download = false;
-
-	$scope.removeIcon = function(){
-		$scope.sharebigfiles.thumbnail = ""
-	}
-	$scope.downloadsharebigfiles = function() {
-		if($scope.download == false){
-			$scope.download = true;
-		}
-		else {
-			$scope.download = false;
-		}
-	}
-
-	$scope.lowerThan = function(val){
-		return function(item){
-			return item <= val;
-		}
-	}
 
 	$scope.removesharebigfiles = function() {
 		if(model.uploads.selection().length==1){
@@ -548,45 +376,25 @@ function FolderController($scope, $rootScope, model, template){
 			$scope.closeInfos()
 	}
 
-	$scope.saveInfos = function(id){
-		if(!$scope.sharebigfiles.title){
-			notify.error('sharebigfiles.title.missing')
-			return;
-		}
+    $scope.orderBy = function(what){
+        $scope.ordering = ($scope.ordering === what ? '-' + what : what)
+    }
 
-		if (id) {
-			$scope.sharebigfiles._id = id;
-		}
-
-		if($scope.sharebigfiles._id) {
-			$scope.sharebigfiles.update(DEFAULT_VIEW,
-					function (e) {
-						bigFilesError(e);
-					});
-		} else {
-			$scope.sharebigfiles.create(DEFAULT_VIEW,
-					function (e) {
-						bigFilesError(e);
-					});
-		}
-	}
-
-	$scope.closeInfos = function(){
-		DEFAULT_VIEW()
-	}
-
-	$scope.shareSharebigfiles = function(){
-		$rootScope.sharedSharebigfiles = $scope.uploads.selection();
+    //TODO uploads.selection(), $event
+    $scope.shareSharebigfiles = function(){
+        $scope.sharedSharebigfiles = $scope.uploads.selection();
 // 		$scope.display.share = true;
-		$scope.showSharePanel = true;
-		template.open('share', 'share');
-	}
+        $scope.showSharePanel = true;
+        template.open('share', 'share');
+    }
 
-	$rootScope.$on('share-updated', function(){
-		$scope.sharebigfilesList.sync()
-	})
+    $scope.lowerThan = function(val){
+        return function(item){
+            return item <= val;
+        }
+    }
 
-	var bigFilesError = function(e){
+    var bigFilesError = function(e){
 		notify.error(e.error);
 		$scope.currentErrors.push(e);
 		$scope.$apply();
@@ -596,8 +404,4 @@ function FolderController($scope, $rootScope, model, template){
 		notify.info(i18n);
 		$scope.$apply();
 	};
-
-	//Default view displayed on opening
-	DEFAULT_VIEW()
-
 }
