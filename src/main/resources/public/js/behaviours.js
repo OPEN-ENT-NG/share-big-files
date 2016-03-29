@@ -1,18 +1,17 @@
 var sharebigfilesBehaviours = {
 	resources: {
 		read: {
-			right: "fr-openent-sharebigfiles-controllers-SharebigfilesController|listRights"
+			right: "fr-openent-sharebigfiles-controllers-ShareBigFilesController|listRights"
 		},
 		contrib: {
-			right: "fr-openent-sharebigfiles-controllers-SharebigfilesController|update"
+			right: "fr-openent-sharebigfiles-controllers-ShareBigFilesController|update"
 		},
 		manage: {
-			right: "fr-openent-sharebigfiles-controllers-SharebigfilesController|addRights"
+			right: "fr-openent-sharebigfiles-controllers-ShareBigFilesController|addRights"
 		}
 	},
 	workflow: {
-		view: 'fr.openent.sharebigfiles.controllers.SharebigfilesController|view',
-		create: 'fr.openent.sharebigfiles.controllers.SharebigfilesController|create'
+		create: "fr.openent.sharebigfiles.controllers.ShareBigFilesController|create"
 	}
 };
 

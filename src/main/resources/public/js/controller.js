@@ -3,16 +3,28 @@
  **/
 routes.define(function($routeProvider){
 	$routeProvider
-			.when('/downloadFileLog', {
-				action: 'downloadFileLog'
+			.when('/editFileLog/:id', {
+				action: 'editFileLog'
 			})
+            .when('/editFileLog/:id/:list', {
+                action: 'editFileLog'
+            })
 			.when('/downloadFile/:id', {
 				action: 'downloadFile'
 			})
+            .when('/downloadFile/:id/:list', {
+                action: 'downloadFile'
+            })
+            .when('/:create', {
+                action: 'createFile'
+            })
 			.when('/view/:id', {
 				action: 'editFile'
 			})
-			.otherwise({
+            .when('/view/:id/:list', {
+                action: 'editFile'
+            })
+    		.otherwise({
 				action: 'defaultView'
 			})
 })
@@ -22,63 +34,84 @@ routes.define(function($routeProvider){
  ------------------
  Main controller.
  **/
-function SharebigfilesController($scope, model, template, route, date){
+function SharebigfilesController($scope, model, template, route, date, $location){
 
 	$scope.template = template;
-	$scope.expDateList = {tab:[1,5,10,30]};
-
 	$scope.newItem = new Upload();
 	$scope.newLogId = "";
-	$scope.editFileId = "";
-
-// 	$scope.display.share = false;
-	$scope.showSharePanel = false;
-
+	$scope.currentErrors = [];
+    $scope.display = {};
 	$scope.newItem.expDateUpgrade = 0;
-	$scope.newItem.expDate = 1;
-	$scope.newItem.residualQuota = 0;
-	$scope.selection = model.uploads.selection();
-    $scope.ordering = 'title';
 
+	$scope.ordering = 'title';
 
-	var myDate = new Date();
-	$scope.expiryDate = myDate.setDate(myDate.getDate() + $scope.newItem.expDate);
-
-	$scope.maxFileSize = parseInt(lang.translate('max.file.size'));
-	$scope.lightbox = {};
 	$scope.uploads = model.uploads;
-	$scope.logs = model.logs;
 	$scope.me = model.me;
+    template.open('errors', 'errors');
 
-	$scope.dateMaxExpirationDays = 30;
-
-    template.open('list', 'table-list');
+    //configurations datas
+    var expirationDateList = [];
+    var expDate = 0;
+    var expiryDate = new Date();
+    var residualQuota = 0;
+    var residualRepository = 0;
+    var maxRepository = 0;
+    $scope.maxQuota = 0;
 
 	route({
 		defaultView: function(){
-			template.open('main', 'library')
+			template.open('main', 'library');
+            template.open('list', 'table-list');
 		},
-		downloadFileLog: function(){
-			template.open('list', 'downloadFileLog')
-			//$scope.readMail(new Mail({ id: params.mailId }));
+		editFileLog: function(params){
+            template.open('main', 'library');
+            editFileLog(params.id, params.list);
 		},
 		downloadFile: function(params){
-			$scope.downloadFile(params.id);
+			downloadFile(params.id, params.list);
 		},
+        createFile: function(params){
+            deselectAll();
+            template.open('main', 'library');
+            openNewFolderView();
+        },
 		editFile: function(params){
 			template.open('main', 'library');
-			$scope.editFile(params.id);
+            var item = model.uploads.findWhere({ _id:  params.id });
+            if (!item) {
+                //from out
+                model.uploads.sync(function() {
+                    item = model.uploads.findWhere({ _id:  params.id });
+                    //if quota not already load
+                    if (maxRepository === 0) {
+                        $scope.getQuota(function() {
+                            $scope.editFile(item, params.list);
+                        })
+                    } else {
+                        $scope.editFile(item, params.list);
+                    }
+                });
+            } else {
+                $scope.editFile(item, params.list);
+            }
 		}
-	})
+	});
 
-	$scope.openNewFolderView = function(){
-		//ui.showLightbox();
-		$scope.lightbox.show = true;
-		template.open('lightbox', 'importFile')
-	}
+    $scope.redirect = function(path){
+        $location.path(path);
+    };
 
-	$scope.selectedDocuments = function(){
-		return _.where($scope.openedFolder.content, {selected: true});
+	var openNewFolderView = function(){
+        $scope.currentErrors = [];
+        if (maxRepository === 0) {
+            $scope.getQuota(function() {
+                initNewItem();
+                template.open('list', 'importFile');
+            })
+        } else {
+            initNewItem();
+            template.open('list', 'importFile');
+        }
 	};
 
 	$scope.updateExpirationDate = function() {
@@ -87,27 +120,9 @@ function SharebigfilesController($scope, model, template, route, date){
 	}
 
 	$scope.updateExpirationDateUpgrade = function() {
-		newExpDate = moment($scope.newItem.expiryDate.$date).add($scope.newItem.expDateUpgrade, 'days');
+		newExpDate = moment($scope.newItem.created.$date).add($scope.newItem.expDateUpgrade, 'days');
 		$scope.expiryDateUpgrade = $scope.expDateUprade = moment(newExpDate, 'YYYY-MM-DD HH:mm.ss.SSS').valueOf();
-	}
-
-	$scope.maxSize = function(){
-		//var leftOvers = model.quota.max - model.quota.used;
-		//if(model.quota.unit === 'gb'){
-		//	leftOvers *= 1000;
-		//}
-		//return leftOvers;
 	};
-
-	$scope.totalFilesSize = function(fileList){
-		var size = 0
-		//if(!fileList.files)
-		//	return size
-		//for(var i = 0; i < fileList.files.length; i++){
-		//	size += fileList.files[i].size
-		//}
-		return size
-	}
 
 	$scope.getAppropriateDataUnit = function(bytes){
 		var order = 0
@@ -132,62 +147,37 @@ function SharebigfilesController($scope, model, template, route, date){
 	$scope.formatDocumentSize = function(size){
 		var formattedData = $scope.getAppropriateDataUnit(size)
 		return (Math.round(formattedData.nb*10)/10)+" "+formattedData.order
-	}
-
-	$scope.goShareBigFiles = function() {
-		template.open('main', 'sharebigfiles')
 	};
 
-	$scope.downloadFileLog = function(logId){
+	var editFileLog = function(logId, fromList){
+        if (fromList === undefined) {
+            deselectAll();
+        }
 		template.open('list', 'downloadFileLog');
 		$scope.newLogId = logId;
-		//setCurrentFile(file, true);
 	};
 
-	$scope.shareBigFilesOpen = function(){
+    var deselectAll = function() {
+        _.forEach($scope.uploads.selection(), function(upload){
+            upload.selected = false;
+        });
+    };
+
+	var shareBigFilesOpen = function(){
 		template.open('list', 'table-list');
-		//setCurrentFile(file, true);
 	};
 
-	$scope.shortDate = function(dateItem){
-		if(!dateItem){
-			return moment().format('L');
-		}
-
-		if(typeof dateItem === "number")
-			return date.format(dateItem, 'L')
-
-		if(typeof dateItem === "string")
-			return date.format(dateItem.split(' ')[0], 'L')
-
-		return moment().format('L');
-	}
-
-	$scope.fileList = function(){
-		var list = $scope.newItem.log();
-
-		//$scope.newItem.getList(
-		//
-		//).done(function(result){
-		//	for(var i = 0; i < result.length; i++){
-		//		$scope.newItem.attachments.push(JSON.parse(JSON.stringify(result)))
-		//	}
-		//}).e400(function(e){
-		//	var error = JSON.parse(e.responseText);
-		//	notify.error(error.error);
-		//})
-	};
-
-	$scope.criteriaMatch = function( criteria ) {
-		return function( item ) {
-			return item.fileId === criteria;
-		};
-	};
-
-	$scope.getQuota = function(){
+	$scope.getQuota = function(cb){
+        $scope.currentErrors = [];
 		$scope.newItem.getQuota(
 		).done(function(result){
-			$scope.newItem.residualQuota = result.residualQuota;
+			residualQuota = result.residualQuota;
+            residualRepository = result.residualRepositoryQuota;
+            maxRepository = result.maxRepositoryQuota;
+            $scope.maxQuota = result.maxFileQuota;
+            if(typeof cb === 'function'){
+                cb();
+            }
 		}).e404(function(e){
 			var error = JSON.parse(e.responseText);
 			bigFilesError(error);
@@ -197,92 +187,83 @@ function SharebigfilesController($scope, model, template, route, date){
 	$scope.getExpirationDateList = function(){
 		$scope.newItem.getExpirationDateList(
 		).done(function(result){
-			$scope.newItem.expirationDateList = result.expirationDateList;
-			var expList = [0];
-			$scope.newItem.expirationDateListEdit = expList.concat($scope.newItem.expirationDateList);
+            expirationDateList = result.expirationDateList;
+            expDate = result.expirationDateList[0];
+            var myDate = new Date();
+            expiryDate = myDate.setDate(myDate.getDate() + expDate);
+			initNewItemExpirationData();
 		}).e400(function(e){
 			var error = JSON.parse(e.responseText);
 			notify.error(error.error);
 		})
 	};
 
-	$scope.downloadFile = function(id){
+	var downloadFile = function(id, fromList){
+        if (fromList === undefined) {
+            deselectAll();
+        }
 		window.location.href = $scope.newItem.downloadFile(id);
+        $scope.redirect('/');
 	};
 
-	$scope.downloadAction = function(){
-		model.uploads.selection().forEach(function(item){
+	$scope.editFile = function(file, fromList) {
+        if (fromList === undefined) {
+            deselectAll();
+        }
+		initNewItem();
 
-			$scope.downloadFile(item._id);
-
-		});
-	}
-
-	$scope.multipleSelection = function(){
-		if(model.uploads.selection().length>1){
-			$scope.multipleSelected = true;
-		}
-		else{
-			$scope.multipleSelected = false;
-		}
-	}
-
-	$scope.editFileAction = function(){
-		model.uploads.selection().forEach(function(item){
-			$scope.editFile(item);
-		});
-	}
-
-	$scope.editFile = function(file) {
-		$scope.lightbox.show = true;
 		$scope.newItem.fileNameLabel = file.fileNameLabel;
 		$scope.newItem.created = file.created;
 		$scope.newItem.expiryDate = file.expiryDate;
-		$scope.newItem.description = file.description;
+        $scope.newItem.description = file.description;
 		$scope.newItem._id = file._id;
-		$scope.getExpirationMax(file);
-		$scope.expiryDateUpgrade =  moment(file.expiryDate.$date).format('DD/MM/YYYY').valueOf();
-
-		template.open('lightbox', 'editFile');
+        $scope.newItem.myRights = file.myRights;
+		generateExpDateUpgrade(file);
+		$scope.expiryDateUpgrade = moment(file.expiryDate.$date).valueOf();
+        template.open('list', 'editFile');
 	};
 
-	$scope.getExpirationMax = function(file) {
-		var dateExp = moment(file.expiryDate.$date).format('MM/DD/YYYY');;
-		var dateCrea = moment(file.created.$date).format('MM/DD/YYYY');;
-		var diff = $scope.newItem.expirationDateList[$scope.newItem.expirationDateList.length-1] - moment(dateExp).diff(dateCrea, 'days');
-		$scope.expirationMax = diff;
-	}
-
-	$scope.selectedFile = function() {
-		$scope.selection = model.uploads.selection();
-	}
-
-	$scope.closeImportView = function() {
-		$scope.lightbox.show=false;
-		//window.location.reload();
-		model.uploads.sync();
-		$scope.newItem = new Upload();
-
+	var generateExpDateUpgrade = function(file) {
+		var dateExp = moment(file.expiryDate.$date).format('MM/DD/YYYY');
+		var dateCrea = moment(file.created.$date).format('MM/DD/YYYY');
+        $scope.newItem.expDateUpgrade =  moment(dateExp).diff(dateCrea, 'days');
 	};
 
-	$scope.closeEditView = function() {
-		$scope.lightbox.show=false;
-		//window.location.reload();
-		model.uploads.sync();
-	};
+    var initNewItem = function() {
+        $scope.newItem = new Upload();
+        $scope.newItem.residualQuota = residualQuota;
+        initNewItemExpirationData();
+
+    };
+
+    var initNewItemExpirationData = function() {
+        $scope.expiryDate = $scope.newItem.expiryDate = expiryDate;
+        $scope.newItem.expirationDateList = expirationDateList;
+        $scope.newItem.expDate = expDate;
+    };
 
 	$scope.updateFile = function(fileId) {
+        $scope.currentErrors = [];
 		$scope.newItem.expiryDate.$date = $scope.expDateUprade;
 		var data = {
 			"fileNameLabel": $scope.newItem.fileNameLabel,
 			"expiryDate": moment($scope.expDateUprade).valueOf(),
 			"description": $scope.newItem.description
 		};
-		$scope.newItem.updateFile(fileId, data, function (e) {
+		$scope.newItem.updateFile(fileId, data, function() {
+            model.uploads.sync(function() {
+                $scope.redirect('/');
+            });
+        }, function (e) {
 			bigFilesError(e);
 		});
-	}
+	};
+
 	$scope.postFiles = function(){
+        $scope.currentErrors = [];
+        if (!$scope.newItem.newFiles) {
+            bigFilesWarn({error: 'sharebigfiles.empty.files'});
+        }
 		_.forEach($scope.newItem.newFiles, function(targetAttachment){
 			var attachmentObj = {
 				file: targetAttachment,
@@ -302,10 +283,22 @@ function SharebigfilesController($scope, model, template, route, date){
 			}
 			var date = moment($scope.expiryDate).valueOf();
 				var formData = new FormData();
+
+                var currentSize = attachmentObj.file.size;
+                //put size of repository for back side check if size of repository is exceeded
+                var residualTotalSize = residualRepository - currentSize;
+                if (residualTotalSize < 0) {
+                    attachmentObj.file.size = maxRepository;
+                }
+
 				formData.append('file', attachmentObj.file);
 				formData.append('expiryDate',  date);
-				formData.append('fileNameLabel', $scope.newItem.label);
+				formData.append('fileNameLabel', $scope.newItem.fileNameLabel);
 				formData.append('description', $scope.newItem.description);
+                //to inform back side on error type
+                if (residualTotalSize < 0) {
+                    formData.append('size', maxRepository);
+                }
 
 				$scope.newItem.postAttachment(formData, {
 							xhr: function () {
@@ -332,6 +325,9 @@ function SharebigfilesController($scope, model, template, route, date){
 								$scope.newItem.attachments = [];
 							$scope.newItem.attachments.push(attachmentObj);
 							$scope.getQuota();
+                            model.uploads.sync(function() {
+                                $scope.redirect('/');
+                            });
 						},
 						function (e) {
 							bigFilesError(e);
@@ -343,7 +339,7 @@ function SharebigfilesController($scope, model, template, route, date){
 
 	$scope.removesharebigfiles = function() {
 		if(model.uploads.selection().length==1){
-			$scope.deleteItem(item);
+			$scope.deleteItem(model.uploads.selection()[0]);
 		}
 		else {
 			var itemArray = [];
@@ -355,53 +351,51 @@ function SharebigfilesController($scope, model, template, route, date){
 	}
 
 	$scope.deleteItem = function(item){
+        $scope.currentErrors = [];
 		$scope.newItem.deleteItem(item._id, function () {
-			bigFilesOk('sharebigfiles.notify.deleted');
 			model.uploads.sync();
 		},function (e) {
 			bigFilesError(e);
 		});
-		if(template.contains('list', 'sharebigfiles-infos'))
-			$scope.closeInfos()
 	}
 
 	$scope.deleteItems = function(itemArray){
+        $scope.currentErrors = [];
 		$scope.newItem.deleteItems(itemArray, function () {
-			bigFilesOk('sharebigfiles.notify.deleted');
 			model.uploads.sync();
 		},function (e) {
 			bigFilesError(e);
 		});
-		if(template.contains('list', 'sharebigfiles-infos'))
-			$scope.closeInfos()
-	}
+	};
 
     $scope.orderBy = function(what){
         $scope.ordering = ($scope.ordering === what ? '-' + what : what)
-    }
+    };
 
-    //TODO uploads.selection(), $event
     $scope.shareSharebigfiles = function(){
         $scope.sharedSharebigfiles = $scope.uploads.selection();
-// 		$scope.display.share = true;
-        $scope.showSharePanel = true;
-        template.open('share', 'share');
-    }
+        $scope.display.showPanel = true;
+    };
 
     $scope.lowerThan = function(val){
         return function(item){
             return item <= val;
         }
-    }
+    };
+
+    $scope.canContribute = function(item){
+        return (item.myRights.contrib !== undefined);
+    };
+
+    var bigFilesWarn = function(e){
+        notify.error(e.error);
+        $scope.currentErrors.push(e);
+    };
+
 
     var bigFilesError = function(e){
 		notify.error(e.error);
 		$scope.currentErrors.push(e);
-		$scope.$apply();
-	};
-
-	var bigFilesOk = function(i18n){
-		notify.info(i18n);
-		$scope.$apply();
+        $scope.$apply();
 	};
 }

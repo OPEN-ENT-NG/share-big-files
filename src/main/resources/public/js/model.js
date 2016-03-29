@@ -1,4 +1,4 @@
-function Upload(data) {
+function Upload() {
 	this.creationDate = function(){
 		return moment(parseInt(this.created.$date)).format('DD/MM/YYYY HH:mm')
 	};
@@ -29,24 +29,44 @@ Upload.prototype.getList = function () {
 	return http().get("/sharebigfiles/list")
 };
 
-Upload.prototype.deleteItem = function (id) {
-	return http().delete("/sharebigfiles/"+id)
+Upload.prototype.deleteItem = function (id, cb, cbe) {
+	return http().delete("/sharebigfiles/"+id).done(function(r){
+		if(typeof cb === 'function'){
+			cb();
+		}
+	}).error(function(e){
+		if(typeof cbe === 'function'){
+			cbe(model.parseError(e));
+		}
+	});
 };
 
-Upload.prototype.deleteItems = function (itemArray) {
-	return http().deleteJson("/sharebigfiles/deletes", itemArray)
+Upload.prototype.deleteItems = function (itemArray, cb, cbe) {
+	return http().deleteJson("/sharebigfiles/deletes", itemArray).done(function(r){
+		if(typeof cb === 'function'){
+			cb();
+		}
+	}).error(function(e){
+		if(typeof cbe === 'function'){
+			cbe(model.parseError(e));
+		}
+	});
 };
 
 Upload.prototype.getQuota = function () {
 	return http().get("/sharebigfiles/quota")
 };
 
-Upload.prototype.updateFile = function (fileId, data, cbe) {
-	return http().putJson("/sharebigfiles/"+fileId, data).error(function(e){
+Upload.prototype.updateFile = function (fileId, data, cb, cbe) {
+	return http().putJson("/sharebigfiles/"+fileId, data).done(function(r){
+		if(typeof cb === 'function'){
+			cb();
+		}
+	}).error(function(e){
 		if(typeof cbe === 'function'){
 			cbe(model.parseError(e));
 		}
-	})
+	});
 };
 
 Upload.prototype.getExpirationDateList = function () {
@@ -56,7 +76,7 @@ Upload.prototype.getExpirationDateList = function () {
 Upload.prototype.downloadFile = function (id) {
 	for (var i = 0; i < model.uploads.all.length ; i++) {
 		if (model.uploads.all[i]._id=== (id)) {
-			model.uploads.all[i].downloadLogs.push({userDisplayName:model.me.username, downloadDate:new Date()});
+			model.uploads.all[i].downloadLogs.push({userDisplayName:model.me.username, downloadDate:{$date : moment(new Date()).valueOf()}});
 		}
 	}
 	return "/sharebigfiles/download/"+id;
@@ -80,10 +100,13 @@ model.build = function(){
 	this.makeModel(Upload);
 
 	this.collection(Upload,{
-		sync:function() {
+		sync:function(cb) {
 			var that = this;
 			http().get('/sharebigfiles/list').done(function (data) {
-				that.load(data)
+				that.load(data);
+				if(typeof cb === 'function'){
+					cb();
+				}
 			})
 		},
 		behaviours: 'sharebigfiles'

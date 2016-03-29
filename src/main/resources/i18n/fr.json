@@ -1,39 +1,21 @@
 {
 	"sharebigfiles.title"								: "Fichiers volumineux",
-
-	"sharebigfiles.notify.saved"						: "La donnée a été sauvegardée",
-	"sharebigfiles.notify.modified"						: "La donnée a été modifiée",
-	"sharebigfiles.notify.deleted"						: "La donnée a été supprimée",
-	"sharebigfiles.notify.shared"						: "La donnée a été partagée",
-	"sharebigfiles.notify.trashed"						: "La donnée a été mise à la corbeille",
-
-	"sharebigfiles.too.large"							: "Espace insuffisant pour stocker le fichier",
-	"sharebigfiles.too.large.limit"						: "Fichier(s) trop volumineux. Taille maximum autorisée : ",
-	"sharebigfiles.too.large.max"						: "Espace insuffisant pour stocker le(s) fichier(s). Espace restant : ",
-
-	"sharebigfiles.mine"								: "Mes sharebigfiles",
-	"sharebigfiles.shared"								: "Sharebigfiles partagés avec moi",
-	"sharebigfiles.trash"								: "Corbeille",
-
-	"sharebigfiles.uploadBigFiles"						: "Téléchargement de fichiers lourds",
+	"sharebigfiles.uploadBigFiles"						: "Création d'un fichier",
+	"sharebigfiles.create"								: "Créer un fichier",
 	"sharebigfiles.fileName"							: "Nom du fichier :",
 	"sharebigfiles.expirationDays"						: "jours, soit le",
 	"sharebigfiles.expirations"							: "Expirations :",
 	"sharebigfiles.sizeLeft"							: "Il vous reste : ",
-	"sharebigfiles.onStorage"							: "sur votre espace de stockage",
+	"sharebigfiles.onStorage"							: "sur votre espace de stockage de ",
+	"sharebigfiles.time"								: "fois",
 
 	"sharebigfiles.editBigFiles"						: "Edition de fichier",
 
-
-
-	"sharebigfiles.upload"								: "Upload",
 	"sharebigfiles.downloadedFileLog"					: "Journal de téléchargement",
 
-	"sharebigfiles.manager"								: "Gestion",
-	"sharebigfiles.contrib"								: "Contribution",
-	"sharebigfiles.read"								: "Lecture",
-
-	"unsetImage"										: "Supprimer l'image",
+	"sharebigfile.manager"								: "Gestionnaire",
+	"sharebigfile.contrib"								: "Contributeur",
+	"sharebigfile.read"									: "Lecteur",
 
 	"group.Teacher"										: "Tous les enseignants du groupe {0}.",
 	"group.Personnel"									: "Tous les personnels du groupe {0}.",
@@ -59,21 +41,16 @@
 	"file"												: "Fichier : ",
 
 	"mb"												: "Mo",
-	"max.file.size"										: "2000000",
 
 	"loading"											: "Chargement",
-	"import.file"										: "Importer",
 	"import.description"								: "Description",
-	"share.users" 										: "Utilisateurs",
-	"share.groups" 										: "Groupes",
-	"root" 												: "Racine",
-	"share.title"										: "Partager avec...",
-	"share.more"										: "Voir la suite",
-	"share.search.title"								: "Rechercher des utilisateurs et des groupes",
-	"share.search.placeholder"							: "Ex : Sabine, Dupont, Enseignants de l'école...",
-	"seemore"											: "Voir la suite",
+
+	"sharebigfiles.label.edit"							: "Editer",
 
 	"sharebigfiles.cron.notify.body"				    : "Votre fichier déposé le {0}, expirant le {1}, a été détruit de l'application.",
+	"sharebigfiles.empty.files"							: "Vous devez choisir un fichier.",
 	"sharebigfiles.exceeded.quota"                      : "Le fichier {0} est trop volumineux, veuillez ne pas dépasser le quota.",
-	"sharebigfiles.exceeded.repository.quota"           : "Le quota maximal alloué à l'application est dépassé, veuillez réessayer d'envoyer votre fichier {0} dans quelques jours."
+	"sharebigfiles.exceeded.repository.quota"           : "Le quota maximal alloué à l'application est dépassé, veuillez réessayer d'envoyer votre fichier {0} dans quelques jours.",
+	"sharebigfiles.tooltip.download"					: "Télécharger le fichier"
+
 }

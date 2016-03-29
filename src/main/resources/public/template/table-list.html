@@ -1,22 +1,15 @@
 <div class="row">
-
 	<nav class="contextual-buttons twelve cell">
 		<div class="action-buttons">
-			<button ng-click="openNewFolderView()"><i18n>upload</i18n></button>
-		</div>
-		<lightbox show="lightbox.show" on-close="lightbox.show=false">
-			<container template="lightbox"></container>
-		</lightbox>
-		<!-- Lightbox : Share sharebigfiles -->
-		<div ng-if="showSharePanel">
-			<lightbox show="showSharePanel" on-close="showSharePanel = false;">
-				<share-panel app-prefix="'sharebigfiles'" resources="sharedSharebigfiles"></share-panel>
-			</lightbox>
+			<button workflow="sharebigfiles.create" ng-click="redirect('/create')"><i18n>sharebigfiles.create</i18n></button>
 		</div>
 	</nav>
-
-</div>
-<div class="row">
+	<!-- Lightbox : Share sharebigfiles -->
+	<div ng-if="display.showPanel">
+		<lightbox show="display.showPanel" on-close="display.showPanel = false;">
+			<share-panel app-prefix="'sharebigfiles'" resources="uploads.selection()"></share-panel>
+		</lightbox>
+	</div>
 </div>
 <article class="list-view">
 	<table class="twelve">
@@ -49,11 +42,11 @@
 		<tr ng-repeat="sharebigfiles in uploads.all | orderBy:modified.$date" ng-class="{ checked: sharebigfiles.selected }">
 			<td class="icon">
 				<behaviour name="read" resource="sharebigfiles">
-					<input type="checkbox" ng-click="selectedFile()" ng-model="sharebigfiles.selected"/>
+					<input type="checkbox" ng-model="sharebigfiles.selected"/>
 				</behaviour>
 			</td>
 			<td class="content">
-				<a ng-click="downloadFile('[[sharebigfiles._id]]')">
+				<a ng-click="redirect('/downloadFile/' + '[[sharebigfiles._id]]')" tooltip="sharebigfiles.tooltip.download">
 					[[sharebigfiles.fileNameLabel]]
 				</a>
 			</td>
@@ -67,20 +60,21 @@
 				[[sharebigfiles.expireDate()]]
 			</td>
 			<td class="content">
-				<a ng-if="[[sharebigfiles.downloadLogs.length]]>0" ng-click="downloadFileLog('[[sharebigfiles.fileId]]')">
-					[[sharebigfiles.downloadLogs.length]] fois
+				<a ng-if="[[sharebigfiles.downloadLogs.length]]>0 && canContribute(sharebigfiles)" tooltip="sharebigfiles.downloadedFileLog" ng-click="redirect('/editFileLog/' + '[[sharebigfiles.fileId]]')">
+					[[sharebigfiles.downloadLogs.length]] <i18n>sharebigfiles.time</i18n>
 				</a>
-				<div ng-if="[[sharebigfiles.downloadLogs.length]]==0" >
-					0 fois
+				<div ng-if="canContribute(sharebigfiles) === false" >
+					[[sharebigfiles.downloadLogs.length]] <i18n>sharebigfiles.time</i18n>
+				</div>
+				<div ng-if="[[sharebigfiles.downloadLogs.length]]===0" >
+					0 <i18n>sharebigfiles.time</i18n>
 				</div>
 			</td>
 			<td class="content">
 				[[formatDocumentSize(sharebigfiles.fileMetadata.size)]]
 			</td>
 			<td class="content">
-				<a ng-click="editFile(sharebigfiles)">
-					Editer
-				</a>
+				<a ng-click="redirect('/view/' + sharebigfiles._id)" tooltipe="sharebigfiles.label.edit"><i18n>sharebigfiles.label.edit</i18n></a>
 			</td>
 		</tr>
 		</tbody>

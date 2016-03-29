@@ -3,8 +3,7 @@
         <h2 class="subtitle" translate content="sharebigfiles.uploadBigFiles"></h2>
         <div class="row">
             <div class="twelve cell reduce-block-eight">
-
-               <span translate content="sharebigfiles.sizeLeft"></span><strong> [[formatDocumentSize(newItem.residualQuota)]] </strong><span translate content="sharebigfiles.onStorage"></span>
+               <span translate content="sharebigfiles.sizeLeft"></span><strong> [[formatDocumentSize(newItem.residualQuota)]] </strong><span translate content="sharebigfiles.onStorage"></span><strong>[[formatDocumentSize(maxQuota)]]</strong>
                 </br></br>
                 <strong translate content="sharebigfiles.expirations"></strong>
                 <select name="expiration" ng-change="updateExpirationDate()" ng-model="newItem.expDate" ng-options="exp for exp in newItem.expirationDateList">
@@ -12,32 +11,22 @@
                 <span translate content="sharebigfiles.expirationDays"></span> [[expiryDate | date:'dd/MM/yyyy']]
                 </br>
                 <strong translate content="sharebigfiles.fileName"></strong>
-                <input ng-required="true" type="text" ng-model="newItem.label" maxlength="50"/>
+                <input ng-required="true" type="text" ng-model="newItem.fileNameLabel" maxlength="50"/>
                 <label class="twelve cell"><strong><i18n>import.description</i18n></strong></label>
                 <textarea style="height: 60px;" maxlength="100" class="twelve cell" ng-model="newItem.description"/>
                 </br></br>
-                <!--[[$scope.expDateList.tab(0)]]-->
                 <input type="file" files-input-change=""  ng-model="newItem.newFiles" />
-
-                <div ng-if="newFile.blockIdentical && newFile.warnIdentical">
-                    <div class="warning" translate content="files.warning.identical"></div>
-                </div>
-                <div ng-if="totalFilesSize(newFile) >= maxFileSize">
-                    <div class="warning">[[lang.translate('file.too.large.limit') + (maxFileSize/1024/1024) + lang.translate('mb')]]</div>
-                </div>
-                <div ng-if="!(totalFilesSize(newFile) >= maxFileSize) && totalFilesSize(newFile) >= (maxSize() * 1024 * 1024)">
-                    <div class="warning">[[lang.translate('file.too.large.max') + maxSize() + lang.translate('mb')]]</div>
-                </div>
                 </br>
                 <span ng-if="newItem.loadingAttachments.length > 0">
                     <progress-bar max="100" filled="newItem.loadingAttachments[0].progress.completion" unit="%"></progress-bar>
                 </span>
-
-
             </div>
-            <div class="lightbox-buttons fluid right-magnet">
-                <button ng-click="importForm.$valid && postFiles()"><i18n>upload</i18n></button>
-                <button ng-click="closeImportView()"><i18n>save</i18n></button>
+            <div class="row cell">
+                <div ng-include="template.containers.errors"></div>
+            </div>
+            <div class="lightbox-buttons row fluid right-magnet">
+                <button ng-click="redirect('/')"><i18n>back</i18n></button>
+                <button ng-click="importForm.$valid && postFiles()"><i18n>save</i18n></button>
             </div>
         </div>
     </div>

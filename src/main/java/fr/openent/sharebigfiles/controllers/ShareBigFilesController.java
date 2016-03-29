@@ -178,7 +178,23 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 									}
 								});
 							} else {
-								Renders.badRequest(request, event.getString("message"));
+								if ("file.too.large".equals(event.getString("message"))) {
+									final String size = request.formAttributes().get("size");
+									final Boolean isRepositoryError;
+
+									if (size != null && !size.isEmpty() && ShareBigFilesController.this.maxRepositoryQuota.equals(Long.parseLong(size))) {
+										isRepositoryError = true;
+									} else {
+										isRepositoryError = false;
+									}
+									Renders.badRequest(request, i18n.translate((isRepositoryError) ?
+													"sharebigfiles.exceeded.repository.quota" :
+													"sharebigfiles.exceeded.quota",
+											I18n.acceptLanguage(request),
+											request.formAttributes().get("fileNameLabel")));
+								} else {
+									Renders.badRequest(request, event.getString("message"));
+								}
 							}
 						}
 					});
@@ -530,28 +546,10 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 					final JsonObject params = new JsonObject();
 					params.putString("uri", "/userbook/annuaire#" + user.getUserId() + "#" + user.getType());
 					params.putString("username", user.getUsername());
-					params.putString("shareBigFileDownloadUri", "/sharebigfiles#/downloadFile/" + id);
-					params.putString("shareBigFileAccessUri", "/sharebigfiles#/editFile/" + id);
-					shareBigFileCrudService.retrieve(id, new Handler<Either<String, JsonObject>>() {
-							@Override
-							public void handle(Either<String, JsonObject> event) {
-								if (event.isRight() && event.right().getValue() != null) {
-									params.putString("resourceName", event.right().getValue().getString("fileNameLabel",""));
+					params.putString("shareBigFileDownloadUri", "/sharebigfiles/download/" + id);
+					params.putString("shareBigFileAccessUri", "/sharebigfiles#/view/" + id);
 
-									final String description =  event.right().getValue().getString("description", "");
-									if (!description.isEmpty()) {
-										params.putString("description", i18n.translate("timeline.sharebigfile.label.description",
-											I18n.acceptLanguage(request)) + description);
-									} else {
-										params.putString("description", "");
-									}
-									shareJsonSubmit(request, "notify-sharebigfile-shared.html", false, params, "name");
-								} else {
-									leftToResponse(request, event.left());
-								}
-							}
-						}
-					);
+					shareJsonSubmit(request, "notify-sharebigfile-shared.html", false, params, "fileNameLabel");
 				}
 			}
 		});

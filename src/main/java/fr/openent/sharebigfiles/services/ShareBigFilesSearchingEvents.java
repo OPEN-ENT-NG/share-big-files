@@ -2,6 +2,7 @@ package fr.openent.sharebigfiles.services;
 
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.Either.Right;
+import fr.wseduc.webutils.I18n;
 import org.entcore.common.search.SearchingEvents;
 import org.entcore.common.service.SearchService;
 import org.vertx.java.core.Handler;
@@ -17,6 +18,7 @@ public class ShareBigFilesSearchingEvents implements SearchingEvents {
 
 	private static final Logger log = LoggerFactory.getLogger(ShareBigFilesSearchingEvents.class);
 	private SearchService searchService;
+	private static final I18n i18n = I18n.getInstance();
 
 	public ShareBigFilesSearchingEvents(SearchService searchService) {
 		this.searchService = searchService;
@@ -41,7 +43,7 @@ public class ShareBigFilesSearchingEvents implements SearchingEvents {
 				@Override
 				public void handle(Either<String, JsonArray> event) {
 					if (event.isRight()) {
-						final JsonArray res = formatSearchResult(event.right().getValue(), columnsHeader);
+						final JsonArray res = formatSearchResult(event.right().getValue(), columnsHeader, locale);
 						handler.handle(new Right<String, JsonArray>(res));
 					} else {
 						handler.handle(new Either.Left<String, JsonArray>(event.left().getValue()));
@@ -56,7 +58,7 @@ public class ShareBigFilesSearchingEvents implements SearchingEvents {
 		}
 	}
 
-	private JsonArray formatSearchResult(final JsonArray results, final JsonArray columnsHeader) {
+	private JsonArray formatSearchResult(final JsonArray results, final JsonArray columnsHeader, final String locale) {
 		final List<String> aHeader = columnsHeader.toList();
 		final JsonArray traity = new JsonArray();
 
@@ -65,11 +67,15 @@ public class ShareBigFilesSearchingEvents implements SearchingEvents {
 			final JsonObject jr = new JsonObject();
 			if (j != null) {
 				jr.putString(aHeader.get(0), j.getString("fileNameLabel"));
-				jr.putString(aHeader.get(1), j.getString("description"));
+				final String description = j.getString("description", "");
+				final String toolTipDownload = i18n.translate("sharebigfiles.tooltip.download", locale);
+				jr.putString(aHeader.get(1), "<a href='" + "/sharebigfiles/download/" + j.getString("_id") + "'"
+						+ " tooltip='" + toolTipDownload + "'>" + (description.isEmpty() ?
+						toolTipDownload : description) + "</a>");
 				jr.putObject(aHeader.get(2), j.getObject("modified"));
 				jr.putString(aHeader.get(3), j.getObject("owner").getString("displayName"));
 				jr.putString(aHeader.get(4), j.getObject("owner").getString("userId"));
-				jr.putString(aHeader.get(5), "/sharebigfiles#/downloadFile/" + j.getString("_id"));
+				jr.putString(aHeader.get(5), "/sharebigfiles#/view/" + j.getString("_id"));
 				traity.add(jr);
 			}
 		}

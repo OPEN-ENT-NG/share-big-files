@@ -4,13 +4,10 @@
 			<a><i class="sharebigfiles"></i><span translate content="sharebigfiles.title"></span></a>
 		</h1>
 	</div>
-
 	<div class="row">
-
 		<section class="ten cell right-magnet">
 			<div ng-include="template.containers.list" class="row"></div>
 		</section>
-
 	</div>
 	<section class="toggle-buttons" ng-class="{ hide: uploads.selection().length === 0 }">
 		<div class="toggle block-container">
@@ -18,11 +15,14 @@
 				<behaviour name="manage" resource="uploads.selection()">
 					<button class="cell" translate content="remove"  ng-click="removesharebigfiles()"></button>
 				</behaviour>
-				<behaviour name="manage" resource="uploads.selection()">
-					<button class="cell" translate content="Télécharger" ng-if="selection.length === 1" ng-click="downloadAction()"></button>
+				<behaviour name="read" resource="uploads.selection()">
+					<button class="cell" translate content="sharebigfiles.tooltip.download" ng-if="uploads.selection().length === 1" ng-click="redirect('/downloadFile/' + uploads.selection()[0]._id + '/toggle')"></button>
 				</behaviour>
-				<behaviour name="manage" resource="uploads.selection()">
-					<button class="cell" translate content="properties" ng-if="selection.length === 1" ng-click="editFileAction()"></button>
+				<behaviour name="read" resource="uploads.selection()">
+					<button class="cell" translate content="sharebigfiles.label.edit" ng-if="uploads.selection().length === 1" ng-click="redirect('/view/' + uploads.selection()[0]._id + '/toggle')"></button>
+				</behaviour>
+				<behaviour name="contrib" resource="uploads.selection()">
+					<button class="cell" translate content="sharebigfiles.downloadedFileLog"  ng-if="uploads.selection().length === 1" ng-click="redirect('/editFileLog/' + uploads.selection()[0].fileId + '/toggle')"></button>
 				</behaviour>
 				<behaviour name="manage" resource="uploads.selection()">
 					<button class="cell" translate content="share" ng-click="shareSharebigfiles()"></button>
