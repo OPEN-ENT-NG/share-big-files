@@ -1,4 +1,4 @@
-# À propos de l'application Fichier lourd
+# À propos de l'application Poste-fichiers
 
 * Licence : non libéré pour le moment - Copyright Conseil Régional de Picardie
 * Développeur : ATOS
