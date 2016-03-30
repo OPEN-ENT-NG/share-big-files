@@ -1,7 +1,7 @@
 <div class="row">
 	<div class="row">
-		<h1 class="four cell" data-reload>
-			<a><i class="sharebigfiles"></i><span translate content="sharebigfiles.title"></span></a>
+		<h1 class="four cell">
+			<a ng-click="redirect('/')"><i class="sharebigfiles"></i><span translate content="sharebigfiles.title"></span></a>
 		</h1>
 	</div>
 	<div class="row">
@@ -9,7 +9,7 @@
 			<div ng-include="template.containers.list" class="row"></div>
 		</section>
 	</div>
-	<section class="toggle-buttons" ng-class="{ hide: uploads.selection().length === 0 }">
+	<section class="toggle-buttons" ng-class="{ hide: (uploads.selection().length === 0 || !template.contains('list','table-list')) }">
 		<div class="toggle block-container">
 			<div class="row">
 				<behaviour name="manage" resource="uploads.selection()">
@@ -22,7 +22,7 @@
 					<button class="cell" translate content="sharebigfiles.label.edit" ng-if="uploads.selection().length === 1" ng-click="redirect('/view/' + uploads.selection()[0]._id + '/toggle')"></button>
 				</behaviour>
 				<behaviour name="contrib" resource="uploads.selection()">
-					<button class="cell" translate content="sharebigfiles.downloadedFileLog"  ng-if="uploads.selection().length === 1" ng-click="redirect('/editFileLog/' + uploads.selection()[0].fileId + '/toggle')"></button>
+					<button class="cell" translate content="sharebigfiles.downloadedFileLog"  ng-if="uploads.selection().length === 1 && uploads.selection()[0].downloadLogs.length > 0" ng-click="redirect('/editFileLog/' + uploads.selection()[0].fileId + '/toggle')"></button>
 				</behaviour>
 				<behaviour name="manage" resource="uploads.selection()">
 					<button class="cell" translate content="share" ng-click="shareSharebigfiles()"></button>
