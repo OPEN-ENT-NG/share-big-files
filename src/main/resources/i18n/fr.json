@@ -1,15 +1,15 @@
 {
 	"sharebigfiles.title"								: "Poste-fichiers",
-	"sharebigfiles.uploadBigFiles"						: "Création d'un fichier",
-	"sharebigfiles.create"								: "Créer un fichier",
+	"sharebigfiles.uploadBigFiles"						: "Dépôt d'un fichier",
+	"sharebigfiles.create"								: "Envoyer un fichier",
 	"sharebigfiles.fileName"							: "Nom du fichier :",
-	"sharebigfiles.expirationDays"						: "jours, soit le",
-	"sharebigfiles.expirations"							: "Expirations :",
+	"sharebigfiles.expirationDays"						: "jour(s), soit le",
+	"sharebigfiles.expirations"							: "Expire dans :",
 	"sharebigfiles.sizeLeft"							: "Il vous reste : ",
 	"sharebigfiles.onStorage"							: "sur votre espace de stockage de ",
 	"sharebigfiles.time"								: "fois",
 
-	"sharebigfiles.editBigFiles"						: "Edition de fichier",
+	"sharebigfiles.editBigFiles"						: "Edition du fichier",
 
 	"sharebigfiles.downloadedFileLog"					: "Journal de téléchargement",
 
@@ -39,18 +39,16 @@
 	"user"												: "Utilisateur",
 	"downloadDate"										: "Téléchargé le",
 	"file"												: "Fichier : ",
-
+	"choose": "Parcourir",
 	"mb"												: "Mo",
-
 	"loading"											: "Chargement",
 	"import.description"								: "Description",
-
 	"sharebigfiles.label.edit"							: "Editer",
-
 	"sharebigfiles.cron.notify.body"				    : "Votre fichier déposé le {0}, expirant le {1}, a été détruit de l'application.",
 	"sharebigfiles.empty.files"							: "Vous devez choisir un fichier.",
 	"sharebigfiles.exceeded.quota"                      : "Le fichier {0} est trop volumineux, veuillez ne pas dépasser le quota.",
 	"sharebigfiles.exceeded.repository.quota"           : "Le quota maximal alloué à l'application est dépassé, veuillez réessayer d'envoyer votre fichier {0} dans quelques jours.",
-	"sharebigfiles.tooltip.download"					: "Télécharger le fichier"
+	"sharebigfiles.tooltip.download"					: "Télécharger le fichier",
+	"sharebigfiles.error.unknown"						: "Erreur technique imprévue."
 
 }

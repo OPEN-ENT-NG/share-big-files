@@ -14,19 +14,25 @@
                 <input ng-required="true" type="text" ng-model="newItem.fileNameLabel" maxlength="50"/>
                 <label class="twelve cell"><strong><i18n>import.description</i18n></strong></label>
                 <textarea style="height: 60px;" maxlength="100" class="twelve cell" ng-model="newItem.description"/>
-                </br></br>
-                <input type="file" files-input-change=""  ng-model="newItem.newFiles" />
-                </br>
-                <span ng-if="newItem.loadingAttachments.length > 0">
+                <div class="twelve cell select-file input-block" style="margin-top:5px;margin-bottom:5px">
+                    <button class="file-button"><i18n>choose</i18n></button>
+                    <input style="width:60% !important" ng-readonly="true" type="text" data-ng-model="newItem.name" data-display-file class="nomargin" />
+                    <div class="hidden-content">
+                        <input type="file" files-input-change="setFilesName()"  ng-model="newItem.newFiles" />
+                    </div>
+                </div>
+                 <span ng-if="newItem.loadingAttachments.length > 0">
                     <progress-bar max="100" filled="newItem.loadingAttachments[0].progress.completion" unit="%"></progress-bar>
                 </span>
             </div>
-            <div class="row cell">
+            <div class="row cell" style="margin-bottom:10px">
                 <div ng-include="template.containers.errors"></div>
             </div>
-            <div class="lightbox-buttons row fluid right-magnet">
-                <button ng-click="redirect('/')"><i18n>back</i18n></button>
-                <button ng-click="importForm.$valid && postFiles()"><i18n>save</i18n></button>
+            <div class="row cell">
+                <div class="lightbox-buttons row fluid right-magnet">
+                    <button ng-click="redirect('/')"><i18n>back</i18n></button>
+                    <button ng-click="importForm.$valid && postFiles()"><i18n>save</i18n></button>
+                </div>
             </div>
         </div>
     </div>

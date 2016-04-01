@@ -88,7 +88,7 @@ model.parseError = function(e) {
 		error = JSON.parse(e.responseText);
 	}
 	catch (err) {
-		error.error = "search.engine.error.unknown";
+		error.error = "sharebigfiles.error.unknown";
 	}
 	error.status = e.status;
 

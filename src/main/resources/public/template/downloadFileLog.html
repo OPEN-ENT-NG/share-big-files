@@ -11,20 +11,24 @@
     <table class="twelve">
         <thead class="tableheader whiteheader">
         <tr>
-            <th class="user">
-                <span translate content="user" ng-click="orderBy('owner.displayName')"></span>
+            <th scope="col" class="user zero-mobile" ng-click="orderByLogField('userDisplayName')">
+                <span translate content="from"></span>
+                <i class="arrow-bottom" ng-if="orderLog.field === 'userDisplayName' && !orderLog.desc"></i>
+                <i class="arrow-top" ng-if="orderLog.field === 'userDisplayName' && orderLog.desc"></i>
             </th>
-            <th class="content">
-                <span translate content="downloadDate" ng-click="orderBy('modified.$date')"></span>
+            <th scope="col" class="content zero-mobile" ng-click="orderByLogField('downloadDate')">
+                <span translate content="downloadDate" ></span>
+                <i class="arrow-bottom" ng-if="orderLog.field === 'downloadDate' && !orderLog.desc"></i>
+                <i class="arrow-top" ng-if="orderLog.field === 'downloadDate' && orderLog.desc"></i>
             </th>
         </tr>
         </thead>
         <tbody ng-repeat="sharebigfiles in uploads.all | filter:{'fileId': newLogId}:true">
-        <tr ng-repeat="downloadLog in sharebigfiles.downloadLogs ">
-            <td class="user">
+        <tr ng-repeat="downloadLog in sharebigfiles.downloadLogs  | orderBy:orderLog.order:orderLog.desc">
+            <td class="user zero-mobile">
                 <a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[downloadLog.userDisplayName]]</a>
             </td>
-            <td class="content">
+            <td class="content small-font zero-mobile">
                 [[sharebigfiles.downloadedDate(downloadLog)]]
             </td>
         </tr>

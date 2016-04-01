@@ -6,25 +6,27 @@
                 <span translate content="sharebigfiles.sizeLeft"></span><strong> [[formatDocumentSize(newItem.residualQuota)]] </strong><span translate content="sharebigfiles.onStorage"></span><strong>[[formatDocumentSize(maxQuota)]]</strong>
                 </br></br>
                 <strong translate content="sharebigfiles.expirations"></strong>
-                <select name="expiration" ng-change="updateExpirationDateUpgrade()" ng-model="newItem.expDateUpgrade" ng-options="exp for exp in newItem.expirationDateList">
+                <select name="expiration" ng-readonly="canManage(newItem) === false" ng-change="updateExpirationDateUpgrade()" ng-model="newItem.expDateUpgrade" ng-options="exp for exp in newItem.expirationDateList">
                 </select>
                 <span translate content="sharebigfiles.expirationDays"></span> [[expiryDateUpgrade | date:'dd/MM/yyyy']]
                 </br>                </br>
                 <strong translate content="sharebigfiles.fileName"></strong>
-                <input ng-required="true" type="text" ng-model="newItem.fileNameLabel" maxlength="50"/>
+                <input ng-required="true" ng-readonly="canManage(newItem) === false" type="text" ng-model="newItem.fileNameLabel" maxlength="50"/>
                 <label class="twelve cell"><strong><i18n>import.description</i18n></strong></label>
-                <textarea style="height: 60px;" maxlength="100" class="twelve cell" ng-model="newItem.description"/>
+                <textarea style="height: 60px;" ng-readonly="canManage(newItem) === false" maxlength="100" class="twelve cell" ng-model="newItem.description"/>
                 </br></br>
                 </br>
             </div>
-            <div class="row cell">
+            <div class="row cell" style="padding-bottom:5px">
                 <div ng-include="template.containers.errors"></div>
             </div>
-            <div class="lightbox-buttons row fluid right-magnet">
-                <button ng-click="redirect('/')"><i18n>back</i18n></button>
-                <behaviour name="manage" resource="newItem">
-                    <button ng-click="updateFile(newItem._id);"><i18n>save</i18n></button>
-                </behaviour>
+            <div class="row cell">
+                <div class="lightbox-buttons row fluid right-magnet">
+                    <button ng-click="redirect('/')"><i18n>back</i18n></button>
+                    <behaviour name="manage" resource="newItem">
+                        <button ng-click="updateFile(newItem._id);"><i18n>save</i18n></button>
+                    </behaviour>
+                </div>
             </div>
         </div>
     </div>

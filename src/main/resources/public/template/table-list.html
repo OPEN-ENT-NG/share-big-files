@@ -15,65 +15,79 @@
 	<table class="twelve">
 		<thead class="tableheader whiteheader">
 		<tr>
-			<th class="icon" />
-			<th class="content">
-				<span translate content="title" ng-click="orderBy('title')"></span>
+			<th scope="col" class="icon">
+				<input type="checkbox" ng-model="boxes.selectAll" ng-click="switchSelectAll()" />
 			</th>
-			<th class="user">
-				<span translate content="from" ng-click="orderBy('owner.displayName')"></span>
+			<th scope="col" class="content zero-mobile" ng-click="orderByField('fileNameLabel')">
+				<span translate content="title" ></span>
+				<i class="arrow-bottom" ng-if="order.field === 'fileNameLabel' && !order.desc"></i>
+				<i class="arrow-top" ng-if="order.field === 'fileNameLabel' && order.desc"></i>
 			</th>
-			<th class="date">
-				<span translate content="date" ng-click="orderBy('modified.$date')"></span>
+			<th scope="col" class="user zero-mobile" ng-click="orderByField('owner.displayName')">
+				<span translate content="from"></span>
+				<i class="arrow-bottom" ng-if="order.field === 'owner.displayName' && !order.desc"></i>
+				<i class="arrow-top" ng-if="order.field === 'owner.displayName' && order.desc"></i>
 			</th>
-			<th class="date">
-				<span translate content="Expire" ng-click="orderBy('modified.$date')"></span>
+			<th scope="col" class="content zero-mobile" ng-click="orderByField('created')">
+				<span translate content="date" ></span>
+				<i class="arrow-bottom" ng-if="order.field === 'created' && !order.desc"></i>
+				<i class="arrow-top" ng-if="order.field === 'created' && order.desc"></i>
 			</th>
-			<th class="content">
-				<span translate content="downloaded" ng-click="orderBy('owner.displayName')"></span>
+			<th scope="col" class="content zero-mobile" ng-click="orderByField('expiryDate')">
+				<span translate content="expire" ></span>
+				<i class="arrow-bottom" ng-if="order.field === 'expiryDate' && !order.desc"></i>
+				<i class="arrow-top" ng-if="order.field === 'expiryDate' && order.desc"></i>
 			</th>
-			<th class="content">
-				<span translate content="size" ng-click="orderBy('owner.displayName')"></span>
+			<th scope="col" class="content zero-mobile" ng-click="orderByField('downloadLogs')">
+				<span translate content="downloaded" ></span>
+				<i class="arrow-bottom" ng-if="order.field === 'downloadLogs' && !order.desc"></i>
+				<i class="arrow-top" ng-if="order.field === 'downloadLogs' && order.desc"></i>
 			</th>
-			<th class="content">
+			<th scope="col" class="content zero-mobile" ng-click="orderByField('fileMetadata.size')">
+				<span translate content="size" ></span>
+				<i class="arrow-bottom" ng-if="order.field === 'fileMetadata.size' && !order.desc"></i>
+				<i class="arrow-top" ng-if="order.field === 'fileMetadata.size' && order.desc"></i>
+			</th>
+			<th class="content zero-mobile">
 			</th>
 		</tr>
 		</thead>
 		<tbody>
-		<tr ng-repeat="sharebigfiles in uploads.all | orderBy:modified.$date" ng-class="{ checked: sharebigfiles.selected }">
+		<tr ng-repeat="sharebigfiles in uploads.all | orderBy:order.order:order.desc" ng-class="{ checked: sharebigfiles.selected }">
 			<td class="icon">
 				<behaviour name="read" resource="sharebigfiles">
 					<input type="checkbox" ng-model="sharebigfiles.selected"/>
 				</behaviour>
 			</td>
-			<td class="content">
+			<td class="content zero-mobile">
 				<a ng-click="redirect('/downloadFile/' + '[[sharebigfiles._id]]')" tooltip="sharebigfiles.tooltip.download">
 					[[sharebigfiles.fileNameLabel]]
 				</a>
 			</td>
-			<td class="user">
+			<td class="user zero-mobile">
 				<a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[sharebigfiles.owner.displayName]]</a>
 			</td>
-			<td class="date">
+			<td class="content small-font zero-mobile">
 				[[sharebigfiles.creationDate()]]
 			</td>
-			<td class="date">
+			<td class="content small-font zero-mobile">
 				[[sharebigfiles.expireDate()]]
 			</td>
-			<td class="content">
+			<td class="content zero-mobile">
 				<a ng-if="[[sharebigfiles.downloadLogs.length]]>0 && canContribute(sharebigfiles)" tooltip="sharebigfiles.downloadedFileLog" ng-click="redirect('/editFileLog/' + '[[sharebigfiles.fileId]]')">
 					[[sharebigfiles.downloadLogs.length]] <i18n>sharebigfiles.time</i18n>
 				</a>
 				<div ng-if="canContribute(sharebigfiles) === false" >
 					[[sharebigfiles.downloadLogs.length]] <i18n>sharebigfiles.time</i18n>
 				</div>
-				<div ng-if="[[sharebigfiles.downloadLogs.length]]===0" >
+				<div ng-if="[[sharebigfiles.downloadLogs.length]]==0" >
 					0 <i18n>sharebigfiles.time</i18n>
 				</div>
 			</td>
-			<td class="content">
+			<td class="content small-font zero-mobile">
 				[[formatDocumentSize(sharebigfiles.fileMetadata.size)]]
 			</td>
-			<td class="content">
+			<td class="content zero-mobile">
 				<a ng-click="redirect('/view/' + sharebigfiles._id)" tooltipe="sharebigfiles.label.edit"><i18n>sharebigfiles.label.edit</i18n></a>
 			</td>
 		</tr>

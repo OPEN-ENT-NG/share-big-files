@@ -42,9 +42,6 @@ function SharebigfilesController($scope, model, template, route, date, $location
 	$scope.currentErrors = [];
     $scope.display = {};
 	$scope.newItem.expDateUpgrade = 0;
-
-	$scope.ordering = 'title';
-
 	$scope.uploads = model.uploads;
 	$scope.me = model.me;
     template.open('errors', 'errors');
@@ -62,6 +59,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 		defaultView: function(){
 			template.open('main', 'library');
             template.open('list', 'table-list');
+			$scope.boxes.selectAll=false;
 		},
 		editFileLog: function(params){
             template.open('main', 'library');
@@ -150,11 +148,19 @@ function SharebigfilesController($scope, model, template, route, date, $location
 	};
 
 	var editFileLog = function(logId, fromList){
+		$scope.currentErrors = [];
         if (fromList === undefined) {
             deselectAll();
         }
 		template.open('list', 'downloadFileLog');
 		$scope.newLogId = logId;
+	};
+
+	$scope.boxes = { selectAll: false }
+	$scope.switchSelectAll = function(){
+		$scope.uploads.forEach(function(upload){
+			upload.selected = $scope.boxes.selectAll;
+		});
 	};
 
     var deselectAll = function() {
@@ -207,6 +213,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 	};
 
 	$scope.editFile = function(file, fromList) {
+		$scope.currentErrors = [];
         if (fromList === undefined) {
             deselectAll();
         }
@@ -257,6 +264,16 @@ function SharebigfilesController($scope, model, template, route, date, $location
         }, function (e) {
 			bigFilesError(e);
 		});
+	};
+
+	$scope.setFilesName = function(){
+		$scope.currentErrors = [];
+		$scope.newItem.name = '';
+
+		if ($scope.newItem.newFiles.length > 0) {
+			var file = $scope.newItem.newFiles[0];
+			$scope.newItem.name = file.name;
+		}
 	};
 
 	$scope.postFiles = function(){
@@ -368,9 +385,71 @@ function SharebigfilesController($scope, model, template, route, date, $location
 		});
 	};
 
-    $scope.orderBy = function(what){
-        $scope.ordering = ($scope.ordering === what ? '-' + what : what)
-    };
+	$scope.orderLog = {
+		field: 'downloadDate', desc: true
+	}
+
+	$scope.orderLog.order = function(item){
+		if($scope.orderLog.field === 'downloadDate' && item.downloadDate){
+			return moment(item.downloadDate.$date);
+		}
+
+		if($scope.orderLog.field.indexOf('.') >= 0){
+			var splitted_field = $scope.orderLog.field.split('.')
+			var sortValue = item
+			for(var i = 0; i < splitted_field.length; i++){
+				sortValue = typeof sortValue === 'undefined' ? undefined : sortValue[splitted_field[i]]
+			}
+			return sortValue
+		} else
+			return item[$scope.orderLog.field];
+	}
+
+	$scope.orderByLogField = function(fieldName){
+		if(fieldName === $scope.orderLog.field){
+			$scope.orderLog.desc = !$scope.orderLog.desc;
+		}
+		else{
+			$scope.orderLog.desc = false;
+			$scope.orderLog.field = fieldName;
+		}
+	};
+
+	$scope.order = {
+		field: 'modified', desc: true
+	}
+
+	$scope.order.order = function(item){
+		if($scope.order.field === 'modified' && item.modified){
+			return moment(item.modified.$date);
+		} else if($scope.order.field === 'created' && item.created){
+			return moment(item.created.$date);
+		} else if($scope.order.field === 'expiryDate' && item.expiryDate){
+			return moment(item.expiryDate.$date);
+		} else if ($scope.order.field === 'downloadLogs' && item.downloadLogs) {
+			return item.downloadLogs.length;
+		}
+
+		if($scope.order.field.indexOf('.') >= 0){
+			var splitted_field = $scope.order.field.split('.')
+			var sortValue = item
+			for(var i = 0; i < splitted_field.length; i++){
+				sortValue = typeof sortValue === 'undefined' ? undefined : sortValue[splitted_field[i]]
+			}
+			return sortValue
+		} else
+			return item[$scope.order.field];
+	}
+
+	$scope.orderByField = function(fieldName){
+		if(fieldName === $scope.order.field){
+			$scope.order.desc = !$scope.order.desc;
+		}
+		else{
+			$scope.order.desc = false;
+			$scope.order.field = fieldName;
+		}
+	};
 
     $scope.shareSharebigfiles = function(){
         $scope.sharedSharebigfiles = $scope.uploads.selection();
@@ -383,7 +462,11 @@ function SharebigfilesController($scope, model, template, route, date, $location
         }
     };
 
-    $scope.canContribute = function(item){
+	$scope.canManage = function(item){
+		return (item.myRights.manage !== undefined);
+	};
+
+	$scope.canContribute = function(item){
         return (item.myRights.contrib !== undefined);
     };
 
