@@ -9,7 +9,7 @@
 
 ## Prérequis
 
- 1. L'application Poste-Fichier nécessite un accès à un système de stockage objet RESTful, en l'occurrence Swift intégré à l'infrastructure de l'ENT est employé par l'application. Certaines informations de configuration de ce système de stockage doivent être fournies pour mener à bien la configuration de cette application.
+ 1. L'application Poste-Fichier nécessite un accès à un système de stockage objet RESTful, en l'occurrence Swift qui est intégré à l'infrastructure de l'ENT et employé par l'application. Certaines informations de configuration de ce système de stockage doivent être fournies pour mener à bien la configuration de cette application.
  2. Swift est un service multi-conteneur. Un conteneur spécifique est nécessaire aux usages de cette application. Il permet de spécifier une taille maximale du stockage allouée à cette application pour l'ENT.
 
 ## Construction
