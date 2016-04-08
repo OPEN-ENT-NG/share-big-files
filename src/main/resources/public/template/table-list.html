@@ -74,7 +74,7 @@
 				[[sharebigfiles.expireDate()]]
 			</td>
 			<td class="content zero-mobile">
-				<a ng-if="[[sharebigfiles.downloadLogs.length]]>0 && canContribute(sharebigfiles)" tooltip="sharebigfiles.downloadedFileLog" ng-click="redirect('/editFileLog/' + '[[sharebigfiles.fileId]]')">
+				<a ng-if="[[sharebigfiles.downloadLogs.length]]>0 && canContribute(sharebigfiles)" tooltip="sharebigfiles.downloadedFileLog" ng-click="redirect('/editFileLog/' + '[[sharebigfiles._id]]')">
 					[[sharebigfiles.downloadLogs.length]] <i18n>sharebigfiles.time</i18n>
 				</a>
 				<div ng-if="canContribute(sharebigfiles) === false" >

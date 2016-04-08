@@ -41,6 +41,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 	$scope.newLogId = "";
 	$scope.currentErrors = [];
     $scope.display = {};
+	$scope.fileName = "";
 	$scope.newItem.expDateUpgrade = 0;
 	$scope.uploads = model.uploads;
 	$scope.me = model.me;
@@ -63,7 +64,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 		},
 		editFileLog: function(params){
             template.open('main', 'library');
-            editFileLog(params.id, params.list);
+			loadFromRoute(params.id, params.list, "log");
 		},
 		downloadFile: function(params){
 			downloadFile(params.id, params.list);
@@ -75,25 +76,45 @@ function SharebigfilesController($scope, model, template, route, date, $location
         },
 		editFile: function(params){
 			template.open('main', 'library');
-            var item = model.uploads.findWhere({ _id:  params.id });
-            if (!item) {
-                //from out
-                model.uploads.sync(function() {
-                    item = model.uploads.findWhere({ _id:  params.id });
-                    //if quota not already load
-                    if (maxRepository === 0) {
-                        $scope.getQuota(function() {
-                            $scope.editFile(item, params.list);
-                        })
-                    } else {
-                        $scope.editFile(item, params.list);
-                    }
-                });
-            } else {
-                $scope.editFile(item, params.list);
-            }
+            loadFromRoute(params.id, params.list, "edit");
 		}
 	});
+
+	var loadFromRoute = function(id, isList, target) {
+		var item = model.uploads.findWhere({ _id:  id });
+		if (!item) {
+			//from out
+			model.uploads.sync(function() {
+				item = model.uploads.findWhere({ _id:  id });
+				//if quota not already load
+				if (maxRepository === 0) {
+					$scope.getQuota(function() {
+						if (target === "edit") {
+							$scope.editFile(item, isList);
+						} else {
+							$scope.fileName = item.fileNameLabel;
+							editFileLog(item.fileId, isList);
+						}
+					})
+				} else {
+					if (target === "edit") {
+						$scope.editFile(item, isList);
+					} else {
+						//TODO stop the loop on download log view --> bad idea from ...
+						$scope.fileName = item.fileNameLabel;
+						editFileLog(item.fileId, isList);
+					}
+				}
+			});
+		} else {
+			if (target === "edit") {
+				$scope.editFile(item, isList);
+			} else {
+				$scope.fileName = item.fileNameLabel;
+				editFileLog(item.fileId, isList);
+			}
+		}
+	};
 
     $scope.redirect = function(path){
         $location.path(path);

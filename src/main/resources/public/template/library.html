@@ -22,7 +22,7 @@
 					<button class="cell" translate content="sharebigfiles.label.edit" ng-if="uploads.selection().length === 1" ng-click="redirect('/view/' + uploads.selection()[0]._id + '/toggle')"></button>
 				</behaviour>
 				<behaviour name="contrib" resource="uploads.selection()">
-					<button class="cell" translate content="sharebigfiles.downloadedFileLog"  ng-if="uploads.selection().length === 1 && uploads.selection()[0].downloadLogs.length > 0" ng-click="redirect('/editFileLog/' + uploads.selection()[0].fileId + '/toggle')"></button>
+					<button class="cell" translate content="sharebigfiles.downloadedFileLog"  ng-if="uploads.selection().length === 1 && uploads.selection()[0].downloadLogs.length > 0" ng-click="redirect('/editFileLog/' + uploads.selection()[0]._id + '/toggle')"></button>
 				</behaviour>
 				<behaviour name="manage" resource="uploads.selection()">
 					<button class="cell" translate content="share" ng-click="shareSharebigfiles()"></button>
