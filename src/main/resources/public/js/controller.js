@@ -234,6 +234,10 @@ function SharebigfilesController($scope, model, template, route, date, $location
 		var dateExp = moment(file.expiryDate.$date).format('MM/DD/YYYY');
 		var dateCrea = moment(file.created.$date).format('MM/DD/YYYY');
         $scope.newItem.expDateUpgrade =  moment(dateExp).diff(dateCrea, 'days');
+		if ($scope.newItem.expDateUpgrade === 0) {
+			//in fact, it's possible lifetime can be less than 24h because the hour can't manage
+			$scope.newItem.expDateUpgrade = 1;
+		}
 	};
 
     var initNewItem = function() {

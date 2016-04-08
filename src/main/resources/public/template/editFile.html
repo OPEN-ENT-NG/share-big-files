@@ -6,9 +6,10 @@
                 <span translate content="sharebigfiles.sizeLeft"></span><strong> [[formatDocumentSize(newItem.residualQuota)]] </strong><span translate content="sharebigfiles.onStorage"></span><strong>[[formatDocumentSize(maxQuota)]]</strong>
                 </br></br>
                 <strong translate content="sharebigfiles.expirations"></strong>
-                <select name="expiration" ng-readonly="canManage(newItem) === false" ng-change="updateExpirationDateUpgrade()" ng-model="newItem.expDateUpgrade" ng-options="exp for exp in newItem.expirationDateList">
+                <select name="expiration" ng-disabled="canManage(newItem) === false" ng-change="updateExpirationDateUpgrade()" ng-model="newItem.expDateUpgrade" ng-options="exp for exp in newItem.expirationDateList">
                 </select>
-                <span translate content="sharebigfiles.expirationDays"></span> [[expiryDateUpgrade | date:'dd/MM/yyyy']]
+                <span translate content="sharebigfiles.days.update"></span> [[newItem.creationDate() | date:'dd/MM/yyyy']]
+                <span translate content="sharebigfiles.days.updateBis"></span> [[expiryDateUpgrade | date:'dd/MM/yyyy']]
                 </br>                </br>
                 <strong translate content="sharebigfiles.fileName"></strong>
                 <input ng-required="template.contains('list','editFile')" ng-readonly="canManage(newItem) === false" type="text" ng-model="newItem.fileNameLabel" maxlength="50"/>

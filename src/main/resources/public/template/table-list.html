@@ -88,7 +88,8 @@
 				[[formatDocumentSize(sharebigfiles.fileMetadata.size)]]
 			</td>
 			<td class="content zero-mobile">
-				<a ng-click="redirect('/view/' + sharebigfiles._id)" tooltipe="sharebigfiles.label.edit"><i18n>sharebigfiles.label.edit</i18n></a>
+				<a ng-if="canManage(sharebigfiles)" ng-click="redirect('/view/' + sharebigfiles._id)" tooltip="sharebigfiles.label.edit"><i18n>sharebigfiles.label.edit</i18n></a>
+				<a ng-if="!canManage(sharebigfiles)" ng-click="redirect('/view/' + sharebigfiles._id)" tooltip="sharebigfiles.label.consult"><i18n>sharebigfiles.label.consult</i18n></a>
 			</td>
 		</tr>
 		</tbody>
