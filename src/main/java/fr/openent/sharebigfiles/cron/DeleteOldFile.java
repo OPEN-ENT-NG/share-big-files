@@ -65,9 +65,8 @@ public class DeleteOldFile implements Handler<Long> {
                                         locale, createdDate, expiryFileDate));
 
                         timelineHelper.notifyTimeline(new JsonHttpServerRequest(new JsonObject()
-                                        .putObject("headers", new JsonObject().putString("Accept-Language", locale))), null,
-                                ShareBigFiles.SHARE_BIG_FILE.toUpperCase(), ShareBigFiles.SHARE_BIG_FILE.toUpperCase() + "_delete",
-                                recipients, null, "notify-delete.html", params);
+                        			.putObject("headers", new JsonObject().putString("Accept-Language", locale))),
+                        		"sharebigfiles.delete", null, recipients, null, params);
                     }
                     storage.removeFiles(ids, new Handler<JsonObject>() {
                         @Override

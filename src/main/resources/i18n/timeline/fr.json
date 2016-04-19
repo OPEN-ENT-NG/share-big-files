@@ -1,4 +1,7 @@
 {
+    "sharebigfiles": "Poste-fichiers",
+    "sharebigfiles.share": "Partage d'un fichier dans Poste-fichiers",
+    "sharebigfiles.delete": "Suppression d'un fichier dans Poste-fichiers",
     "timeline.sharebigfile.has.shared": "vous a partagé un fichier",
     "timeline.sharebigfile.label.download": " directement téléchargeable via ",
     "timeline.sharebigfile.label.access": " et consultable via ",

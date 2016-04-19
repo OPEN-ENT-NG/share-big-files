@@ -544,12 +544,16 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 			public void handle(final UserInfos user) {
 				if (user != null) {
 					final JsonObject params = new JsonObject();
-					params.putString("uri", "/userbook/annuaire#" + user.getUserId() + "#" + user.getType());
+					params.putString("uri", container.config().getString("host", "http://localhost:8090") +
+						"/userbook/annuaire#" + user.getUserId() + "#" + user.getType());
 					params.putString("username", user.getUsername());
-					params.putString("shareBigFileDownloadUri", "/sharebigfiles/download/" + id);
-					params.putString("shareBigFileAccessUri", "/sharebigfiles#/view/" + id);
+					params.putString("shareBigFileDownloadUri", container.config().getString("host", "http://localhost:8090") +
+						"/sharebigfiles/download/" + id);
+					params.putString("shareBigFileAccessUri", container.config().getString("host", "http://localhost:8090") +
+						"/sharebigfiles#/view/" + id);
+					params.putString("resourceUri", params.getString("shareBigFileAccessUri"));
 
-					shareJsonSubmit(request, "notify-sharebigfile-shared.html", false, params, "fileNameLabel");
+					shareJsonSubmit(request, "sharebigfiles.share", false, params, "fileNameLabel");
 				}
 			}
 		});
