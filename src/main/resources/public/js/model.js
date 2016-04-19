@@ -33,7 +33,7 @@ function Upload() {
 		return moment(parseInt(this.created.$date)).format('DD/MM/YYYY HH:mm')
 	};
 	this.expireDate = function(){
-		return moment(parseInt(this.expiryDate.$date)).format('DD/MM/YYYY HH:mm')
+		return moment(parseInt(this.expiryDate.$date)).format('DD/MM/YYYY')
 	};
 	this.downloadedDate = function(downloadlog){
 		return moment(parseInt(downloadlog.downloadDate.$date)).format('DD/MM/YYYY HH:mm')

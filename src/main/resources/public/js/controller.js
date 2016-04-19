@@ -296,6 +296,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 		if (!$scope.newItem.fileNameLabel) {
 			bigFilesWarn({error: 'sharebigfiles.empty.filename'});
 		} else {
+			$scope.updateExpirationDateUpgrade();
 			$scope.newItem.expiryDate.$date = $scope.expDateUprade;
 			var data = {
 				"fileNameLabel": $scope.newItem.fileNameLabel,
