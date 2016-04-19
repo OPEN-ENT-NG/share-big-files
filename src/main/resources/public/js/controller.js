@@ -15,7 +15,10 @@ routes.define(function($routeProvider){
             .when('/downloadFile/:id/:list', {
                 action: 'downloadFile'
             })
-            .when('/:create', {
+			.when('/create', {
+				action: 'createFile'
+			})
+            .when('/create/:fromDrop', {
                 action: 'createFile'
             })
 			.when('/view/:id', {
@@ -72,7 +75,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
         createFile: function(params){
             deselectAll();
             template.open('main', 'library');
-            openNewFolderView();
+            openNewFolderView(params.fromDrop);
         },
 		editFile: function(params){
 			template.open('main', 'library');
@@ -120,15 +123,15 @@ function SharebigfilesController($scope, model, template, route, date, $location
         $location.path(path);
     };
 
-	var openNewFolderView = function(){
+	var openNewFolderView = function(fromDrop){
         $scope.currentErrors = [];
         if (maxRepository === 0) {
             $scope.getQuota(function() {
-                initNewItem();
+                initNewItem(fromDrop);
                 template.open('list', 'importFile');
             })
         } else {
-            initNewItem();
+            initNewItem(fromDrop);
             template.open('list', 'importFile');
         }
 	};
@@ -261,8 +264,9 @@ function SharebigfilesController($scope, model, template, route, date, $location
 		}
 	};
 
-    var initNewItem = function() {
-        $scope.newItem = new Upload();
+	var initNewItem = function(fromDrop) {
+		//not from drop zone
+		if (fromDrop === undefined) $scope.newItem = new Upload();
         $scope.newItem.residualQuota = residualQuota;
         initNewItemExpirationData();
 
@@ -368,6 +372,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 							$scope.newItem.attachments.push(attachmentObj);
 							$scope.getQuota();
                             model.uploads.sync(function() {
+								initNewItem();
                                 $scope.redirect('/');
                             });
 						},

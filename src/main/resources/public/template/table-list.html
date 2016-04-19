@@ -11,12 +11,14 @@
 		</lightbox>
 	</div>
 </div>
-<article class="list-view">
+<article class="list-view" drop-files="newItem.newFiles" on-drop="setFilesName(); redirect('/create/list');">
 	<table class="twelve">
 		<thead class="tableheader whiteheader">
 		<tr>
 			<th scope="col" class="icon">
 				<input type="checkbox" ng-model="boxes.selectAll" ng-click="switchSelectAll()" />
+			</th>
+			<th scope="col" class="icon zero-mobile">
 			</th>
 			<th scope="col" class="content zero-mobile" ng-click="orderByField('fileNameLabel')">
 				<span translate content="title" ></span>
@@ -59,10 +61,16 @@
 					<input type="checkbox" ng-model="sharebigfiles.selected"/>
 				</behaviour>
 			</td>
+			<td class="icon zero-mobile">
+				<div class="twelve cell">
+					<i class="[[sharebigfiles.classFromContentType()]]"></i>
+					<i ng-if="sharebigfiles.shared.length > 0" class="shared"></i>
+				</div>
+			</td>
 			<td class="content zero-mobile">
 				<a ng-click="redirect('/downloadFile/' + '[[sharebigfiles._id]]')" tooltip="sharebigfiles.tooltip.download">
 					[[sharebigfiles.fileNameLabel]]
-				</a>
+				</a> <em class="tag">[[sharebigfiles.fileExtension()]]</em>
 			</td>
 			<td class="user zero-mobile">
 				<a href="/userbook/annuaire#[[sharebigfiles.owner.userId]]">[[sharebigfiles.owner.displayName]]</a>

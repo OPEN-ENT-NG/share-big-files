@@ -1,3 +1,33 @@
+var types = {
+	'doc': function (type) {
+		return type.indexOf('document') !== -1 && type.indexOf('wordprocessing') !== -1;
+	},
+	'xls': function (type) {
+		return (type.indexOf('document') !== -1 && type.indexOf('spreadsheet') !== -1) || (type.indexOf('ms-excel') !== -1);
+	},
+	'img': function (type) {
+		return type.indexOf('image') !== -1;
+	},
+	'pdf': function (type) {
+		return type.indexOf('pdf') !== -1 || type === 'application/x-download';
+	},
+	'ppt': function (type) {
+		return (type.indexOf('document') !== -1 && type.indexOf('presentation') !== -1) || type.indexOf('powerpoint') !== -1;
+	},
+	'video': function (type) {
+		return type.indexOf('video') !== -1;
+	},
+	'audio': function (type) {
+		return type.indexOf('audio') !== -1;
+	},
+	'zip': function (type) {
+		return type.indexOf('zip') !== -1 ||
+				type.indexOf('rar') !== -1 ||
+				type.indexOf('tar') !== -1 ||
+				type.indexOf('7z') !== -1;
+	}
+};
+
 function Upload() {
 	this.creationDate = function(){
 		return moment(parseInt(this.created.$date)).format('DD/MM/YYYY HH:mm')
@@ -9,6 +39,21 @@ function Upload() {
 		return moment(parseInt(downloadlog.downloadDate.$date)).format('DD/MM/YYYY HH:mm')
 	};
 };
+
+Upload.prototype.classFromContentType = function() {
+	for (var type in types) {
+		if (types[type](this.fileMetadata['content-type'])) {
+			return type;
+		}
+	}
+
+	return 'unknown';
+};
+
+Upload.prototype.fileExtension = function() {
+	return this.fileMetadata.filename.split('.').pop();
+};
+
 
 Upload.prototype.postAttachment = function (attachment, options, attachmentObj, cb, cbe) {
 	return http().postFile("/sharebigfiles", attachment, options)
