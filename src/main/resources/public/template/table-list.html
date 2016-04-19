@@ -6,7 +6,7 @@
 	</nav>
 	<!-- Lightbox : Share sharebigfiles -->
 	<div ng-if="display.showPanel">
-		<lightbox show="display.showPanel" on-close="display.showPanel = false;">
+		<lightbox show="display.showPanel" on-close="display.showPanel = false;uploads.sync();">
 			<share-panel app-prefix="'sharebigfiles'" resources="uploads.selection()"></share-panel>
 		</lightbox>
 	</div>
