@@ -1,10 +1,7 @@
 <div class="row">
-    <h1 data-reload>
-        <a><i class="sharebigfiles"></i><span translate content="sharebigfiles.downloadedFileLog"></span><span translate content="sharebigfiles.downloadedFileLog.label"></span>[[fileName]]</a>
-    </h1>
-    <div class="action-buttons right-magnet">
-        <button ng-click="redirect('/')"><i18n>back</i18n></button>
-    </div>
+    <h2>
+        <a ng-click="redirect('/');"><i class="sharebigfiles"></i><span translate content="sharebigfiles.downloadedFileLog"></span><span translate content="sharebigfiles.downloadedFileLog.label"></span>[[fileName]]</a>
+    </h2>
 </div>
 
 <article class="list-view">
@@ -16,7 +13,7 @@
                 <i class="arrow-bottom" ng-if="orderLog.field === 'userDisplayName' && !orderLog.desc"></i>
                 <i class="arrow-top" ng-if="orderLog.field === 'userDisplayName' && orderLog.desc"></i>
             </th>
-            <th scope="col" class="content zero-mobile" ng-click="orderByLogField('downloadDate')">
+            <th scope="col" class="user zero-mobile" ng-click="orderByLogField('downloadDate')">
                 <span translate content="downloadDate" ></span>
                 <i class="arrow-bottom" ng-if="orderLog.field === 'downloadDate' && !orderLog.desc"></i>
                 <i class="arrow-top" ng-if="orderLog.field === 'downloadDate' && orderLog.desc"></i>
@@ -35,3 +32,7 @@
         </tbody>
     </table>
 </article>
+
+<div class="action-buttons right-magnet">
+    <button ng-click="redirect('/');"><i18n>back</i18n></button>
+</div>

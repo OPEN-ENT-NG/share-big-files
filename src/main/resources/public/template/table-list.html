@@ -10,6 +10,21 @@
 			<share-panel app-prefix="'sharebigfiles'" resources="uploads.selection()"></share-panel>
 		</lightbox>
 	</div>
+	<div ng-if="display.showLogPanel">
+		<lightbox show="display.showLogPanel" on-close="redirect('/');">
+			<container template="downloadFileLog"></container>
+		</lightbox>
+	</div>
+	<div ng-if="display.showEditPanel">
+		<lightbox show="display.showEditPanel" on-close="redirect('/');">
+			<container template="editFile"></container>
+		</lightbox>
+	</div>
+	<div ng-if="display.showImportPanel">
+		<lightbox show="display.showImportPanel" on-close="redirect('/');">
+			<container template="importFile"></container>
+		</lightbox>
+	</div>
 </div>
 <article class="list-view" drop-files="newItem.newFiles" on-drop="setFilesName(); redirect('/create/list');">
 	<table class="twelve">
