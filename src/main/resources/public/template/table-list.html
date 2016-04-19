@@ -100,7 +100,7 @@
 				<a ng-if="[[sharebigfiles.downloadLogs.length]]>0 && canContribute(sharebigfiles)" tooltip="sharebigfiles.downloadedFileLog" ng-click="redirect('/editFileLog/' + '[[sharebigfiles._id]]')">
 					[[sharebigfiles.downloadLogs.length]] <i18n>sharebigfiles.time</i18n>
 				</a>
-				<div ng-if="canContribute(sharebigfiles) === false" >
+				<div ng-if="[[sharebigfiles.downloadLogs.length]]>0 && canContribute(sharebigfiles) === false" >
 					[[sharebigfiles.downloadLogs.length]] <i18n>sharebigfiles.time</i18n>
 				</div>
 				<div ng-if="[[sharebigfiles.downloadLogs.length]]==0" >
