@@ -12,7 +12,6 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.json.impl.Json;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
 
@@ -68,8 +67,8 @@ public class DeleteOldFile implements Handler<Long> {
                                         locale, createdDate, expiryFileDate));
 
                         timelineHelper.notifyTimeline(new JsonHttpServerRequest(new JsonObject()
-                        			.putObject("headers", new JsonObject().putString("Accept-Language", locale))),
-                        		"sharebigfiles.delete", null, recipients, null, params);
+                                        .putObject("headers", new JsonObject().putString("Accept-Language", locale))),
+                                                        		"sharebigfiles.delete", null, recipients, null, params);
                     }
                     storage.removeFiles(ids, new Handler<JsonObject>() {
                         @Override
