@@ -83,8 +83,8 @@
 				</div>
 			</td>
 			<td class="content zero-mobile">
-				<span tooltip="[[(sharebigfiles.isOutdated()) ? 'sharebigfiles.tooltip.outdated' : 'sharebigfiles.tooltip.marked']]" style="[[(sharebigfiles.isOutdated()) ? 'color:red;' : 'color:purple;']]" ng-if="sharebigfiles.isOutdated() || sharebigfiles.isMarkedLikeObsolete()">[[sharebigfiles.fileNameLabel]]</span>
-				<a ng-if="!sharebigfiles.isOutdated() && !sharebigfiles.isMarkedLikeObsolete()" ng-click="redirect('/downloadFile/' + '[[sharebigfiles._id]]')" tooltip="sharebigfiles.tooltip.download">
+				<span tooltip="sharebigfiles.tooltip.outdated" style="color:red;" ng-if="sharebigfiles.isOutdated()">[[sharebigfiles.fileNameLabel]]</span>
+				<a ng-if="!sharebigfiles.isOutdated()" style="[[(sharebigfiles.isMarkedLikeObsolete()) ? 'color:purple;' : '']]" ng-click="redirect('/downloadFile/' + '[[sharebigfiles._id]]')" tooltip="[[(sharebigfiles.isMarkedLikeObsolete()) ? 'sharebigfiles.tooltip.marked' : 'sharebigfiles.tooltip.download']]">
 					[[sharebigfiles.fileNameLabel]]
 				</a> <em class="tag">[[sharebigfiles.fileExtension()]]</em>
 			</td>
