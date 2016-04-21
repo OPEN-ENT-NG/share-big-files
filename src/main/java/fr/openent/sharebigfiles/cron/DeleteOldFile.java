@@ -3,6 +3,7 @@ package fr.openent.sharebigfiles.cron;
 import fr.openent.sharebigfiles.ShareBigFiles;
 import fr.openent.sharebigfiles.utils.DateUtils;
 import fr.wseduc.mongodb.MongoDb;
+import fr.wseduc.mongodb.MongoUpdateBuilder;
 import fr.wseduc.webutils.I18n;
 import org.entcore.common.http.request.JsonHttpServerRequest;
 import org.entcore.common.notification.TimelineHelper;
@@ -11,6 +12,7 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.core.json.impl.Json;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.logging.impl.LoggerFactory;
 
@@ -35,10 +37,11 @@ public class DeleteOldFile implements Handler<Long> {
 
     @Override
     public void handle(Long event) {
-        // Check the expiry date of file (Mongo) and removal if necessary (mongo + swift file)
-        final JsonObject query = new JsonObject()
-                .putObject("expiryDate", new JsonObject()
-                        .putObject("$lt", MongoDb.now()));
+        // Check the expiry date of file (Mongo) and removal if necessary (only swift file)
+        final JsonArray cond = new JsonArray().addObject(new JsonObject().putObject("expiryDate", new JsonObject()
+                        .putObject("$lt", MongoDb.now()))).addObject(new JsonObject().putObject("outdated", new JsonObject()
+                        .putBoolean("$exists", false)));
+        final JsonObject query = new JsonObject().putArray("$and", cond);
         mongo.find(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, query, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> event) {
@@ -71,14 +74,27 @@ public class DeleteOldFile implements Handler<Long> {
                     storage.removeFiles(ids, new Handler<JsonObject>() {
                         @Override
                         public void handle(JsonObject event) {
-                            mongo.delete(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, query, new Handler<Message<JsonObject>>() {
-                                @Override
-                                public void handle(Message<JsonObject> event) {
-                                    if (!"ok".equals(event.body().getString("status"))) {
-                                        log.error(event.body().getString("message"));
+                            if ("ok".equals(event.getString("status"))) {
+                                final MongoUpdateBuilder modifier = new MongoUpdateBuilder();
+                                //one adding out-of-date flag
+                                modifier.set("outdated", true);
+                                //two deleting share
+                                modifier.unset("shared");
+                                mongo.update(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, query, modifier.build(), false, true, null, new Handler<Message<JsonObject>>() {
+                                    @Override
+                                    public void handle(Message<JsonObject> event) {
+                                        if (!"ok".equals(event.body().getString("status"))) {
+                                            log.error(event.body().getString("message"));
+                                        }
                                     }
+                                });
+                            } else {
+                                final JsonArray errors = event.getArray("errors");
+                                for (int i=0;i<errors.size();i++) {
+                                    final JsonObject jo = errors.get(i);
+                                    log.error("Can't delete swift file id : " + jo.getString("id") + ", error : " + jo.getString("message"));
                                 }
-                            });
+                            }
                         }
                     });
                 }

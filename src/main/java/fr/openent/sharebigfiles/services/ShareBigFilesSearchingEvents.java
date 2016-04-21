@@ -67,11 +67,7 @@ public class ShareBigFilesSearchingEvents implements SearchingEvents {
 			final JsonObject jr = new JsonObject();
 			if (j != null) {
 				jr.putString(aHeader.get(0), j.getString("fileNameLabel"));
-				final String description = j.getString("description", "");
-				final String toolTipDownload = i18n.translate("sharebigfiles.tooltip.download", locale);
-				jr.putString(aHeader.get(1), "<a href='" + "/sharebigfiles/download/" + j.getString("_id") + "'"
-						+ " tooltip='" + toolTipDownload + "'>" + (description.isEmpty() ?
-						toolTipDownload : description) + "</a>");
+				jr.putString(aHeader.get(1), j.getString("description", ""));
 				jr.putObject(aHeader.get(2), j.getObject("modified"));
 				jr.putString(aHeader.get(3), j.getObject("owner").getString("displayName"));
 				jr.putString(aHeader.get(4), j.getObject("owner").getString("userId"));

@@ -434,17 +434,22 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 						public void handle(Either<String, JsonObject> event) {
 							if (event.isRight() && event.right().getValue() != null) {
 								final JsonObject object = event.right().getValue();
-								storage.removeFile(object.getString("fileId"), new Handler<JsonObject>() {
-									@Override
-									public void handle(JsonObject event) {
-										if ("ok".equals(event.getString("status"))) {
-											shareBigFileCrudService.delete(sbfId, user, notEmptyResponseHandler(request));
-										} else {
-											log.error("mongo orphaned objet without real storage file width id " + sbfId);
-											Renders.renderError(request, event);
+								if (!object.getBoolean("outdated", false)) {
+									storage.removeFile(object.getString("fileId"), new Handler<JsonObject>() {
+										@Override
+										public void handle(JsonObject event) {
+											if ("ok".equals(event.getString("status"))) {
+												shareBigFileCrudService.delete(sbfId, user, notEmptyResponseHandler(request));
+											} else {
+												log.error("mongo orphaned objet without real storage file width id " + sbfId);
+												Renders.renderError(request, event);
+											}
 										}
-									}
-								});
+									});
+								} else {
+									//only delete the collection entry if the swift file is already destroy
+									shareBigFileCrudService.delete(sbfId, user, notEmptyResponseHandler(request));
+								}
 							} else {
 								leftToResponse(request, event.left());
 							}
@@ -547,8 +552,6 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 					params.putString("uri", container.config().getString("host", "http://localhost:8090") +
 						"/userbook/annuaire#" + user.getUserId() + "#" + user.getType());
 					params.putString("username", user.getUsername());
-					params.putString("shareBigFileDownloadUri", container.config().getString("host", "http://localhost:8090") +
-						"/sharebigfiles/download/" + id);
 					params.putString("shareBigFileAccessUri", container.config().getString("host", "http://localhost:8090") +
 						"/sharebigfiles#/view/" + id);
 					params.putString("resourceUri", params.getString("shareBigFileAccessUri"));

@@ -23,7 +23,7 @@
             </div>
             <div class="row cell">
                 <div class="lightbox-buttons row fluid right-magnet">
-                    <button ng-click="redirect('/')"><i18n>back</i18n></button>
+                    <button ng-click="display.showEditPanel=false;redirect('/')"><i18n>back</i18n></button>
                     <behaviour name="manage" resource="newItem">
                         <button ng-click="updateFile(newItem._id);"><i18n>save</i18n></button>
                     </behaviour>

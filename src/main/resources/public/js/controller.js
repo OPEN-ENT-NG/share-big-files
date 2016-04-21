@@ -27,7 +27,7 @@ routes.define(function($routeProvider){
             .when('/view/:id/:list', {
                 action: 'editFile'
             })
-    		.otherwise({
+			.otherwise({
 				action: 'defaultView'
 			})
 })
@@ -64,9 +64,6 @@ function SharebigfilesController($scope, model, template, route, date, $location
 			template.open('main', 'library');
             template.open('list', 'table-list');
 			$scope.boxes.selectAll=false;
-			$scope.display.showImportPanel = false;
-			$scope.display.showEditPanel = false;
-			$scope.display.showLogPanel = false;
 		},
 		editFileLog: function(params){
             template.open('main', 'library');
@@ -305,6 +302,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 			};
 			$scope.newItem.updateFile(fileId, data, function () {
 				model.uploads.sync(function () {
+					$scope.display.showEditPanel = false;
 					$scope.redirect('/');
 				});
 			}, function (e) {
@@ -395,6 +393,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 								$scope.getQuota();
 								model.uploads.sync(function () {
 									initNewItem();
+									$scope.display.showImportPanel = false;
 									$scope.redirect('/');
 								});
 							},
@@ -504,8 +503,8 @@ function SharebigfilesController($scope, model, template, route, date, $location
 		}
 	};
 
-    $scope.shareSharebigfiles = function(){
-        $scope.sharedSharebigfiles = $scope.uploads.selection();
+	$scope.shareSharebigfiles = function(){
+		$scope.sharedSharebigfiles = $scope.uploads.selection();
         $scope.display.showPanel = true;
     };
 
@@ -522,6 +521,19 @@ function SharebigfilesController($scope, model, template, route, date, $location
 	$scope.canContribute = function(item){
         return (item.myRights.contrib !== undefined);
     };
+
+	$scope.reloadSelected = function() {
+		var saveSelected = $scope.uploads.selection();
+		$scope.uploads.sync(function() {
+			$scope.uploads.forEach(function(upload) {
+				saveSelected.forEach(function (selected) {
+					if (upload._id === selected._id) {
+						upload.selected = true;
+					}
+				});
+			});
+		});
+	}
 
     var bigFilesWarn = function(e){
         notify.error(e.error);

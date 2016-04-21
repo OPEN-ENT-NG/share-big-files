@@ -1,6 +1,6 @@
 <div class="row">
     <h2>
-        <a ng-click="redirect('/');"><i class="sharebigfiles"></i><span translate content="sharebigfiles.downloadedFileLog"></span><span translate content="sharebigfiles.downloadedFileLog.label"></span>[[fileName]]</a>
+        <a ng-click="display.showLogPanel=false;redirect('/');"><i class="sharebigfiles"></i><span translate content="sharebigfiles.downloadedFileLog"></span><span translate content="sharebigfiles.downloadedFileLog.label"></span>[[fileName]]</a>
     </h2>
 </div>
 
@@ -34,5 +34,5 @@
 </article>
 
 <div class="action-buttons right-magnet">
-    <button ng-click="redirect('/');"><i18n>back</i18n></button>
+    <button ng-click="display.showLogPanel=false;redirect('/');"><i18n>back</i18n></button>
 </div>

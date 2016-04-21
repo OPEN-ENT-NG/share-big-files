@@ -50,6 +50,14 @@ Upload.prototype.classFromContentType = function() {
 	return 'unknown';
 };
 
+Upload.prototype.isOutdated = function() {
+	return (this.outdated && this.outdated === true) ? true : false;
+}
+
+Upload.prototype.isMarkedLikeObsolete = function() {
+	return moment().isAfter(parseInt(this.expiryDate.$date));
+}
+
 Upload.prototype.fileExtension = function() {
 	return this.fileMetadata.filename.split('.').pop();
 };
