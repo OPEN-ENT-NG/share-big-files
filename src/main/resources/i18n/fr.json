@@ -53,9 +53,9 @@
 	"sharebigfiles.empty.filename"						: "Vous devez saisir le nom du fichier.",
 	"sharebigfiles.exceeded.quota"                      : "Le fichier {0} est trop volumineux, veuillez ne pas dépasser le quota.",
 	"sharebigfiles.exceeded.repository.quota"           : "Le quota maximal alloué à l'application est dépassé, veuillez réessayer d'envoyer votre fichier {0} dans quelques jours.",
-	"sharebigfiles.tooltip.download"					: "Télécharger le fichier",
-	"sharebigfiles.tooltip.outdated"					: "Le fichier volumineux n'est plus disponible, la péremption est effective",
-	"sharebigfiles.tooltip.marked"					: "Le fichier volumineux est candidat à la suppression, elle sera effective au plus tard demain matin",
+	"sharebigfiles.tooltip.download"					: "Télécharger.",
+	"sharebigfiles.tooltip.outdated"					: "Téléchargement terminé, le fichier volumineux n’est plus disponible.",
+	"sharebigfiles.tooltip.marked"					: "Le téléchargement est arrivé à échéance, le fichier sera supprimé dans les prochaines 24h.",
 	"sharebigfiles.error.unknown"						: "Erreur technique imprévue."
 
 }
