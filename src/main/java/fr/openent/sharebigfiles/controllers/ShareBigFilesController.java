@@ -488,7 +488,11 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 										final JsonArray ja = event.right().getValue();
 										final List<Object> fileIds = new ArrayList<Object>();
 										for (int i=0; i<ja.size(); i++) {
-											fileIds.add(((JsonObject)ja.get(i)).getString("fileId"));
+											final JsonObject jo = (JsonObject)ja.get(i);
+											//only delete the collection entry if the swift file is already destroy
+											if (!jo.getBoolean("outdated", false)) {
+												fileIds.add(jo.getString("fileId"));
+											}
 										}
 										storage.removeFiles(new JsonArray(fileIds), new Handler<JsonObject>() {
 											@Override
