@@ -54,7 +54,7 @@ public class DeleteOldFile implements Handler<Long> {
                         final JsonObject elem = (JsonObject)object;
                         ids.add(elem.getString("fileId"));
 
-                        final String fileName = elem.getObject("fileMetadata").getString("filename");
+                        final String fileName = elem.getString("fileNameLabel");
                         final String createdDate = DateUtils.format(MongoDb.parseIsoDate(elem.getObject("created")));
                         final String expiryFileDate = DateUtils.format(MongoDb.parseIsoDate(elem.getObject("expiryDate")));
                         final String locale = elem.getString("locale", "fr");
