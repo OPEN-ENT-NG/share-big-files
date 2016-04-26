@@ -32,7 +32,7 @@ Configurer l'application de la manière suivante :
       "config": {
         "main" : "fr.openent.sharebigfiles.ShareBigFiles",
         "port" : 8052,
-        "app-name" : "Share Big Files",
+        "app-name" : "ShareBigFiles",
     	"app-address" : "/sharebigfiles",
     	"app-icon" : "sharebigfiles-large",
         "host": "${host}",
