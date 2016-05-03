@@ -1,8 +1,7 @@
 # À propos de l'application Poste-fichiers
 
-* Licence : non libéré pour le moment - Copyright Conseil Régional de Picardie
+* Licence : AGPL v3
 * Développeur : ATOS
-* Financeur : Région Picardie
 * Description : Service d'échange de fichiers volumineux.
 
 # Documentation technique
@@ -55,7 +54,7 @@ Configurer l'application de la manière suivante :
         "purgeFilesCron" : "0 0 23 * * ?"
 }
 </pre>
-Configurer l'ip (**\$IP**) et le port (**\$PORT**) afin de joindre le backend de stockage adéquat. Renseigner l'utilisateur(**\$user**) et la clef(**\$key**) pour permettre à l'API coeur de générer un jeton d'authentification.
+Configurer l'ip (**$IP**) et le port (**$PORT**) afin de joindre le backend de stockage adéquat. Renseigner l'utilisateur(**$user**) et la clef(**$key**) pour permettre à l'API coeur de générer un jeton d'authentification.
 
 Les paramètres de configurations suivant peuvent être omis et comportent les valeurs par défaut spécifiées ci-dessus (Extrait de configuration) :
  - "expirationDateList": Liste d'entier (ordre croissant) qui représente la gamme de jours d'expiration disponibles dans l'IHM
