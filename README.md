@@ -2,6 +2,7 @@
 
 * Licence : AGPL v3
 * Développeur : ATOS
+* Financeur : Région Picardie
 * Description : Service d'échange de fichiers volumineux.
 
 # Documentation technique
