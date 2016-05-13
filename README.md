@@ -3,7 +3,6 @@
 * Licence : [AGPL v3](http://www.gnu.org/licenses/agpl.txt) - Copyright Conseil Régional Nord Pas de Calais - Picardie
 * Développeur(s) : ATOS
 * Financeur(s) : Région Nord Pas de Calais-Picardie
-
 * Description : Service d'échange de fichiers volumineux.
 
 # Documentation technique
