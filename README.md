@@ -1,8 +1,9 @@
 # À propos de l'application Poste-fichiers
 
-* Licence : AGPL v3
-* Développeur : ATOS
-* Financeur : Région Picardie
+* Licence : [AGPL v3](http://www.gnu.org/licenses/agpl.txt) - Copyright Conseil Régional Nord Pas de Calais - Picardie
+* Développeur(s) : ATOS
+* Financeur(s) : Région Nord Pas de Calais-Picardie
+
 * Description : Service d'échange de fichiers volumineux.
 
 # Documentation technique
