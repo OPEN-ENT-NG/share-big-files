@@ -84,10 +84,10 @@ Il vous permet de partager du contenu de type fichier avec vos groupes ou un uti
 Des permissions sur les différentes actions possibles sur les fichiers, dont la contribution et la gestion, sont configurées dans Poste-Fichiers (via des partages Ent-core) :
 
  - Le droit de lecture, correspondant à qui peut consulter et télécharger le fichier
- - Le droit de contribution permet quant-à-lui, en sus, de permettre à
-   l'usager de consulter le journal de téléchargement
- - Enfin le droit de gestionnaire permet de partager à l'usager toutes
-              les actions disponibles dans l'application pour ce fichier.
+ - Le droit de contribution permet quant-à-lui, en sus, de permettre à l'usager de consulter le journal de téléchargement
+ - Enfin le droit de gestionnaire permet de partager à l'usager toutes les actions disponibles dans l'application pour ce fichier.
+
+Poste-Fichiers met en œuvre un comportement de recherche sur le nom et la description des fichiers.
 
 ## Modèle serveur
 
@@ -100,6 +100,10 @@ Le contrôleur`ShareBigFilesController`, correspond au point d'entrée de l'appl
 Le service `ShareBigFilesService` offre une interface de comportement particulier en dehors de mécanisme CRUD comme l'établissement des traitements avec le système de stockage objet et certaines opérations sur la collection Mongo.
 
 Le contrôleur et le service étendent les classes du framework Ent-core exploitant ainsi l'API Swift et le client Mongo.
+
+Le module serveur met en œuvre un évènement issu du framework Ent-core :
+
+* `ShareBigFilesSearchingEvents` : Logique de recherche
 
 Deux jsonschema permettent de vérifier les données reçues par le serveur, il se trouve dans le dossier "src/main/resources/jsonschema" :
 
