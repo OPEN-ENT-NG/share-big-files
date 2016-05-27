@@ -49,6 +49,8 @@ function SharebigfilesController($scope, model, template, route, date, $location
 	$scope.uploads = model.uploads;
 	$scope.me = model.me;
     template.open('errors', 'errors');
+	template.open('main', 'library');
+    template.open('list', 'table-list');
 
     //configurations datas
     var expirationDateList = [];
@@ -61,24 +63,20 @@ function SharebigfilesController($scope, model, template, route, date, $location
 
 	route({
 		defaultView: function(){
-			template.open('main', 'library');
-            template.open('list', 'table-list');
+			model.uploads.syncBigFiles();
 			$scope.boxes.selectAll=false;
 		},
 		editFileLog: function(params){
-            template.open('main', 'library');
-			loadFromRoute(params.id, params.list, "log");
+            loadFromRoute(params.id, params.list, "log");
 		},
 		downloadFile: function(params){
 			downloadFile(params.id, params.list);
 		},
         createFile: function(params){
             deselectAll();
-            template.open('main', 'library');
             openNewFolderView(params.fromDrop);
         },
-		editFile: function(params){
-			template.open('main', 'library');
+		editFile: function(params){			
             loadFromRoute(params.id, params.list, "edit");
 		}
 	});
@@ -86,36 +84,34 @@ function SharebigfilesController($scope, model, template, route, date, $location
 	var loadFromRoute = function(id, isList, target) {
 		var item = model.uploads.findWhere({ _id:  id });
 		if (!item) {
-			//from out
-			model.uploads.sync(function() {
-				item = model.uploads.findWhere({ _id:  id });
-				//if quota not already load
-				if (maxRepository === 0) {
-					$scope.getQuota(function() {
-						if (target === "edit") {
-							$scope.editFile(item, isList);
-						} else {
-							$scope.fileName = item.fileNameLabel;
-							editFileLog(item.fileId, isList);
-						}
-					})
-				} else {
-					if (target === "edit") {
-						$scope.editFile(item, isList);
-					} else {
-						//TODO stop the loop on download log view --> bad idea from ...
-						$scope.fileName = item.fileNameLabel;
-						editFileLog(item.fileId, isList);
-					}
+			var totalAsynchroneCall = 2;
+			$scope.getQuota(function() {
+				totalAsynchroneCall--;
+				if (totalAsynchroneCall === 0) {
+					item = model.uploads.findWhere({ _id:  id });
+					goToTarget(target, item, isList);
 				}
 			});
+
+			model.uploads.syncBigFiles(function() {
+				totalAsynchroneCall--;
+				if (totalAsynchroneCall === 0) {
+					item = model.uploads.findWhere({ _id:  id });
+					goToTarget(target, item, isList);
+				}
+			});			
 		} else {
-			if (target === "edit") {
-				$scope.editFile(item, isList);
-			} else {
-				$scope.fileName = item.fileNameLabel;
-				editFileLog(item.fileId, isList);
-			}
+			goToTarget(target, item, isList);
+		}
+	};
+	
+	var goToTarget = function(target, item, isList) {
+		if (target === "edit") {
+			$scope.editFile(item, isList);
+		} else {
+			//TODO stop the loop on download log view --> bad idea from ...
+			$scope.fileName = item.fileNameLabel;
+			editFileLog(item.fileId, isList);
 		}
 	};
 
@@ -244,24 +240,29 @@ function SharebigfilesController($scope, model, template, route, date, $location
 	};
 
 	$scope.editFile = function(file, fromList) {
-		$scope.currentErrors = [];
-        if (fromList === undefined) {
-            deselectAll();
-        }
-		initNewItem();
+		if (file.isOutdated()) {
+			file.selected = true;
+			$scope.uploads.selection().push(file);
+		} else {
+			$scope.currentErrors = [];
+			if (fromList === undefined) {
+				deselectAll();
+			}
+			initNewItem();
 
-		$scope.newItem.fileNameLabel = file.fileNameLabel;
-		$scope.newItem.created = file.created;
-		$scope.newItem.expiryDate = file.expiryDate;
-        $scope.newItem.description = file.description;
-		$scope.newItem._id = file._id;
-        $scope.newItem.myRights = file.myRights;
-		generateExpDateUpgrade(file);
-		$scope.expiryDateUpgrade = moment(file.expiryDate.$date).valueOf();
+			$scope.newItem.fileNameLabel = file.fileNameLabel;
+			$scope.newItem.created = file.created;
+			$scope.newItem.expiryDate = file.expiryDate;
+			$scope.newItem.description = file.description;
+			$scope.newItem._id = file._id;
+			$scope.newItem.myRights = file.myRights;
+			generateExpDateUpgrade(file);
+			$scope.expiryDateUpgrade = moment(file.expiryDate.$date).valueOf();
 
-		template.open('editFile', 'editFile');
-		shareBigFilesOpen();
-		$scope.display.showEditPanel = true;
+			template.open('editFile', 'editFile');
+			shareBigFilesOpen();
+			$scope.display.showEditPanel = true;
+		}
 	};
 
 	var generateExpDateUpgrade = function(file) {
@@ -301,7 +302,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 				"description": $scope.newItem.description
 			};
 			$scope.newItem.updateFile(fileId, data, function () {
-				model.uploads.sync(function () {
+				model.uploads.syncBigFiles(function () {
 					$scope.display.showEditPanel = false;
 					$scope.redirect('/');
 				});
@@ -391,7 +392,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 									$scope.newItem.attachments = [];
 								$scope.newItem.attachments.push(attachmentObj);
 								$scope.getQuota();
-								model.uploads.sync(function () {
+								model.uploads.syncBigFiles(function () {
 									initNewItem();
 									$scope.display.showImportPanel = false;
 									$scope.redirect('/');
@@ -422,7 +423,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 	$scope.deleteItem = function(item){
         $scope.currentErrors = [];
 		$scope.newItem.deleteItem(item._id, function () {
-			model.uploads.sync();
+			model.uploads.syncBigFiles();
 		},function (e) {
 			bigFilesError(e);
 		});
@@ -431,7 +432,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 	$scope.deleteItems = function(itemArray){
         $scope.currentErrors = [];
 		$scope.newItem.deleteItems(itemArray, function () {
-			model.uploads.sync();
+			model.uploads.syncBigFiles();
 		},function (e) {
 			bigFilesError(e);
 		});
@@ -524,7 +525,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 
 	$scope.reloadSelected = function() {
 		var saveSelected = $scope.uploads.selection();
-		$scope.uploads.sync(function() {
+		$scope.uploads.syncBigFiles(function() {
 			$scope.uploads.forEach(function(upload) {
 				saveSelected.forEach(function (selected) {
 					if (upload._id === selected._id) {

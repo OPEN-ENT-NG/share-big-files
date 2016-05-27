@@ -153,7 +153,7 @@ model.build = function(){
 	this.makeModel(Upload);
 
 	this.collection(Upload,{
-		sync:function(cb) {
+		syncBigFiles:function(cb) {
 			var that = this;
 			http().get('/sharebigfiles/list').done(function (data) {
 				that.load(data);
