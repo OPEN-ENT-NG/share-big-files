@@ -65,7 +65,9 @@ public class ShareBigFiles extends BaseServer {
 
 		setDefaultResourceFilter(new ShareAndOwner());
 		// Subscribe to events published for searching
-		setSearchingEvents(new ShareBigFilesSearchingEvents(new MongoDbSearchService(SHARE_BIG_FILE_COLLECTION)));
+		if (config.getBoolean("searching-event", true)) {
+			setSearchingEvents(new ShareBigFilesSearchingEvents(new MongoDbSearchService(SHARE_BIG_FILE_COLLECTION)));
+		}
 
 		final String purgeFilesCron = container.config().getString("purgeFilesCron", "0 0 23 * * ?");
 		final TimelineHelper timelineHelper = new TimelineHelper(vertx, vertx.eventBus(), container);
