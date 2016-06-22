@@ -46,19 +46,15 @@ public class ShareBigFilesSearchingEvents implements SearchingEvents {
 	@Override
 	public void searchResource(List<String> appFilters, String userId, JsonArray groupIds, JsonArray searchWords, Integer page, Integer limit,
 							   final JsonArray columnsHeader, final String locale, final Handler<Either<String, JsonArray>> handler) {
-		final List<String> returnFields = new ArrayList<String>();
-		returnFields.add("fileNameLabel");
-		returnFields.add("description");
-		returnFields.add("modified");
-		returnFields.add("owner.userId");
-		returnFields.add("owner.displayName");
-
-		final List<String> searchFields = new ArrayList<String>();
-		searchFields.add("fileNameLabel");
-		searchFields.add("description");
-
 		if (appFilters.contains(ShareBigFilesSearchingEvents.class.getSimpleName())) {
-			searchService.search(userId, groupIds.toList(), returnFields, searchWords.toList(), searchFields, page, limit, new Handler<Either<String, JsonArray>>() {
+			final List<String> returnFields = new ArrayList<String>();
+			returnFields.add("fileNameLabel");
+			returnFields.add("description");
+			returnFields.add("modified");
+			returnFields.add("owner.userId");
+			returnFields.add("owner.displayName");
+
+			searchService.search(userId, groupIds.toList(), returnFields, searchWords.toList(), page, limit, new Handler<Either<String, JsonArray>>() {
 				@Override
 				public void handle(Either<String, JsonArray> event) {
 					if (event.isRight()) {

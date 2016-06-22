@@ -1,0 +1,1 @@
+db.bigfile.createIndex({ "fileNameLabel": "text", "description": "text"});
