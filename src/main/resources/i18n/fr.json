@@ -19,7 +19,7 @@
 	"sharebigfile.manager"								: "Gestionnaire",
 	"sharebigfile.contrib"								: "Contributeur",
 	"sharebigfile.read"									: "Lecteur",
-
+    	"group.AdminLocal": "Tous les administrateurs locaux du groupe {0}.",
 	"group.Teacher"										: "Tous les enseignants du groupe {0}.",
 	"group.Personnel"									: "Tous les personnels du groupe {0}.",
 	"group.Student"										: "Tous les élèves du groupe {0}.",
