@@ -407,36 +407,14 @@ function SharebigfilesController($scope, model, template, route, date, $location
 		}
 	};
 
-	$scope.removesharebigfiles = function() {
-		if(model.uploads.selection().length==1){
-			$scope.deleteItem(model.uploads.selection()[0]);
-		}
-		else {
-			var itemArray = [];
-			model.uploads.selection().forEach(function (item) {
-				itemArray.push(item._id);
-			});
-			$scope.deleteItems({ids:itemArray});
-		}
-	}
-
-	$scope.deleteItem = function(item){
-        $scope.currentErrors = [];
-		$scope.newItem.deleteItem(item._id, function () {
+	$scope.remove = function() {
+		$scope.currentErrors = [];
+		$scope.newItem.deleteItems(function () {
 			model.uploads.syncBigFiles();
 		},function (e) {
 			bigFilesError(e);
 		});
 	}
-
-	$scope.deleteItems = function(itemArray){
-        $scope.currentErrors = [];
-		$scope.newItem.deleteItems(itemArray, function () {
-			model.uploads.syncBigFiles();
-		},function (e) {
-			bigFilesError(e);
-		});
-	};
 
 	$scope.orderLog = {
 		field: 'downloadDate', desc: true

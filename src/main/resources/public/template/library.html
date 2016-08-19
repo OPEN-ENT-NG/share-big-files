@@ -13,7 +13,7 @@
 		<div class="toggle block-container">
 			<div class="row">
 				<behaviour name="manage" resource="uploads.selection()">
-					<button class="cell" translate content="remove"  ng-click="removesharebigfiles()"></button>
+					<button class="cell" translate content="remove"  ng-click="remove()"></button>
 				</behaviour>
 				<behaviour name="read" resource="uploads.selection()">
 					<button class="cell" translate content="sharebigfiles.tooltip.download" ng-if="uploads.selection().length === 1 && uploads.selection()[0].isOutdated() === false" ng-click="redirect('/downloadFile/' + uploads.selection()[0]._id + '/toggle')"></button>

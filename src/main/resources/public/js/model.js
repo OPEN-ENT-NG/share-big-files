@@ -82,20 +82,12 @@ Upload.prototype.getList = function () {
 	return http().get("/sharebigfiles/list")
 };
 
-Upload.prototype.deleteItem = function (id, cb, cbe) {
-	return http().delete("/sharebigfiles/"+id).done(function(r){
-		if(typeof cb === 'function'){
-			cb();
-		}
-	}).error(function(e){
-		if(typeof cbe === 'function'){
-			cbe(model.parseError(e));
-		}
+Upload.prototype.deleteItems = function (cb, cbe) {
+	var idArray = [];
+	model.uploads.selection().forEach(function (item) {
+		idArray.push(item._id);
 	});
-};
-
-Upload.prototype.deleteItems = function (itemArray, cb, cbe) {
-	return http().deleteJson("/sharebigfiles/deletes", itemArray).done(function(r){
+	return http().postJson("/sharebigfiles/deletes", {"ids": idArray}).done(function(r){
 		if(typeof cb === 'function'){
 			cb();
 		}

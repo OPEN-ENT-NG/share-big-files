@@ -20,6 +20,7 @@
 package fr.openent.sharebigfiles.controllers;
 
 import fr.openent.sharebigfiles.ShareBigFiles;
+import fr.openent.sharebigfiles.filters.MassJsonShareAndOwner;
 import fr.openent.sharebigfiles.services.ShareBigFilesService;
 import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.rs.*;
@@ -31,6 +32,7 @@ import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.events.EventStore;
 import org.entcore.common.events.EventStoreFactory;
+import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
 import org.entcore.common.service.CrudService;
 import org.entcore.common.service.VisibilityFilter;
@@ -80,7 +82,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 
 	private final Long maxRepositoryQuota;
 
-	private JsonArray expirationDateList;
+	private final JsonArray expirationDateList;
 
 	private static final I18n i18n = I18n.getInstance();
 
@@ -432,59 +434,8 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 		});
 	}
 
-	/**
-	 * Deletes a single generic_app.
-	 * @param request Client request.
-	 */
-	@Delete("/:id")
-	@SecuredAction(value = manage_ressource, type = ActionType.RESOURCE)
-	public void delete(final HttpServerRequest request) {
-		final String sbfId = request.params().get("id");
-		if (sbfId == null || sbfId.trim().isEmpty()) {
-			badRequest(request);
-			return;
-		}
-		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-			@Override
-			public void handle(final UserInfos user) {
-				if (user != null) {
-					shareBigFileCrudService.retrieve(sbfId, user, new Handler<Either<String, JsonObject>>() {
-						@Override
-						public void handle(Either<String, JsonObject> event) {
-							if (event.isRight() && event.right().getValue() != null) {
-								final JsonObject object = event.right().getValue();
-								if (!object.getBoolean("outdated", false)) {
-									storage.removeFile(object.getString("fileId"), new Handler<JsonObject>() {
-										@Override
-										public void handle(JsonObject event) {
-											if ("ok".equals(event.getString("status"))) {
-												shareBigFileCrudService.delete(sbfId, user, notEmptyResponseHandler(request));
-											} else {
-												log.error("mongo orphaned objet without real storage file width id " + sbfId);
-												Renders.renderError(request, event);
-											}
-										}
-									});
-								} else {
-									//only delete the collection entry if the swift file is already destroy
-									shareBigFileCrudService.delete(sbfId, user, notEmptyResponseHandler(request));
-								}
-							} else {
-								leftToResponse(request, event.left());
-							}
-						}
-					});
-				} else {
-					if (log.isDebugEnabled()) {
-						log.debug("User not found in session.");
-					}
-					Renders.unauthorized(request);
-				}
-			}
-		});
-	}
-
-	@Delete("/deletes")
+	@Post("/deletes")
+	@ResourceFilter(MassJsonShareAndOwner.class)
 	@SecuredAction(value = manage_ressource, type = ActionType.RESOURCE)
 	public void deletes(final HttpServerRequest request) {
 		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
@@ -497,6 +448,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 
 							final JsonObject projection = new JsonObject();
 							projection.putNumber("fileId", 1);
+							projection.putNumber("outdated", 1);
 							projection.putNumber("_id", 0);
 							//TODO add on extendedCRUD service in entcore : retrieve with List<Long> and deletes with list<Long>
 
@@ -513,17 +465,23 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 												fileIds.add(jo.getString("fileId"));
 											}
 										}
-										storage.removeFiles(new JsonArray(fileIds), new Handler<JsonObject>() {
-											@Override
-											public void handle(JsonObject event) {
-												if ("ok".equals(event.getString("status"))) {
-													shareBigFilesService.deletes(ids, notEmptyResponseHandler(request));
-												} else {
-													log.error("mongo orphaned objet without real storage file width id " + ids.toString());
-													Renders.renderError(request, event);
+										if (!fileIds.isEmpty()) {
+											storage.removeFiles(new JsonArray(fileIds), new Handler<JsonObject>() {
+												@Override
+												public void handle(JsonObject event) {
+													if ("ok".equals(event.getString("status"))) {
+														//destroyed all the ids passed
+														shareBigFilesService.deletes(ids, notEmptyResponseHandler(request));
+													} else {
+														log.error("mongo orphaned objet without real storage file width id " + ids.toString());
+														Renders.renderError(request, event);
+													}
 												}
-											}
-										});
+											});
+										} else {
+											//all swift file are already destroyed by cron process, just outdated mongo entries
+											shareBigFilesService.deletes(ids, notEmptyResponseHandler(request));
+										}
 									} else {
 										leftToResponse(request, event.left());
 									}
