@@ -530,11 +530,9 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 			public void handle(final UserInfos user) {
 				if (user != null) {
 					final JsonObject params = new JsonObject();
-					params.putString("uri", getScheme(request) + "://" + getHost(request) +
-						"/userbook/annuaire#" + user.getUserId() + "#" + user.getType());
+					params.putString("uri", "/userbook/annuaire#" + user.getUserId() + "#" + user.getType());
 					params.putString("username", user.getUsername());
-					params.putString("shareBigFileAccessUri", getScheme(request) + "://" + getHost(request) +
-						"/sharebigfiles#/view/" + id);
+					params.putString("shareBigFileAccessUri", "/sharebigfiles#/view/" + id);
 					params.putString("resourceUri", params.getString("shareBigFileAccessUri"));
 
 					shareJsonSubmit(request, "sharebigfiles.share", false, params, "fileNameLabel");
