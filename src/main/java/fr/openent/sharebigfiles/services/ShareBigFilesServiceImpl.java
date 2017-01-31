@@ -118,4 +118,10 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 		QueryBuilder q = QueryBuilder.start("_id").in(new HashSet<String>(ids));
 		mongo.delete(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(q), validActionResultHandler(handler));
 	}
+
+	public void deletesRemanent(List<String> ids, Handler<Either<String, JsonObject>> handler) {
+		QueryBuilder q = QueryBuilder.start("fileId").in(new HashSet<String>(ids));
+		mongo.delete(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(q), validActionResultHandler(handler));
+	}
+
 }

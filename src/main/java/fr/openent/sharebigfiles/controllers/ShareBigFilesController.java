@@ -473,8 +473,20 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 														//destroyed all the ids passed
 														shareBigFilesService.deletes(ids, notEmptyResponseHandler(request));
 													} else {
+														// test if the error is because file not found. If so, we should remove the mongo record anyway.
+														if( "error".equals(event.getString("status"))) {
+															JsonArray errors = event.getArray("errors");
+															List<String> errorIds = new ArrayList<String>();
+															for (int i = 0; i < errors.size(); ++i) {
+																JsonObject error = errors.get(i);
+																String message = error.getString("message");
+																if( "Not Found".equals(message)){
+																	errorIds.add(error.getString("id"));
+																}
+															}
+															shareBigFilesService.deletesRemanent(errorIds, notEmptyResponseHandler(request));
+														}
 														log.error("mongo orphaned objet without real storage file width id " + ids.toString());
-														Renders.renderError(request, event);
 													}
 												}
 											});

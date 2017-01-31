@@ -50,4 +50,6 @@ public interface ShareBigFilesService {
 						  final Handler<Either<String, JsonArray>> handler);
 
 	void deletes(final List<String> ids, final Handler<Either<String, JsonObject>> handler);
+
+	void deletesRemanent(final List<String> ids, final Handler<Either<String, JsonObject>> handler);
 }
