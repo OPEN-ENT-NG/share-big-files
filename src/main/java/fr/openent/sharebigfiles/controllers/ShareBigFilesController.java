@@ -480,8 +480,9 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 															for (int i = 0; i < errors.size(); ++i) {
 																JsonObject error = errors.get(i);
 																String message = error.getString("message");
-																if( "Not Found".equals(message)){
-																	errorIds.add(error.getString("id"));
+																//if( "Not Found".equals(message)){
+																if( error.getString("id") != null && !"".equals(error.getString("id"))) {
+																		errorIds.add(error.getString("id"));
 																}
 															}
 															shareBigFilesService.deletesRemanent(errorIds, notEmptyResponseHandler(request));
