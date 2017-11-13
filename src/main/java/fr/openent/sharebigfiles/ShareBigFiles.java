@@ -20,6 +20,7 @@
 package fr.openent.sharebigfiles;
 
 import fr.openent.sharebigfiles.controllers.ShareBigFilesController;
+import fr.openent.sharebigfiles.services.ShareBigFileStorage;
 import fr.openent.sharebigfiles.services.ShareBigFilesSearchingEvents;
 import fr.openent.sharebigfiles.services.ShareBigFilesService;
 import fr.openent.sharebigfiles.services.ShareBigFilesServiceImpl;
@@ -59,7 +60,7 @@ public class ShareBigFiles extends BaseServer {
 
 		final CrudService shareBigFileCrudService = new MongoDbCrudService(SHARE_BIG_FILE_COLLECTION);
 		final ShareBigFilesService shareBigFilesService = new ShareBigFilesServiceImpl(maxQuota);
-		final Storage storage = new StorageFactory(vertx, container.config()).getStorage();
+		final Storage storage = new StorageFactory(vertx, container.config(), new ShareBigFileStorage()).getStorage();
 		addController(new ShareBigFilesController(storage, shareBigFileCrudService, shareBigFilesService, log, maxQuota,
 				maxRepositoryQuota, expirationDateList));
 
