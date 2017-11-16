@@ -82,7 +82,7 @@ public class DeleteOldFile implements Handler<Long> {
                         final JsonObject params = new JsonObject()
                                 .putString("resourceName", fileName)
                                 .putString("body", i18n.translate("sharebigfiles.cron.notify.body",
-                                        locale, createdDate, expiryFileDate));
+                                        I18n.DEFAULT_DOMAIN, locale, createdDate, expiryFileDate));
 
                         timelineHelper.notifyTimeline(new JsonHttpServerRequest(new JsonObject()
                                         .putObject("headers", new JsonObject().putString("Accept-Language", locale))),
