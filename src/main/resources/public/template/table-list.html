@@ -36,32 +36,32 @@
 			<th scope="col" class="icon zero-mobile">
 			</th>
 			<th scope="col" class="content zero-mobile" ng-click="orderByField('fileNameLabel')">
-				<span translate content="title" ></span>
+				<span><i18n>title</i18n></span>
 				<i class="arrow-bottom" ng-if="order.field === 'fileNameLabel' && !order.desc"></i>
 				<i class="arrow-top" ng-if="order.field === 'fileNameLabel' && order.desc"></i>
 			</th>
 			<th scope="col" class="user zero-mobile" ng-click="orderByField('owner.displayName')">
-				<span translate content="from"></span>
+				<span><i18n>from</i18n></span>
 				<i class="arrow-bottom" ng-if="order.field === 'owner.displayName' && !order.desc"></i>
 				<i class="arrow-top" ng-if="order.field === 'owner.displayName' && order.desc"></i>
 			</th>
 			<th scope="col" class="content zero-mobile" ng-click="orderByField('created')">
-				<span translate content="date" ></span>
+				<span><i18n>date</i18n></span>
 				<i class="arrow-bottom" ng-if="order.field === 'created' && !order.desc"></i>
 				<i class="arrow-top" ng-if="order.field === 'created' && order.desc"></i>
 			</th>
 			<th scope="col" class="content zero-mobile" ng-click="orderByField('expiryDate')">
-				<span translate content="expire" ></span>
+				<span><i18n>expire</i18n></span>
 				<i class="arrow-bottom" ng-if="order.field === 'expiryDate' && !order.desc"></i>
 				<i class="arrow-top" ng-if="order.field === 'expiryDate' && order.desc"></i>
 			</th>
 			<th scope="col" class="content zero-mobile" ng-click="orderByField('downloadLogs')">
-				<span translate content="downloaded" ></span>
+				<span><i18n>downloaded</i18n></span>
 				<i class="arrow-bottom" ng-if="order.field === 'downloadLogs' && !order.desc"></i>
 				<i class="arrow-top" ng-if="order.field === 'downloadLogs' && order.desc"></i>
 			</th>
 			<th scope="col" class="content zero-mobile" ng-click="orderByField('fileMetadata.size')">
-				<span translate content="size" ></span>
+				<span><i18n>size</i18n></span>
 				<i class="arrow-bottom" ng-if="order.field === 'fileMetadata.size' && !order.desc"></i>
 				<i class="arrow-top" ng-if="order.field === 'fileMetadata.size' && order.desc"></i>
 			</th>
@@ -72,9 +72,9 @@
 		<tbody>
 		<tr ng-repeat="sharebigfiles in uploads.all | orderBy:order.order:order.desc" ng-class="{ checked: sharebigfiles.selected }">
 			<td class="icon">
-				<behaviour name="read" resource="sharebigfiles">
+				<authorize name="read" resource="sharebigfiles">
 					<input type="checkbox" ng-model="sharebigfiles.selected"/>
-				</behaviour>
+				</authorize>
 			</td>
 			<td class="icon zero-mobile">
 				<div class="twelve cell">
@@ -84,7 +84,7 @@
 			</td>
 			<td class="content zero-mobile">
 				<span tooltip="sharebigfiles.tooltip.outdated" style="color:red;" ng-if="sharebigfiles.isOutdated()">[[sharebigfiles.fileNameLabel]]</span>
-				<a ng-if="!sharebigfiles.isOutdated()" style="[[(sharebigfiles.isMarkedLikeObsolete()) ? 'color:purple;' : '']]" ng-click="redirect('/downloadFile/' + '[[sharebigfiles._id]]')" tooltip="[[(sharebigfiles.isMarkedLikeObsolete()) ? 'sharebigfiles.tooltip.marked' : 'sharebigfiles.tooltip.download']]">
+				<a ng-if="!sharebigfiles.isOutdated()" style="[[(sharebigfiles.isMarkedLikeObsolete()) ? 'color:purple;' : '']]" ng-click="redirect('/downloadFile/' + [[sharebigfiles._id]])" tooltip="[[(sharebigfiles.isMarkedLikeObsolete()) ? 'sharebigfiles.tooltip.marked' : 'sharebigfiles.tooltip.download']]">
 					[[sharebigfiles.fileNameLabel]]
 				</a> <em class="tag">[[sharebigfiles.fileExtension()]]</em>
 			</td>
@@ -98,7 +98,7 @@
 				[[sharebigfiles.expireDate()]]
 			</td>
 			<td class="content zero-mobile">
-				<a ng-if="[[sharebigfiles.downloadLogs.length]]>0 && canContribute(sharebigfiles)" tooltip="sharebigfiles.downloadedFileLog" ng-click="redirect('/editFileLog/' + '[[sharebigfiles._id]]')">
+				<a ng-if="[[sharebigfiles.downloadLogs.length]]>0 && canContribute(sharebigfiles)" tooltip="sharebigfiles.downloadedFileLog" ng-click="redirect('/editFileLog/' + [[sharebigfiles._id]])">
 					[[sharebigfiles.downloadLogs.length]] <i18n>sharebigfiles.time</i18n>
 				</a>
 				<div ng-if="[[sharebigfiles.downloadLogs.length]]>0 && canContribute(sharebigfiles) === false" >

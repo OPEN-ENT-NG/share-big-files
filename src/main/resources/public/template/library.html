@@ -1,7 +1,7 @@
 <div class="row">
 	<div class="row">
 		<h1 class="four cell">
-			<a ng-click="redirect('/')"><i class="sharebigfiles"></i><span translate content="sharebigfiles.title"></span></a>
+			<a ng-click="redirect('/')"><i class="sharebigfiles"></i><span><i18n>sharebigfiles.title</i18n></span></a>
 		</h1>
 	</div>
 	<div class="row">
@@ -12,21 +12,21 @@
 	<section class="toggle-buttons" ng-class="{ hide: (uploads.selection().length === 0 || !template.contains('list','table-list')) }">
 		<div class="toggle block-container">
 			<div class="row">
-				<behaviour name="manage" resource="uploads.selection()">
-					<button class="cell" translate content="remove"  ng-click="remove()"></button>
-				</behaviour>
-				<behaviour name="read" resource="uploads.selection()">
-					<button class="cell" translate content="sharebigfiles.tooltip.download" ng-if="uploads.selection().length === 1 && uploads.selection()[0].isOutdated() === false" ng-click="redirect('/downloadFile/' + uploads.selection()[0]._id + '/toggle')"></button>
-				</behaviour>
-				<behaviour name="read" resource="uploads.selection()">
-					<button class="cell" translate content="[[canManage(uploads.selection()[0]) ? 'sharebigfiles.label.edit' : 'sharebigfiles.label.consult']]" ng-if="uploads.selection().length === 1 && uploads.selection()[0].isOutdated() === false" ng-click="redirect('/view/' + uploads.selection()[0]._id + '/toggle')"></button>
-				</behaviour>
-				<behaviour name="contrib" resource="uploads.selection()">
-					<button class="cell" translate content="sharebigfiles.downloadedFileLog"  ng-if="uploads.selection().length === 1 && uploads.selection()[0].downloadLogs.length > 0" ng-click="redirect('/editFileLog/' + uploads.selection()[0]._id + '/toggle')"></button>
-				</behaviour>
-				<behaviour name="manage" resource="uploads.selection()">
-					<button class="cell" translate content="share" ng-if="uploads.selection()[0].isOutdated() === false" ng-click="shareSharebigfiles();"></button>
-				</behaviour>
+				<authorize name="manage" resource="uploads.selection()">
+					<button class="cell" ng-click="remove()"><i18n>remove</i18n></button>
+				</authorize>
+				<authorize name="read" resource="uploads.selection()">
+					<button class="cell" ng-if="uploads.selection().length === 1 && uploads.selection()[0].isOutdated() === false" ng-click="redirect('/downloadFile/' + uploads.selection()[0]._id + '/toggle')"><i18n>sharebigfiles.tooltip.download</i18n></button>
+				</authorize>
+				<authorize name="read" resource="uploads.selection()">
+					<button class="cell" ng-if="uploads.selection().length === 1 && uploads.selection()[0].isOutdated() === false" ng-click="redirect('/view/' + uploads.selection()[0]._id + '/toggle')"><i18n>[[canManage(uploads.selection()[0]) ? translate('sharebigfiles.label.edit') : translate('sharebigfiles.label.consult')]]</i18n></button>
+				</authorize>
+				<authorize name="contrib" resource="uploads.selection()">
+					<button class="cell" ng-if="uploads.selection().length === 1 && uploads.selection()[0].downloadLogs.length > 0" ng-click="redirect('/editFileLog/' + uploads.selection()[0]._id + '/toggle')"><i18n>sharebigfiles.downloadedFileLog</i18n></button>
+				</authorize>
+				<authorize name="manage" resource="uploads.selection()">
+					<button class="cell" ng-if="uploads.selection()[0].isOutdated() === false" ng-click="shareSharebigfiles();"><i18n>share</i18n></button>
+				</authorize>
 			</div>
 		</div>
 	</section>

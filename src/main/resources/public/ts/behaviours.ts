@@ -1,3 +1,6 @@
+import { Behaviours, model, _ } from 'entcore';
+import http from 'axios';
+
 var sharebigfilesBehaviours = {
 	resources: {
 		read: {
@@ -69,8 +72,8 @@ Behaviours.register('sharebigfiles', {
 	 * Function required by the "linker" component to display the collaborative editor info
 	 */
 	loadResources: function(callback){
-		http().get('/sharebigfiles/list').done(function(results) {
-			this.resources = _.map(results, function(itemResult) {
+		http.get('/sharebigfiles/list').then(function(results) {
+			this.resources = _.map(results.data, function(itemResult) {
 				return {
 					title : itemResult.fileNameLabel,
 					ownerName : itemResult.owner.displayName,

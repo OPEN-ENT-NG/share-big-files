@@ -1,6 +1,6 @@
 <div class="row">
     <h2>
-        <a ng-click="display.showLogPanel=false;redirect('/');"><i class="sharebigfiles"></i><span translate content="sharebigfiles.downloadedFileLog"></span><span translate content="sharebigfiles.downloadedFileLog.label"></span>[[fileName]]</a>
+        <a ng-click="display.showLogPanel=false;redirect('/');"><i class="sharebigfiles"></i><span><i18n>sharebigfiles.downloadedFileLog</i18n></span><span><i18n>sharebigfiles.downloadedFileLog.label</i18n></span>[[fileName]]</a>
     </h2>
 </div>
 
@@ -9,12 +9,12 @@
         <thead class="tableheader whiteheader">
         <tr>
             <th scope="col" class="user zero-mobile" ng-click="orderByLogField('userDisplayName')">
-                <span translate content="from"></span>
+                <span><i18n>from</i18n></span>
                 <i class="arrow-bottom" ng-if="orderLog.field === 'userDisplayName' && !orderLog.desc"></i>
                 <i class="arrow-top" ng-if="orderLog.field === 'userDisplayName' && orderLog.desc"></i>
             </th>
             <th scope="col" class="user zero-mobile" ng-click="orderByLogField('downloadDate')">
-                <span translate content="downloadDate" ></span>
+                <span><i18n>downloadDate</i18n></span>
                 <i class="arrow-bottom" ng-if="orderLog.field === 'downloadDate' && !orderLog.desc"></i>
                 <i class="arrow-top" ng-if="orderLog.field === 'downloadDate' && orderLog.desc"></i>
             </th>

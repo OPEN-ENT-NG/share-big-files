@@ -8,7 +8,7 @@
 	"sharebigfiles.expirationDays"						: "jour(s), soit le",
 	"sharebigfiles.expirations"							: "Expire dans :",
 	"sharebigfiles.sizeLeft"							: "Il vous reste : ",
-	"sharebigfiles.onStorage"							: "sur votre espace de stockage de ",
+	"sharebigfiles.onStorage"							: " sur votre espace de stockage de ",
 	"sharebigfiles.time"								: "fois",
 
 	"sharebigfiles.editBigFiles"						: "Edition du fichier",

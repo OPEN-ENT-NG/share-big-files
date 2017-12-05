@@ -1,3 +1,8 @@
+import { routes, ng, template, moment, idiom as lang, notify, _ } from 'entcore';
+import { upload } from './model';
+
+let Upload = upload.Upload;
+
 /**
  Application routes.
  **/
@@ -37,7 +42,8 @@ routes.define(function($routeProvider){
  ------------------
  Main controller.
  **/
-function SharebigfilesController($scope, model, template, route, date, $location){
+export const sharebigfilesController = ng.controller('SharebigfilesController', ['$scope', 'model', 'route', '$location', 
+function($scope, model, route, $location) {
 
 	$scope.template = template;
 	$scope.newItem = new Upload();
@@ -117,7 +123,11 @@ function SharebigfilesController($scope, model, template, route, date, $location
 
     $scope.redirect = function(path){
         $location.path(path);
-    };
+	};
+	
+	$scope.translate = function(label) {
+		return lang.translate(label);
+	}
 
 	var openNewFolderView = function(fromDrop){
         $scope.currentErrors = [];
@@ -138,12 +148,12 @@ function SharebigfilesController($scope, model, template, route, date, $location
 	};
 
 	$scope.updateExpirationDate = function() {
-		newExpDate = moment(new Date()).add($scope.newItem.expDate, 'days');
+		let newExpDate = moment(new Date()).add($scope.newItem.expDate, 'days');
 		$scope.expiryDate = moment(newExpDate, 'YYYY-MM-DD HH:mm.ss.SSS').valueOf();
 	}
 
 	$scope.updateExpirationDateUpgrade = function() {
-		newExpDate = moment($scope.newItem.created.$date).add($scope.newItem.expDateUpgrade, 'days');
+		let newExpDate = moment($scope.newItem.created.$date).add($scope.newItem.expDateUpgrade, 'days');
 		$scope.expiryDateUpgrade = $scope.expDateUprade = moment(newExpDate, 'YYYY-MM-DD HH:mm.ss.SSS').valueOf();
 	};
 
@@ -202,8 +212,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 
 	$scope.getQuota = function(cb){
         $scope.currentErrors = [];
-		$scope.newItem.getQuota(
-		).done(function(result){
+		$scope.newItem.getQuota().then(function(result){
 			residualQuota = result.residualQuota;
             residualRepository = result.residualRepositoryQuota;
             maxRepository = result.maxRepositoryQuota;
@@ -211,23 +220,20 @@ function SharebigfilesController($scope, model, template, route, date, $location
             if(typeof cb === 'function'){
                 cb();
             }
-		}).e404(function(e){
-			var error = JSON.parse(e.responseText);
-			bigFilesError(error);
+		}).catch(function(e){
+			bigFilesError(e);
 		})
 	};
 
 	$scope.getExpirationDateList = function(){
-		$scope.newItem.getExpirationDateList(
-		).done(function(result){
+		$scope.newItem.getExpirationDateList().then(function(result){
             expirationDateList = result.expirationDateList;
             expDate = result.expirationDateList[0];
             var myDate = new Date();
-            expiryDate = myDate.setDate(myDate.getDate() + expDate);
+            let expiryDate = myDate.setDate(myDate.getDate() + expDate);
 			initNewItemExpirationData();
-		}).e400(function(e){
-			var error = JSON.parse(e.responseText);
-			notify.error(error.error);
+		}).catch(function(e){
+			notify.error(e);
 		})
 	};
 
@@ -248,7 +254,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 			if (fromList === undefined) {
 				deselectAll();
 			}
-			initNewItem();
+			initNewItem(undefined);
 
 			$scope.newItem.fileNameLabel = file.fileNameLabel;
 			$scope.newItem.created = file.created;
@@ -364,22 +370,16 @@ function SharebigfilesController($scope, model, template, route, date, $location
 					formData.append('description', $scope.newItem.description);
 					//to inform back side on error type
 					if (residualTotalSize < 0) {
-						formData.append('size', maxRepository);
+						formData.append('size', maxRepository.toString());
 					}
 
 					$scope.newItem.postAttachment(formData, {
-								xhr: function () {
-									var xhr = new window.XMLHttpRequest();
-
-									xhr.upload.addEventListener("progress", function (e) {
-										if (e.lengthComputable) {
-											var percentage = Math.round((e.loaded * 100) / e.total)
-											attachmentObj.progress.completion = percentage
-											$scope.$apply();
-										}
-									}, false);
-
-									return xhr;
+							onUploadProgress: function (progressEvent) {
+									if (progressEvent.lengthComputable) {
+										var percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+										attachmentObj.progress.completion = percentage
+										$scope.$apply();
+									}
 								}
 							},
 							attachmentObj,
@@ -393,7 +393,7 @@ function SharebigfilesController($scope, model, template, route, date, $location
 								$scope.newItem.attachments.push(attachmentObj);
 								$scope.getQuota();
 								model.uploads.syncBigFiles(function () {
-									initNewItem();
+									initNewItem(undefined);
 									$scope.display.showImportPanel = false;
 									$scope.redirect('/');
 								});
@@ -525,4 +525,4 @@ function SharebigfilesController($scope, model, template, route, date, $location
 		$scope.currentErrors.push(e);
         $scope.$apply();
 	};
-}
+}]);
