@@ -24,11 +24,11 @@ import fr.wseduc.webutils.Either.Right;
 import fr.wseduc.webutils.I18n;
 import org.entcore.common.search.SearchingEvents;
 import org.entcore.common.service.SearchService;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.logging.Logger;
-import org.vertx.java.core.logging.impl.LoggerFactory;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,7 @@ public class ShareBigFilesSearchingEvents implements SearchingEvents {
 			returnFields.add("owner.userId");
 			returnFields.add("owner.displayName");
 
-			searchService.search(userId, groupIds.toList(), returnFields, searchWords.toList(), page, limit, new Handler<Either<String, JsonArray>>() {
+			searchService.search(userId, groupIds.getList(), returnFields, searchWords.getList(), page, limit, new Handler<Either<String, JsonArray>>() {
 				@Override
 				public void handle(Either<String, JsonArray> event) {
 					if (event.isRight()) {
@@ -74,19 +74,19 @@ public class ShareBigFilesSearchingEvents implements SearchingEvents {
 	}
 
 	private JsonArray formatSearchResult(final JsonArray results, final JsonArray columnsHeader, final String locale) {
-		final List<String> aHeader = columnsHeader.toList();
+		final List<String> aHeader = columnsHeader.getList();
 		final JsonArray traity = new JsonArray();
 
 		for (int i=0;i<results.size();i++) {
-			final JsonObject j = results.get(i);
+			final JsonObject j = results.getJsonObject(i);
 			final JsonObject jr = new JsonObject();
 			if (j != null) {
-				jr.putString(aHeader.get(0), j.getString("fileNameLabel"));
-				jr.putString(aHeader.get(1), j.getString("description", ""));
-				jr.putObject(aHeader.get(2), j.getObject("modified"));
-				jr.putString(aHeader.get(3), j.getObject("owner").getString("displayName"));
-				jr.putString(aHeader.get(4), j.getObject("owner").getString("userId"));
-				jr.putString(aHeader.get(5), "/sharebigfiles#/view/" + j.getString("_id"));
+				jr.put(aHeader.get(0), j.getString("fileNameLabel"));
+				jr.put(aHeader.get(1), j.getString("description", ""));
+				jr.put(aHeader.get(2), j.getJsonObject("modified"));
+				jr.put(aHeader.get(3), j.getJsonObject("owner").getString("displayName"));
+				jr.put(aHeader.get(4), j.getJsonObject("owner").getString("userId"));
+				jr.put(aHeader.get(5), "/sharebigfiles#/view/" + j.getString("_id"));
 				traity.add(jr);
 			}
 		}

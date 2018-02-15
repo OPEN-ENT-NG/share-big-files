@@ -35,32 +35,32 @@ import org.entcore.common.service.impl.MongoDbCrudService;
 import org.entcore.common.service.impl.MongoDbSearchService;
 import org.entcore.common.storage.Storage;
 import org.entcore.common.storage.StorageFactory;
-import org.vertx.java.core.json.JsonArray;
+import io.vertx.core.json.JsonArray;
 
 import java.text.ParseException;
+import java.util.Arrays;
 
 public class ShareBigFiles extends BaseServer {
 
 	public static final String SHARE_BIG_FILE_COLLECTION = "bigfile";
 
 	@Override
-	public void start() {
+	public void start() throws Exception {
 		super.start();
 		MongoDbConf.getInstance().setCollection(SHARE_BIG_FILE_COLLECTION);
 
-		if (config.getObject("swift") == null && config.getObject("file-system") == null) {
+		if (config.getJsonObject("swift") == null && config.getJsonObject("file-system") == null) {
 			log.fatal("[Share Big File] Error : Module property 'swift' or 'file-system' must be defined");
-			vertx.stop();
 		}
 
 		final Long maxQuota = config.getLong("maxQuota", 1073741824L);
 		final Long maxRepositoryQuota = config.getLong("maxRepositoryQuota", 1099511627776L);
-		final JsonArray expirationDateList = config.getArray("expirationDateList",
-				new JsonArray(new Integer[]{1, 5, 10, 30}));
+		final JsonArray expirationDateList = config.getJsonArray("expirationDateList",
+				new JsonArray(Arrays.asList(1, 5, 10, 30)));
 
 		final CrudService shareBigFileCrudService = new MongoDbCrudService(SHARE_BIG_FILE_COLLECTION);
 		final ShareBigFilesService shareBigFilesService = new ShareBigFilesServiceImpl(maxQuota);
-		final Storage storage = new StorageFactory(vertx, container.config(), new ShareBigFileStorage()).getStorage();
+		final Storage storage = new StorageFactory(vertx, config, new ShareBigFileStorage()).getStorage();
 		addController(new ShareBigFilesController(storage, shareBigFileCrudService, shareBigFilesService, log, maxQuota,
 				maxRepositoryQuota, expirationDateList));
 
@@ -70,8 +70,8 @@ public class ShareBigFiles extends BaseServer {
 			setSearchingEvents(new ShareBigFilesSearchingEvents(new MongoDbSearchService(SHARE_BIG_FILE_COLLECTION)));
 		}
 
-		final String purgeFilesCron = container.config().getString("purgeFilesCron", "0 0 23 * * ?");
-		final TimelineHelper timelineHelper = new TimelineHelper(vertx, vertx.eventBus(), container);
+		final String purgeFilesCron = config.getString("purgeFilesCron", "0 0 23 * * ?");
+		final TimelineHelper timelineHelper = new TimelineHelper(vertx, vertx.eventBus(), config);
 
 		try {
 			new CronTrigger(vertx, purgeFilesCron).schedule(
@@ -79,7 +79,6 @@ public class ShareBigFiles extends BaseServer {
 			);
 		} catch (ParseException e) {
 			log.fatal("[Share Big File] Invalid cron expression.", e);
-			vertx.stop();
 		}
 	}
 }

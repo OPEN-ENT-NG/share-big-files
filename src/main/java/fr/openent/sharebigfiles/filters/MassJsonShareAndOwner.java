@@ -30,9 +30,9 @@ import org.entcore.common.http.filter.ResourcesProvider;
 import org.entcore.common.mongodb.MongoDbConf;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.utils.Config;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,7 +46,7 @@ public class MassJsonShareAndOwner implements ResourcesProvider {
 	public void authorize(final HttpServerRequest request, final Binding binding, final UserInfos user, final Handler<Boolean> handler) {
 		RequestUtils.bodyToJson(request, Server.getPathPrefix(Config.getInstance().getConfig()) + "deletes", new Handler<JsonObject>() {
 			public void handle(JsonObject data) {
-				final List<String> ids = data.getArray("ids").toList();
+				final List<String> ids = data.getJsonArray("ids").getList();
 				if (ids != null && !ids.isEmpty()) {
 					List<DBObject> groups = new ArrayList<>();
 					String sharedMethod = binding.getServiceMethod().replaceAll("\\.", "-");

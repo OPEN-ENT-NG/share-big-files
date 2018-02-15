@@ -27,12 +27,12 @@ import fr.wseduc.webutils.I18n;
 import org.entcore.common.http.request.JsonHttpServerRequest;
 import org.entcore.common.notification.TimelineHelper;
 import org.entcore.common.storage.Storage;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.logging.Logger;
-import org.vertx.java.core.logging.impl.LoggerFactory;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 import java.util.*;
 
@@ -55,14 +55,14 @@ public class DeleteOldFile implements Handler<Long> {
     @Override
     public void handle(Long event) {
         // Check the expiry date of file (Mongo) and removal if necessary (only swift file)
-        final JsonArray cond = new JsonArray().addObject(new JsonObject().putObject("expiryDate", new JsonObject()
-                .putObject("$lt", MongoDb.now()))).addObject(new JsonObject().putObject("outdated", new JsonObject()
-                .putBoolean("$exists", false)));
-        final JsonObject query = new JsonObject().putArray("$and", cond);
+        final JsonArray cond = new JsonArray().add(new JsonObject().put("expiryDate", new JsonObject()
+                .put("$lt", MongoDb.now()))).add(new JsonObject().put("outdated", new JsonObject()
+                .put("$exists", false)));
+        final JsonObject query = new JsonObject().put("$and", cond);
         mongo.find(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, query, new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> event) {
-                final JsonArray res = event.body().getArray("results");
+                final JsonArray res = event.body().getJsonArray("results");
 
                 if ("ok".equals(event.body().getString("status")) && res != null && res.size() > 0) {
                     final JsonArray ids = new JsonArray();
@@ -73,19 +73,19 @@ public class DeleteOldFile implements Handler<Long> {
                         ids.add(elem.getString("fileId"));
 
                         final String fileName = elem.getString("fileNameLabel");
-                        final String createdDate = DateUtils.format(MongoDb.parseIsoDate(elem.getObject("created")));
-                        final String expiryFileDate = DateUtils.format(MongoDb.parseIsoDate(elem.getObject("expiryDate")));
+                        final String createdDate = DateUtils.format(MongoDb.parseIsoDate(elem.getJsonObject("created")));
+                        final String expiryFileDate = DateUtils.format(MongoDb.parseIsoDate(elem.getJsonObject("expiryDate")));
                         final String locale = elem.getString("locale", "fr");
 
                         final List<String> recipients = new ArrayList<String>();
-                        recipients.add(elem.getObject("owner").getString("userId"));
+                        recipients.add(elem.getJsonObject("owner").getString("userId"));
                         final JsonObject params = new JsonObject()
-                                .putString("resourceName", fileName)
-                                .putString("body", i18n.translate("sharebigfiles.cron.notify.body",
+                                .put("resourceName", fileName)
+                                .put("body", i18n.translate("sharebigfiles.cron.notify.body",
                                         I18n.DEFAULT_DOMAIN, locale, createdDate, expiryFileDate));
 
                         timelineHelper.notifyTimeline(new JsonHttpServerRequest(new JsonObject()
-                                        .putObject("headers", new JsonObject().putString("Accept-Language", locale))),
+                                        .put("headers", new JsonObject().put("Accept-Language", locale))),
                                 "sharebigfiles.delete", null, recipients, null, params);
                     }
                     storage.removeFiles(ids, new Handler<JsonObject>() {
@@ -106,11 +106,11 @@ public class DeleteOldFile implements Handler<Long> {
                                     }
                                 });
                             } else {
-                                final JsonArray errors = event.getArray("errors");
+                                final JsonArray errors = event.getJsonArray("errors");
                                 Set<String> filesNotFound = new HashSet<String>();
                                 Set<String> globalErrors = new HashSet<String>();
                                 for (int i = 0; i < errors.size(); i++) {
-                                    final JsonObject jo = errors.get(i);
+                                    final JsonObject jo = errors.getJsonObject(i);
                                     final String errorMessage = jo.getString("message");
                                     final String fileId = jo.getString("id");
                                     log.error("Can't delete swift file id : " + fileId + ", error : " + errorMessage);
@@ -124,7 +124,7 @@ public class DeleteOldFile implements Handler<Long> {
                                 Set<String> filesToUpdate = new HashSet<String>();
                                 filesToUpdate.addAll(filesNotFound);
 
-                                final List<Objects> idList = ids.toList();
+                                final List<Objects> idList = ids.getList();
                                 for (Object identifier : idList) {
                                     final String id = (String) identifier;
                                     if (!globalErrors.contains(id)) {
@@ -132,8 +132,8 @@ public class DeleteOldFile implements Handler<Long> {
                                     }
                                 }
 
-                                JsonArray idsToUpdate = new JsonArray(filesToUpdate.toArray());
-                                final JsonObject queryInIdFile = new JsonObject().putObject("fileId", new JsonObject().putArray("$in", idsToUpdate));
+                                JsonArray idsToUpdate = new JsonArray(filesToUpdate.toString());
+                                final JsonObject queryInIdFile = new JsonObject().put("fileId", new JsonObject().put("$in", idsToUpdate));
 
                                 final MongoUpdateBuilder modifier = new MongoUpdateBuilder();
                                 modifier.set("outdated", true);
