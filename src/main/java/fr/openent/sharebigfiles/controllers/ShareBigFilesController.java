@@ -40,16 +40,15 @@ import org.entcore.common.storage.BucketStats;
 import org.entcore.common.storage.Storage;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.AsyncResultHandler;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
 import org.vertx.java.core.http.RouteMatcher;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.logging.Logger;
-import org.vertx.java.platform.Container;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,9 +99,9 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 			view_ressource		= "sharebigfile.read";
 
 	@Override
-	public void init(Vertx vertx, Container container, RouteMatcher rm,
+	public void init(Vertx vertx, JsonObject config, RouteMatcher rm,
 					 Map<String, fr.wseduc.webutils.security.SecuredAction> securedActions) {
-		super.init(vertx, container, rm, securedActions);
+		super.init(vertx, config, rm, securedActions);
 		eventStore = EventStoreFactory.getFactory().getEventStore(ShareBigFiles.class.getSimpleName());
 	}
 
@@ -148,7 +147,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 						public void handle(JsonObject event) {
 							if ("ok".equals(event.getString("status"))) {
 								final String idFile = event.getString("_id");
-								final JsonObject metadata = event.getObject("metadata");
+								final JsonObject metadata = event.getJsonObject("metadata");
 								shareBigFilesService.getQuotaData(user.getUserId(), new Handler<JsonObject>() {
 									@Override
 									public void handle(JsonObject event) {
@@ -232,19 +231,19 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	private void create(String description, Long expiryDate, String fileNameLabel, String idFile, JsonObject metadata,
 						UserInfos user, HttpServerRequest request) {
 		final JsonObject object = new JsonObject();
-		object.putString("fileId", idFile);
-		object.putString("fileNameLabel", fileNameLabel);
+		object.put("fileId", idFile);
+		object.put("fileNameLabel", fileNameLabel);
 		//for the cron task knows the locale of user
-		object.putString("locale", I18n.acceptLanguage(request));
-		object.putString("description", description);
+		object.put("locale", I18n.acceptLanguage(request));
+		object.put("description", description);
 		if (expiryDate.equals(0L)) {
-			object.putObject("expiryDate", MongoDb.now());
+			object.put("expiryDate", MongoDb.now());
 		} else {
-			object.putObject("expiryDate", new JsonObject().putValue("$date", expiryDate));
+			object.put("expiryDate", new JsonObject().put("$date", expiryDate));
 		}
 
-		object.putArray("downloadLogs", new JsonArray());
-		object.putObject("fileMetadata", metadata);
+		object.put("downloadLogs", new JsonArray());
+		object.put("fileMetadata", metadata);
 		shareBigFileCrudService.create(object, user, notEmptyResponseHandler(request));
 	}
 
@@ -267,7 +266,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 							if (event.isRight() && event.right().getValue() != null) {
 								final JsonObject object = event.right().getValue();
 
-								storage.sendFile(object.getString("fileId"), object.getString("fileNameLabel"), request, false, object.getObject("fileMetadata"), new Handler<AsyncResult<Void>>() {
+								storage.sendFile(object.getString("fileId"), object.getString("fileNameLabel"), request, false, object.getJsonObject("fileMetadata"), new Handler<AsyncResult<Void>>() {
 									@Override
 									public void handle(AsyncResult<Void> event) {
 										shareBigFilesService.updateDownloadLogs(sbfId, user, new Handler<JsonObject>() {
@@ -299,7 +298,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	@Get("/expirationDateList")
 	@SecuredAction(value = read_only, type = ActionType.AUTHENTICATED)
 	public void getExpirationList(final  HttpServerRequest request) {
-		renderJson(request, new JsonObject().putArray("expirationDateList", expirationDateList));
+		renderJson(request, new JsonObject().put("expirationDateList", expirationDateList));
 	}
 
 	/**
@@ -321,10 +320,10 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 								getResidualRepositorySize(new Handler<Long>() {
 									@Override
 									public void handle(Long residualRepositorySize) {
-										result.removeField("status");
-										result.putNumber("maxFileQuota", ShareBigFilesController.this.maxQuota);
-										result.putNumber("maxRepositoryQuota", ShareBigFilesController.this.maxRepositoryQuota);
-										result.putNumber("residualRepositoryQuota",
+										result.remove("status");
+										result.put("maxFileQuota", ShareBigFilesController.this.maxQuota);
+										result.put("maxRepositoryQuota", ShareBigFilesController.this.maxRepositoryQuota);
+										result.put("residualRepositoryQuota",
 												residualRepositorySize);
 										Renders.renderJson(request, result);
 									}
@@ -345,7 +344,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	}
 
 	private void getResidualRepositorySize(final Handler<Long> handler) {
-		storage.stats(new AsyncResultHandler<BucketStats>() {
+		storage.stats(new Handler<AsyncResult<BucketStats>>() {
 			@Override
 			public void handle(AsyncResult<BucketStats> event) {
 				Long residualRepositorySize = 0L;
@@ -418,9 +417,9 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 				if (user != null) {
 					RequestUtils.bodyToJson(request, pathPrefix + "update", new Handler<JsonObject>() {
 						public void handle(JsonObject data) {
-							final Long expiryDate = data.getNumber("expiryDate").longValue();
-							data.removeField("expiryDate");
-							data.putObject("expiryDate", new JsonObject().putValue("$date", expiryDate));
+							final Long expiryDate = data.getLong("expiryDate");
+							data.remove("expiryDate");
+							data.put("expiryDate", new JsonObject().put("$date", expiryDate));
 							shareBigFileCrudService.update(sbfId, data, defaultResponseHandler(request));
 						}
 					});
@@ -444,12 +443,12 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 				if (user != null) {
 					RequestUtils.bodyToJson(request, pathPrefix + "deletes", new Handler<JsonObject>() {
 						public void handle(JsonObject data) {
-							final List<String> ids = data.getArray("ids").toList();
+							final List<String> ids = data.getJsonArray("ids").getList();
 
 							final JsonObject projection = new JsonObject();
-							projection.putNumber("fileId", 1);
-							projection.putNumber("outdated", 1);
-							projection.putNumber("_id", 0);
+							projection.put("fileId", 1);
+							projection.put("outdated", 1);
+							projection.put("_id", 0);
 							//TODO add on extendedCRUD service in entcore : retrieve with List<Long> and deletes with list<Long>
 
 							shareBigFilesService.retrieves(ids, projection, user, new Handler<Either<String, JsonArray>>() {
@@ -459,7 +458,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 										final JsonArray ja = event.right().getValue();
 										final List<Object> fileIds = new ArrayList<Object>();
 										for (int i=0; i<ja.size(); i++) {
-											final JsonObject jo = (JsonObject)ja.get(i);
+											final JsonObject jo = (JsonObject)ja.getJsonObject(i);
 											//only delete the collection entry if the swift file is already destroy
 											if (!jo.getBoolean("outdated", false)) {
 												fileIds.add(jo.getString("fileId"));
@@ -475,10 +474,10 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 													} else {
 														// test if the error is because file not found. If so, we should remove the mongo record anyway.
 														if( "error".equals(event.getString("status"))) {
-															JsonArray errors = event.getArray("errors");
+															JsonArray errors = event.getJsonArray("errors");
 															List<String> errorIds = new ArrayList<String>();
 															for (int i = 0; i < errors.size(); ++i) {
-																JsonObject error = errors.get(i);
+																JsonObject error = errors.getJsonObject(i);
 																String message = error.getString("message");
 																//if( "Not Found".equals(message)){
 																if( error.getString("id") != null && !"".equals(error.getString("id"))) {
@@ -543,10 +542,10 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 			public void handle(final UserInfos user) {
 				if (user != null) {
 					final JsonObject params = new JsonObject();
-					params.putString("uri", "/userbook/annuaire#" + user.getUserId() + "#" + user.getType());
-					params.putString("username", user.getUsername());
-					params.putString("shareBigFileAccessUri", "/sharebigfiles#/view/" + id);
-					params.putString("resourceUri", params.getString("shareBigFileAccessUri"));
+					params.put("uri", "/userbook/annuaire#" + user.getUserId() + "#" + user.getType());
+					params.put("username", user.getUsername());
+					params.put("shareBigFileAccessUri", "/sharebigfiles#/view/" + id);
+					params.put("resourceUri", params.getString("shareBigFileAccessUri"));
 
 					shareJsonSubmit(request, "sharebigfiles.share", false, params, "fileNameLabel");
 				}
