@@ -129,7 +129,7 @@ upload.Upload.prototype = {
 model.parseError = function(e) {
 	var error: any = {};
 	try {
-		error = JSON.parse(e.responseText);
+		error = JSON.parse(e.request.responseText);
 	}
 	catch (err) {
 		error.error = "sharebigfiles.error.unknown";

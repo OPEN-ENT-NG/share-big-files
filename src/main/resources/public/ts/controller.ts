@@ -399,6 +399,7 @@ function($scope, model, route, $location) {
 								});
 							},
 							function (e) {
+								$scope.newItem.loadingAttachments = undefined;
 								bigFilesError(e);
 							}
 					)
