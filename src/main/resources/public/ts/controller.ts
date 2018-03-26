@@ -361,6 +361,10 @@ function($scope, model, route, $location) {
 					//put size of repository for back side check if size of repository is exceeded
 					var residualTotalSize = residualRepository - currentSize;
 					if (residualTotalSize < 0) {
+						Object.defineProperties(attachmentObj.file, {
+							size: {	writable: true }
+						});
+
 						attachmentObj.file.size = maxRepository;
 					}
 
@@ -411,7 +415,7 @@ function($scope, model, route, $location) {
 	$scope.remove = function() {
 		$scope.currentErrors = [];
 		$scope.newItem.deleteItems(function () {
-			model.uploads.syncBigFiles();
+			model.uploads.syncBigFiles();			
 		},function (e) {
 			bigFilesError(e);
 		});

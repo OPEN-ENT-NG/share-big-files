@@ -12,7 +12,7 @@ model.build = function(){
 		syncBigFiles:function(cb) {
 			var that = this;
 			http.get('/sharebigfiles/list').then(function (res) {
-				if (res.data.length > 0)
+				if (res.data)
 					that.load(res.data, cb, null);
 			})
 		},
