@@ -124,7 +124,7 @@ public class DeleteOldFile implements Handler<Long> {
                                 Set<String> filesToUpdate = new HashSet<String>();
                                 filesToUpdate.addAll(filesNotFound);
 
-                                final List<Objects> idList = ids.getList();
+                                final List idList = ids.getList();
                                 for (Object identifier : idList) {
                                     final String id = (String) identifier;
                                     if (!globalErrors.contains(id)) {
@@ -132,7 +132,7 @@ public class DeleteOldFile implements Handler<Long> {
                                     }
                                 }
 
-                                JsonArray idsToUpdate = new JsonArray(filesToUpdate.toString());
+                                JsonArray idsToUpdate = new JsonArray(new ArrayList<>(filesToUpdate));
                                 final JsonObject queryInIdFile = new JsonObject().put("fileId", new JsonObject().put("$in", idsToUpdate));
 
                                 final MongoUpdateBuilder modifier = new MongoUpdateBuilder();
