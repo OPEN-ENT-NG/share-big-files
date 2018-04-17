@@ -14,11 +14,9 @@
         "app-registry.port" : 8012,
         "mode" : "${mode}",
         "entcore.port" : 8009,
-        "swift": {
-              "uri": "http://129.181.25.238:32768",
-              "container": "testcontainer" ,
-               "user":  "test:tester",
-              "key":  "testing"
+        "file-system" : {
+          "path" : "/srv/sharebigfiles",
+          "flat" : false
         },
         "expirationDateList" : [1,5,10,30],
         "maxQuota" : 2147483648,
