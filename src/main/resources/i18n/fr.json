@@ -4,7 +4,7 @@
 	"sharebigfiles.create": "Envoyer un fichier",
 	"sharebigfiles.fileName": "Nom du fichier :",
 	"sharebigfiles.days.update": "jour(s), le fichier a été créé le ",
-	"sharebigfiles.days.updateBis": " et sa date de péremption est effective le ",
+	"sharebigfiles.days.updateBis": " et sa date de péremption est le ",
 	"sharebigfiles.expirationDays": "jour(s), soit le",
 	"sharebigfiles.expirations": "Expire dans :",
 	"sharebigfiles.sizeLeft": "Il vous reste : ",
