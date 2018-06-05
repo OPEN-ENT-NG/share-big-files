@@ -38,4 +38,4 @@ developer.id
 **/temp
 **/dist
 **/.DS_Store
-**/view/*.html
+**/view
