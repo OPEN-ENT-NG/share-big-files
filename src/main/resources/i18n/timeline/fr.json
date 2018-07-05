@@ -3,5 +3,6 @@
     "sharebigfiles.share": "Partage d'un fichier dans Poste-fichiers",
     "sharebigfiles.delete": "Suppression d'un fichier dans Poste-fichiers",
     "timeline.sharebigfile.has.shared": "vous a partagé un fichier volumineux ",
-    "timeline.notify.delete": "Suppression automatique du fichier"
+    "timeline.notify.delete": "Suppression automatique du fichier",
+    "sharebigfile.notification.shared": "Poste-fichiers: Partage d'un fichier volumineux"
 }
