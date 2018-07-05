@@ -61,5 +61,6 @@
 	"sharebigfiles.tooltip.download": "Télécharger",
 	"sharebigfiles.tooltip.outdated": "Téléchargement terminé, le fichier volumineux n’est plus disponible",
 	"sharebigfiles.tooltip.marked": "Le téléchargement est arrivé à échéance, le fichier sera supprimé dans les prochaines 24h",
-	"sharebigfiles.error.unknown": "Erreur technique imprévue."
+	"sharebigfiles.error.unknown": "Erreur technique imprévue.",
+	"sharebigfile.push-notif.shared.body": "{0} a partagé un  fichier volumineux avec vous"
 }
