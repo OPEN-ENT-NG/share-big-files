@@ -6,6 +6,7 @@
         "app-name" : "ShareBigFiles",
     	"app-address" : "/sharebigfiles",
     	"app-icon" : "sharebigfiles-large",
+        "app-type" : "END_USER",
         "host": "${host}",
         "ssl" : $ssl,
         "auto-redeploy": false,
