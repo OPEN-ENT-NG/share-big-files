@@ -121,6 +121,10 @@ function($scope, model, route, $location) {
 		}
 	};
 
+	$scope.isEmpty = () => {
+		return $scope.uploads && $scope.uploads.all && $scope.uploads.all.length < 1;
+	}
+
     $scope.redirect = function(path){
         $location.path(path);
 	};

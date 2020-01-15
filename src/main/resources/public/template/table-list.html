@@ -1,5 +1,5 @@
 <div class="row">
-	<nav class="contextual-buttons twelve cell">
+	<nav class="contextual-buttons twelve cell" ng-if="!isEmpty()">
 		<div class="action-buttons">
 			<button workflow="sharebigfiles.create" ng-click="redirect('/create')"><i18n>sharebigfiles.create</i18n></button>
 		</div>
@@ -26,7 +26,7 @@
 		</lightbox>
 	</div>
 </div>
-<article class="list-view" drop-files="newItem.newFiles" on-drop="setFilesName(); redirect('/create/list');">
+<article class="list-view" drop-files="newItem.newFiles" on-drop="setFilesName(); redirect('/create/list');" ng-if="!isEmpty()">
 	<table class="twelve">
 		<thead class="tableheader whiteheader">
 		<tr>
