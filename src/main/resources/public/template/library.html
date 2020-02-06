@@ -4,15 +4,28 @@
 			<a ng-click="redirect('/')"><i class="sharebigfiles"></i><span><i18n>sharebigfiles.title</i18n></span></a>
 		</h1>
 	</div>
-	<div class="emptyscreen" ng-if="isEmpty()">
+
+	<!-- Emptyscreen : creation -->
+	<div class="emptyscreen" ng-if="isEmpty()" workflow="sharebigfiles.create">
 		<h2 class="emptyscreen-header">
 			<i18n>empty.sharebigfiles.title</i18n>
 		</h2>
 		<img class="emptyscreen-image__mini" src="/sharebigfiles/public/img/empty-sharebigfiles.svg">
 		<p class="emptyscreen-footer">
-			<i18n>empty.sharebigfiles</i18n>
+			<i18n>empty.sharebigfiles.creation</i18n>
 		</p>
 		<button workflow="sharebigfiles.create" ng-click="redirect('/create')"><i18n>sharebigfiles.create</i18n></button>
+	</div>
+
+	<!-- Emptyscreen : consultation -->
+	<div class="emptyscreen" ng-if="isEmpty()" workflow-not="sharebigfiles.create">
+		<h2 class="emptyscreen-header">
+			<i18n>empty.sharebigfiles.title</i18n>
+		</h2>
+		<img class="emptyscreen-image__mini" src="/sharebigfiles/public/img/empty-sharebigfiles.svg">
+		<p class="emptyscreen-footer">
+			<i18n>empty.sharebigfiles.consultation</i18n>
+		</p>
 	</div>
 	<div class="row">
 		<section style="margin-left:10px">
