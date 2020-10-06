@@ -30,6 +30,7 @@ import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.I18n;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
+import org.entcore.common.events.EventHelper;
 import org.entcore.common.events.EventStore;
 import org.entcore.common.events.EventStoreFactory;
 import org.entcore.common.http.filter.ResourceFilter;
@@ -60,12 +61,12 @@ import static org.entcore.common.http.response.DefaultResponseHandler.*;
  * Vert.x backend controller.
  */
 public class ShareBigFilesController extends MongoDbControllerHelper {
+	static final String RESOURCE_NAME = "document";
 	/**
 	 * Log
 	 */
 	private final Logger log;
-	private EventStore eventStore;
-	private enum ShareBigFilesEvent { ACCESS }
+	private final EventHelper eventHelper;
 
 	/**
 	 * Mongo CRUD service
@@ -102,7 +103,6 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	public void init(Vertx vertx, JsonObject config, RouteMatcher rm,
 					 Map<String, fr.wseduc.webutils.security.SecuredAction> securedActions) {
 		super.init(vertx, config, rm, securedActions);
-		eventStore = EventStoreFactory.getFactory().getEventStore(ShareBigFiles.class.getSimpleName());
 	}
 
 	/**
@@ -119,6 +119,8 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 		this.storage = storage;
 		this.shareBigFileCrudService = crudService;
 		this.shareBigFilesService = shareBigFilesService;
+		final EventStore eventStore = EventStoreFactory.getFactory().getEventStore(ShareBigFiles.class.getSimpleName());
+		this.eventHelper = new EventHelper(eventStore);
 	}
 
 	@Get("")
@@ -128,7 +130,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 		renderView(request);
 
 		// Create event "access to application ShareBigFile" and store it, for module "statistics"
-		eventStore.createAndStoreEvent(ShareBigFilesEvent.ACCESS.name(), request);
+		eventHelper.onAccess(request);
 	}
 
 	/**
@@ -244,7 +246,8 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 
 		object.put("downloadLogs", new JsonArray());
 		object.put("fileMetadata", metadata);
-		shareBigFileCrudService.create(object, user, notEmptyResponseHandler(request));
+		final Handler<Either<String, JsonObject>> handler = notEmptyResponseHandler(request);
+		shareBigFileCrudService.create(object, user, eventHelper.onCreateResource(request, RESOURCE_NAME, handler));
 	}
 
 	@Get("/download/:id")
