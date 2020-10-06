@@ -39,3 +39,4 @@ developer.id
 **/dist
 **/.DS_Store
 **/view
+gradle*
