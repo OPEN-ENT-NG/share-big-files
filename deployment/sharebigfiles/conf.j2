@@ -1,0 +1,50 @@
+{
+    "name": "{{ shareBigFilesVersion }}",
+    "config": {
+        "main" : "fr.openent.sharebigfiles.ShareBigFiles",
+        "port" : 8052,
+        {% if csrfToken %}"csrf-token": true,{% endif %}
+        "app-name" : "ShareBigFiles",
+        "app-address" : "/sharebigfiles",
+        "app-icon" : "sharebigfiles-large",
+        "app-type" : "END_USER",
+        "host": "https://{{ host }}",
+        "ssl" : true,
+        {% if overrideTheme %} "override-theme": {{ override2d }}, {% endif %}
+        "auto-redeploy": false,
+        "userbook-host": "https://{{ host }}",
+        "integration-mode" : "HTTP",
+        "app-registry.port" : 8012,
+        "mode" : "prod",
+        "entcore.port" : 8009,
+        "file-system" : {
+            "path" : "{{ sharebigfilesPath }}",
+            "flat" : false
+            {% if blockedExtensions is defined %},
+            "blockedExtensions" : {{ blockedExtensions }}
+            {% endif %}
+        },
+        "expirationDateList" : [1,5,10,30],
+        {% if sharebigfilesUserQuota is defined %}
+        "maxQuota": {{ sharebigfilesUserQuota }},
+        {% else %}
+        "maxQuota" : 2147483648,
+        {% endif %}
+        {% if shareBigFileCron is defined and shareBigFileCron %}
+        "purgeFilesCron" : "0 0 23 * * ?",
+        {% else %}
+        "purgeFilesCron" : "0 0 23 * * ? 2099",
+        {% endif %}
+        "maxRepositoryQuota" : 1099511627776,
+        "publicConf": {
+            "xiti": {
+                "ID_SERVICE": {
+                    "default": 1
+                },
+                "LIBELLE_SERVICE": {
+                    "default": "STOCKAGE_PARTAGE"
+                }
+            }
+        }
+    }
+}
