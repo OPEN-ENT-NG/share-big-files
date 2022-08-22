@@ -1,5 +1,5 @@
 {
-      "name": "fr.openent~share-big-files~1.12.6",
+      "name": "fr.openent~share-big-files~1.12.7",
       "config": {
         "main" : "fr.openent.sharebigfiles.ShareBigFiles",
         "port" : 8052,
