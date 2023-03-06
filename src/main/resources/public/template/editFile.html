@@ -1,20 +1,29 @@
 <form id="upload-form" name="importForm" method="post" enctype="multipart/form-data" class="twelve cell">
     <div class="row fixed-block">
-        <h2 class="subtitle"><i18n>sharebigfiles.editBigFiles</i18n></h2>
+        <h2 class="subtitle">
+            <i18n ng-show="canManage(newItem) === true">sharebigfiles.editBigFiles</i18n>
+            <i18n ng-show="canManage(newItem) === false">sharebigfiles.consultBigFiles</i18n>
+        </h2>
         <div class="row">
             <div class="twelve cell reduce-block-eight">
-                <span><i18n>sharebigfiles.sizeLeft</i18n></span><strong> [[formatDocumentSize(newItem.residualQuota)]] </strong><span><i18n>sharebigfiles.onStorage</i18n></span><strong>[[formatDocumentSize(maxQuota)]]</strong>
+                <span><i18n>sharebigfiles.sizeLeft</i18n></span>
+                <strong> [[formatDocumentSize(newItem.residualQuota)]] </strong>
+                <span><i18n>sharebigfiles.onStorage</i18n></span>
+                <strong>[[formatDocumentSize(maxQuota)]]</strong>
                 </br></br>
                 <strong><i18n>sharebigfiles.expirations</i18n></strong>
-                <select name="expiration" ng-disabled="canManage(newItem) === false" ng-change="updateExpirationDateUpgrade()" ng-model="newItem.expDateUpgrade" ng-options="exp for exp in newItem.expirationDateList">
+                <select name="expiration" ng-disabled="canManage(newItem) === false" ng-change="updateExpirationDateUpgrade()"
+                        ng-model="newItem.expDateUpgrade" ng-options="exp for exp in newItem.expirationDateList">
                 </select>
                 <span><i18n>sharebigfiles.days.update</i18n></span> [[newItem.creationDate() | date:'dd/MM/yyyy']]
                 <span><i18n>sharebigfiles.days.updateBis</i18n></span> [[expiryDateUpgrade | date:'dd/MM/yyyy']]
                 </br>                </br>
                 <strong><i18n>sharebigfiles.fileName</i18n></strong>
-                <input ng-readonly="canManage(newItem) === false" type="text" ng-model="newItem.fileNameLabel" maxlength="50"/>
+                <input ng-readonly="canManage(newItem) === false" ng-disabled="canManage(newItem) === false"
+                       type="text" ng-model="newItem.fileNameLabel" maxlength="50"/>
                 <label class="twelve cell"><strong><i18n>import.description</i18n></strong></label>
-                <textarea style="height: 60px;" ng-readonly="canManage(newItem) === false" maxlength="100" class="twelve cell" ng-model="newItem.description"></textarea>
+                <textarea style="height: 60px;" ng-readonly="canManage(newItem) === false" ng-disabled="canManage(newItem) === false"
+                          maxlength="100" class="twelve cell" ng-model="newItem.description"></textarea>
                 </br></br>
                 </br>
             </div>
@@ -22,11 +31,12 @@
                 <div ng-include="template.containers.errors"></div>
             </div>
             <div class="row cell">
-                <div class="lightbox-buttons row fluid right-magnet">
-                    <button ng-click="display.showEditPanel=false;redirect('/')"><i18n>back</i18n></button>
-                    <authorize name="manage" resource="newItem">
-                        <button ng-click="updateFile(newItem._id);"><i18n>save</i18n></button>
-                    </authorize>
+                <div class="lightbox-buttons row fluid">
+                    <button class="right-magnet" ng-click="updateFile(newItem._id);" ng-show="canManage(newItem) === true"><i18n>save</i18n></button>
+                    <button class="right-magnet" ng-click="redirect('/downloadFile/' + newItem._id + '/toggle')" ng-show="canManage(newItem) === false">
+                        <i18n>sharebigfiles.tooltip.download</i18n>
+                    </button>
+                    <button class="right-magnet" ng-click="display.showEditPanel=false;redirect('/')"><i18n>back</i18n></button>
                 </div>
             </div>
         </div>

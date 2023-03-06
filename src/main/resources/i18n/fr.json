@@ -11,6 +11,7 @@
 	"sharebigfiles.onStorage": " sur votre espace de stockage de ",
 	"sharebigfiles.time": "fois",
 	"sharebigfiles.editBigFiles": "Édition du fichier",
+	"sharebigfiles.consultBigFiles": "Consultation du fichier",
 	"sharebigfiles.downloadedFileLog": "Journal de téléchargement",
 	"sharebigfiles.downloadedFileLog.label": " du fichier : ",
 	"sharebigfile.manager": "Gestionnaire",
