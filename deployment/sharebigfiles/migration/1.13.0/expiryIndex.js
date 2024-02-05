@@ -1,0 +1,1 @@
+db.bigfile.createIndex( { "expiryDate": 1, "outdated": 1 }, { sparse: true, background: true } )
