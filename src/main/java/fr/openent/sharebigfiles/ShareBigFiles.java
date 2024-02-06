@@ -59,8 +59,8 @@ public class ShareBigFiles extends BaseServer {
 				new JsonArray(Arrays.asList(1, 5, 10, 30)));
 
 		final CrudService shareBigFileCrudService = new MongoDbCrudService(SHARE_BIG_FILE_COLLECTION);
-		final ShareBigFilesService shareBigFilesService = new ShareBigFilesServiceImpl(maxQuota);
 		final Storage storage = new StorageFactory(vertx, config, new ShareBigFileStorage()).getStorage();
+		final ShareBigFilesService shareBigFilesService = new ShareBigFilesServiceImpl(maxQuota, storage);
 		addController(new ShareBigFilesController(storage, shareBigFileCrudService, shareBigFilesService, log, maxQuota,
 				maxRepositoryQuota, expirationDateList));
 
@@ -75,7 +75,7 @@ public class ShareBigFiles extends BaseServer {
 
 		try {
 			new CronTrigger(vertx, purgeFilesCron).schedule(
-					new DeleteOldFile(timelineHelper, storage)
+					new DeleteOldFile(timelineHelper, storage, shareBigFilesService, config)
 			);
 		} catch (ParseException e) {
 			log.fatal("[Share Big File] Invalid cron expression.", e);

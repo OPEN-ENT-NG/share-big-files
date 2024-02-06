@@ -19,7 +19,9 @@
 
 package fr.openent.sharebigfiles.services;
 
+import fr.openent.sharebigfiles.to.BigFile;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.Future;
 import org.entcore.common.user.UserInfos;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
@@ -52,4 +54,7 @@ public interface ShareBigFilesService {
 	void deletes(final List<String> ids, final Handler<Either<String, JsonObject>> handler);
 
 	void deletesRemanent(final List<String> ids, final Handler<Either<String, JsonObject>> handler);
+
+	Future<List<BigFile>> cleanOutdated(boolean checkOnly);
+
 }
