@@ -22,6 +22,8 @@
         "expirationDateList" : [1,5,10,30],
         "maxQuota" : 2147483648,
         "purgeFilesCron" : "0 0 23 * * ?",
+        "enableCheckFileCron": true,
+        "enableCleanFileCron": false,
         "publicConf": {
             <% if ("true".equals(xitiSwitch)) { %>
             "xiti": {
