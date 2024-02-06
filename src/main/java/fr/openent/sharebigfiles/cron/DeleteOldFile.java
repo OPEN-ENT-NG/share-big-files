@@ -25,6 +25,8 @@ import fr.openent.sharebigfiles.utils.DateUtils;
 import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.mongodb.MongoUpdateBuilder;
 import fr.wseduc.webutils.I18n;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import org.entcore.common.http.request.JsonHttpServerRequest;
 import org.entcore.common.notification.TimelineHelper;
 import org.entcore.common.storage.Storage;
@@ -61,23 +63,25 @@ public class DeleteOldFile implements Handler<Long> {
 
     @Override
     public void handle(Long event) {
-        this.removeExpiredFiles();
-        if (this.enableCheck) {
-            log.info("[cron][purge] starting check of outdated...");
-            this.shareBigFilesService.cleanOutdated(true).onComplete(e -> {
-                if (this.enableClean) {
-                    log.info("[cron][purge] starting clean of outdated...");
-                    this.shareBigFilesService.cleanOutdated(false);
-                } else {
-                    log.info("[cron][purge] clean of outdated is disabled...");
-                }
-            });
-        } else {
-            log.info("[cron][purge] check of outdated is disabled...");
-        }
+        this.removeExpiredFiles().onComplete(e->{
+            if (this.enableCheck) {
+                log.info("[cron][purge] starting check of outdated...");
+                this.shareBigFilesService.cleanOutdated(true).onComplete(onFinish -> {
+                    if (this.enableClean) {
+                        log.info("[cron][purge] starting clean of outdated...");
+                        this.shareBigFilesService.cleanOutdated(false);
+                    } else {
+                        log.info("[cron][purge] clean of outdated is disabled...");
+                    }
+                });
+            } else {
+                log.info("[cron][purge] check of outdated is disabled...");
+            }
+        });
     }
 
-    private void removeExpiredFiles() {
+    private Future<Void> removeExpiredFiles() {
+        final Promise<Void> promise = Promise.promise();
         log.info("[cron][purge] starting...");
         // Check the expiry date of file (Mongo) and removal if necessary (only swift file)
         // fetch files that has expired AND outdated is not true
@@ -101,12 +105,17 @@ public class DeleteOldFile implements Handler<Long> {
                         this.sendNotification(elem);
                     }
                     // remove files
-                    this.removeFiles(ids);
+                    this.removeFiles(ids).onComplete(promise);
                 } else {
                     log.info("[cron][purge] finished. Nothing to delete");
+                    promise.complete();
                 }
+            }else{
+                final String error = findResult.body().getString("message");
+                promise.fail(error);
             }
         });
+        return promise.future();
     }
 
     private void sendNotification(final JsonObject elem) {
@@ -129,21 +138,24 @@ public class DeleteOldFile implements Handler<Long> {
                 "sharebigfiles.delete", null, recipients, null, params);
     }
 
-    private void removeFiles(final List<String> ids) {
+    private Future<Void> removeFiles(final List<String> ids) {
+        final Promise<Void> promise = Promise.promise();
         // remove files from disk
         log.info("[cron][purge] Deleting... numberOfFiles=" + ids.size());
         storage.removeFiles(new JsonArray(ids), removeFileRes -> {
             if ("ok".equals(removeFileRes.getString("status"))) {
                 log.info("[cron][purge] Deleted successfully. numberOfFiles=" + ids.size());
-                this.onDeleteSuccess(ids);
+                this.onDeleteSuccess(ids).onComplete(promise);
             } else {
                 log.warn("[cron][purge] Delete failed. numberOfFiles=" + ids.size());
-                this.onDeleteFailed(ids, removeFileRes.getJsonArray("errors", new JsonArray()));
+                this.onDeleteFailed(ids, removeFileRes.getJsonArray("errors", new JsonArray())).onComplete(promise);
             }
         });
+        return promise.future();
     }
 
-    private void onDeleteSuccess(final List<String> ids) {
+    private Future<Void> onDeleteSuccess(final List<String> ids) {
+        final Promise<Void> promise = Promise.promise();
         log.info("[cron][purge] Updating status after removeDisk succeed. numberOfFiles=" + ids.size());
         // SET outdated true AND remove shared
         final MongoUpdateBuilder modifier = new MongoUpdateBuilder();
@@ -155,14 +167,18 @@ public class DeleteOldFile implements Handler<Long> {
         mongo.update(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, queryInIdFile, modifier.build(), false, true, null, event -> {
             if ("ok".equals(event.body().getString("status"))) {
                 log.info("[cron][purge] Finished successfully. deletedFail=0 deletedSuccess=" + ids.size());
+                promise.complete();
             } else {
-                log.error("[cron][purge] Finish with error. deletedFail=0 deletedSuccess=" + ids.size() + " error=" + event.body().getString("message"));
-
+                final String error = event.body().getString("message");
+                log.error("[cron][purge] Finish with error. deletedFail=0 deletedSuccess=" + ids.size() + " error=" + error);
+                promise.fail(error);
             }
         });
+        return promise.future();
     }
 
-    private void onDeleteFailed(final List<String> ids, final JsonArray errors) {
+    private Future<Void> onDeleteFailed(final List<String> ids, final JsonArray errors) {
+        final Promise<Void> promise = Promise.promise();
         log.warn("[cron][purge] Updating status after removeDisk failed. numberOfFiles=" + ids.size());
         // iterate over errors to detect file not found
         final Set<String> filesNotFound = new HashSet<String>();
@@ -197,9 +213,13 @@ public class DeleteOldFile implements Handler<Long> {
             if ("ok".equals(event.body().getString("status"))) {
                 final int failed = ids.size() - deletedFileIds.size();
                 log.info("[cron][purge] Finished successfully. deletedSuccess=" + deletedFileIds.size() + " deletedFail=" + failed);
+                promise.complete();
             } else {
-                log.error("[cron][purge] Finish with error. deletedSuccess=0 deletedFail=" + ids.size() + " error=" + event.body().getString("message"));
+                final String error = event.body().getString("message");
+                log.error("[cron][purge] Finish with error. deletedSuccess=0 deletedFail=" + ids.size() + " error=" + error);
+                promise.fail(error);
             }
         });
+        return promise.future();
     }
 }
