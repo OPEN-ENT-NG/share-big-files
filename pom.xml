@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.edifice</groupId>
+        <artifactId>app-parent</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <groupId>fr.openent</groupId>
+    <artifactId>share-big-files</artifactId>
+    <version>2.0-b2school-SNAPSHOT</version>
+
+    <scm><!-- Adapter avec l'url du repertoire (github, gitlab...) -->
+        <connection>scm:git:https://github.com/OPEN-ENT-NG/bookmark.git</connection>
+        <developerConnection>scm:git:https://github.com/OPEN-ENT-NG/bookmark.git</developerConnection>
+        <url>https://github.com/OPEN-ENT-NG/bookmark</url>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>ode</id>
+            <name>ODE Repository</name>
+            <url>https://maven.opendigitaleducation.com/nexus/content/groups/public</url>
+        </repository>
+    </repositories>
+
+    <properties><!-- Reporter les versions des dépendances de gradle.properties -->
+        <entcore.version>6.0-SNAPSHOT</entcore.version>
+        <web-utils.version>3.0-b2school-SNAPSHOT</web-utils.version>
+        <mongodb-helper.version>4.0-b2school-SNAPSHOT</mongodb-helper.version>
+        <vertx-cron-timer.version>3.0-b2school-SNAPSHOT</vertx-cron-timer.version>
+    </properties>
+
+    <dependencies><!-- Reporter les dépendances qui étaient dans build.gradle > dependencies -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-core</artifactId>
+            <version>${vertxVersion}</version>
+            <scope>provided</scope>
+        </dependency><dependency>
+            <groupId>fr.wseduc</groupId>
+            <artifactId>vertx-cron-timer</artifactId>
+            <version>${vertx-cron-timer.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.wseduc</groupId>
+            <artifactId>web-utils</artifactId>
+            <version>${web-utils.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.wseduc</groupId>
+            <artifactId>mongodb-helper</artifactId>
+            <version>${mongodb-helper.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jacksonDatabindVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.entcore</groupId>
+            <artifactId>common</artifactId>
+            <version>${entcore.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.2</version>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                                <manifestEntries>
+                                    <Build-Time>${maven.build.timestamp}</Build-Time>
+                                    <Main-Verticle>service:mod</Main-Verticle>
+                                    <SCM-Commit-Id>${buildNumber}</SCM-Commit-Id>
+                                    <SCM-Branch>${scmBranch}</SCM-Branch>
+                                </manifestEntries>
+                            </archive>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create-test-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-deployment-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>deployment</classifier>
+                            <includes>
+                                <include>sharebigfiles/**</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

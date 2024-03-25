@@ -45,6 +45,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
+import org.entcore.common.utils.DateUtils;
 import org.vertx.java.core.http.RouteMatcher;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -52,9 +53,11 @@ import io.vertx.core.logging.Logger;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static fr.wseduc.mongodb.MongoDb.toMongoDate;
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
 /**
@@ -90,6 +93,13 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 	 * Storage client
 	 */
 	private final Storage storage;
+
+	private static final List<String> DATES_TO_ADAPT = new ArrayList<>();
+	static {
+		DATES_TO_ADAPT.add("expiryDate");
+		DATES_TO_ADAPT.add("created");
+		DATES_TO_ADAPT.add("modified");
+	}
 
 	//Permissions
 	private static final String
@@ -241,7 +251,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 		if (expiryDate.equals(0L)) {
 			object.put("expiryDate", MongoDb.now());
 		} else {
-			object.put("expiryDate", new JsonObject().put("$date", expiryDate));
+			object.put("expiryDate", new JsonObject().put("$date", DateUtils.formatUtcDateTime(new Date(expiryDate))));
 		}
 
 		object.put("downloadLogs", new JsonArray());
@@ -390,7 +400,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 					@Override
 					public void handle(Either<String, JsonArray> event) {
 						if (event.isRight()) {
-							Renders.renderJson(request, event.right().getValue());
+							Renders.renderJson(request, adaptResults(event.right().getValue()));
 						} else {
 							leftToResponse(request, event.left());
 						}
@@ -399,6 +409,32 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 				});
 			}
 		});
+	}
+
+	/**
+	 * Wrap dates as they were in Vertx3.
+	 * @param files Returned results
+	 * @return shared big files
+	 */
+	private JsonArray adaptResults(final JsonArray files) {
+		for (Object file : files) {
+			if(file instanceof JsonObject) {
+				final JsonObject jsonFile = (JsonObject) file;
+				for (String dateFieldName : DATES_TO_ADAPT) {
+					final Object value = jsonFile.getValue(dateFieldName);
+					if (value instanceof Number) {
+						jsonFile.put(dateFieldName, new JsonObject().put("$date", value));
+					} else if (value instanceof JsonObject) {
+						final JsonObject structuredDate = ((JsonObject) value);
+						Object date = structuredDate.getValue("$date");
+						if (date instanceof String) {
+							structuredDate.put("$date", DateUtils.parseIsoDate(structuredDate).getTime());
+						}
+					}
+				}
+			}
+		}
+		return files;
 	}
 
 	/**
@@ -422,7 +458,7 @@ public class ShareBigFilesController extends MongoDbControllerHelper {
 						public void handle(JsonObject data) {
 							final Long expiryDate = data.getLong("expiryDate");
 							data.remove("expiryDate");
-							data.put("expiryDate", new JsonObject().put("$date", expiryDate));
+							data.put("expiryDate", toMongoDate(new Date(expiryDate)));
 							shareBigFileCrudService.update(sbfId, data, defaultResponseHandler(request));
 						}
 					});

@@ -19,7 +19,6 @@
 
 package fr.openent.sharebigfiles.services;
 
-import com.mongodb.QueryBuilder;
 import fr.openent.sharebigfiles.ShareBigFiles;
 import fr.openent.sharebigfiles.to.BigFile;
 import fr.wseduc.mongodb.MongoDb;
@@ -29,6 +28,7 @@ import fr.wseduc.webutils.Either;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import org.bson.conversions.Bson;
 import org.entcore.common.service.VisibilityFilter;
 import org.entcore.common.storage.Storage;
 import org.entcore.common.user.UserInfos;
@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 
 import static org.entcore.common.mongodb.MongoDbResult.validActionResultHandler;
 import static org.entcore.common.mongodb.MongoDbResult.validResultsHandler;
+import static com.mongodb.client.model.Filters.*;
 
 /**
  * MongoDB implementation of the REST service.
@@ -67,7 +68,7 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 
     @Override
     public void updateDownloadLogs(final String id, final UserInfos user, final Handler<JsonObject> handler) {
-        final QueryBuilder query = QueryBuilder.start("_id").is(id);
+        final Bson query = eq("_id", (id));
 
         final JsonObject logElem = new JsonObject().put("userDisplayName", user.getUsername()).put("downloadDate", MongoDb.now());
         final MongoUpdateBuilder modifier = new MongoUpdateBuilder();
@@ -88,7 +89,7 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
 
     @Override
     public void getQuotaData(final String userId, final Handler<JsonObject> handler) {
-        final QueryBuilder query = QueryBuilder.start("owner.userId").is(userId).put("fileMetadata.size").exists(true);
+        final Bson query = and(eq("owner.userId", userId), exists("fileMetadata.size", true));
 
         mongo.find(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(query), new Handler<Message<JsonObject>>() {
             @Override
@@ -115,21 +116,21 @@ public class ShareBigFilesServiceImpl implements ShareBigFilesService {
     }
 
     public void retrieves(List<String> ids, final JsonObject projection, UserInfos user, Handler<Either<String, JsonArray>> handler) {
-        QueryBuilder builder = QueryBuilder.start("_id").in(new HashSet<String>(ids));
+        Bson builder = in("_id", new HashSet<String>(ids));
         if (user == null) {
-            builder.put("visibility").is(VisibilityFilter.PUBLIC.name());
+            builder = and(builder, eq("visibility", VisibilityFilter.PUBLIC.name()));
         }
         mongo.find(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(builder),
                 null, projection, validResultsHandler(handler));
     }
 
     public void deletes(List<String> ids, Handler<Either<String, JsonObject>> handler) {
-        QueryBuilder q = QueryBuilder.start("_id").in(new HashSet<String>(ids));
+        Bson q = in("_id", new HashSet<>(ids));
         mongo.delete(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(q), validActionResultHandler(handler));
     }
 
     public void deletesRemanent(List<String> ids, Handler<Either<String, JsonObject>> handler) {
-        QueryBuilder q = QueryBuilder.start("fileId").in(new HashSet<String>(ids));
+        Bson q = in("fileId", new HashSet<>(ids));
         mongo.delete(ShareBigFiles.SHARE_BIG_FILE_COLLECTION, MongoQueryBuilder.build(q), validActionResultHandler(handler));
     }
 

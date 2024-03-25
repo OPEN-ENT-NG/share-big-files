@@ -19,12 +19,11 @@
 
 package fr.openent.sharebigfiles.filters;
 
-import com.mongodb.DBObject;
-import com.mongodb.QueryBuilder;
 import fr.wseduc.mongodb.MongoQueryBuilder;
 import fr.wseduc.webutils.Server;
 import fr.wseduc.webutils.http.Binding;
 import fr.wseduc.webutils.request.RequestUtils;
+import org.bson.conversions.Bson;
 import org.entcore.common.http.filter.MongoAppFilter;
 import org.entcore.common.http.filter.ResourcesProvider;
 import org.entcore.common.mongodb.MongoDbConf;
@@ -37,6 +36,7 @@ import io.vertx.core.json.JsonObject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import static com.mongodb.client.model.Filters.*;
 
 public class MassJsonShareAndOwner implements ResourcesProvider {
 
@@ -48,18 +48,15 @@ public class MassJsonShareAndOwner implements ResourcesProvider {
 			public void handle(JsonObject data) {
 				final List<String> ids = data.getJsonArray("ids").getList();
 				if (ids != null && !ids.isEmpty()) {
-					List<DBObject> groups = new ArrayList<>();
+					List<Bson> groups = new ArrayList<>();
 					String sharedMethod = binding.getServiceMethod().replaceAll("\\.", "-");
-					groups.add(QueryBuilder.start("userId").is(user.getUserId())
-							.put(sharedMethod).is(true).get());
+					groups.add(and(eq("userId", user.getUserId()), eq(sharedMethod, true)));
 					for (String gpId: user.getGroupsIds()) {
-						groups.add(QueryBuilder.start("groupId").is(gpId)
-								.put(sharedMethod).is(true).get());
+						groups.add(and(eq("groupId", gpId), eq(sharedMethod, true)));
 					}
-					QueryBuilder query = QueryBuilder.start("_id").in(new HashSet<String>(ids)).or(
-							QueryBuilder.start("owner.userId").is(user.getUserId()).get(),
-							QueryBuilder.start("shared").elemMatch(
-									new QueryBuilder().or(groups.toArray(new DBObject[groups.size()])).get()).get()
+					Bson query = and(in("_id", new HashSet<>(ids)), or(
+							eq("owner.userId", user.getUserId()),
+							elemMatch("shared", or(groups)))
 					);
 					MongoAppFilter.executeCountQuery(request, conf.getCollection(), MongoQueryBuilder.build(query), ids.size(), handler);
 				} else {

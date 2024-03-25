@@ -26,6 +26,7 @@ import fr.openent.sharebigfiles.services.ShareBigFilesService;
 import fr.openent.sharebigfiles.services.ShareBigFilesServiceImpl;
 import fr.wseduc.cron.CronTrigger;
 import fr.openent.sharebigfiles.cron.DeleteOldFile;
+import io.vertx.core.Promise;
 import org.entcore.common.http.BaseServer;
 import org.entcore.common.http.filter.ShareAndOwner;
 import org.entcore.common.mongodb.MongoDbConf;
@@ -45,8 +46,8 @@ public class ShareBigFiles extends BaseServer {
 	public static final String SHARE_BIG_FILE_COLLECTION = "bigfile";
 
 	@Override
-	public void start() throws Exception {
-		super.start();
+	public void start(final Promise<Void> startPromise) throws Exception {
+		super.start(startPromise);
 		MongoDbConf.getInstance().setCollection(SHARE_BIG_FILE_COLLECTION);
 
 		if (config.getJsonObject("swift") == null && config.getJsonObject("file-system") == null) {
@@ -80,5 +81,6 @@ public class ShareBigFiles extends BaseServer {
 		} catch (ParseException e) {
 			log.fatal("[Share Big File] Invalid cron expression.", e);
 		}
+		startPromise.tryComplete();
 	}
 }
