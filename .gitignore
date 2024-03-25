@@ -40,3 +40,5 @@ developer.id
 **/.DS_Store
 **/view
 gradle*
+.env
+dependency-reduced-pom.xml

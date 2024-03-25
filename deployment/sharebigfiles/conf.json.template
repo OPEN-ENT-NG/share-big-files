@@ -1,5 +1,5 @@
 {
-      "name": "fr.openent~share-big-files~1.13-SNAPSHOT",
+      "name": "fr.openent~share-big-files~2.0-b2school-SNAPSHOT",
       "config": {
         "main" : "fr.openent.sharebigfiles.ShareBigFiles",
         "port" : 8052,
