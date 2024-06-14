@@ -49,8 +49,8 @@ public class ShareBigFiles extends BaseServer {
 		super.start();
 		MongoDbConf.getInstance().setCollection(SHARE_BIG_FILE_COLLECTION);
 
-		if (config.getJsonObject("swift") == null && config.getJsonObject("file-system") == null) {
-			log.fatal("[Share Big File] Error : Module property 'swift' or 'file-system' must be defined");
+		if (config.getJsonObject("swift") == null && config.getJsonObject("s3") == null && config.getJsonObject("file-system") == null) {
+			log.fatal("[Share Big File] Error : Module property 'swift', 's3' or 'file-system' must be defined");
 		}
 
 		final Long maxQuota = config.getLong("maxQuota", 1073741824L);
