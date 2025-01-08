@@ -50,13 +50,13 @@ public class ShareBigFiles extends BaseServer {
 		super.start(startPromise);
 		MongoDbConf.getInstance().setCollection(SHARE_BIG_FILE_COLLECTION);
 
-		if (config.getJsonObject("swift") == null && config.getJsonObject("file-system") == null) {
-			log.fatal("[Share Big File] Error : Module property 'swift' or 'file-system' must be defined");
+		if (config.getJsonObject("swift") == null && config.getJsonObject("s3") == null && config.getJsonObject("file-system") == null) {
+			log.fatal("[Share Big File] Error : Module property 'swift', 's3' or 'file-system' must be defined");
 		}
 
 		final Long maxQuota = config.getLong("maxQuota", 1073741824L);
 		final Long maxRepositoryQuota = config.getLong("maxRepositoryQuota", 1099511627776L);
-		final JsonArray expirationDateList = config.getJsonArray("expirationDateList",
+        final JsonArray expirationDateList = config.getJsonArray("expirationDateList",
 				new JsonArray(Arrays.asList(1, 5, 10, 30)));
 
 		final CrudService shareBigFileCrudService = new MongoDbCrudService(SHARE_BIG_FILE_COLLECTION);
