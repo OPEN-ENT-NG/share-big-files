@@ -29,9 +29,9 @@
     </repositories>
 
     <properties><!-- Reporter les versions des dépendances de gradle.properties -->
-        <entcore.version>6.0-SNAPSHOT</entcore.version>
+        <entcore.version>6.0-develop-pedago-SNAPSHOT</entcore.version>
         <web-utils.version>3.0-SNAPSHOT</web-utils.version>
-        <mongodb-helper.version>3.0-SNAPSHOT</mongodb-helper.version>
+        <mongodb-helper.version>3.0-develop-pedago-SNAPSHOT</mongodb-helper.version>
         <vertx-cron-timer.version>3.0-SNAPSHOT</vertx-cron-timer.version>
     </properties>
 
