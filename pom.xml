@@ -30,7 +30,7 @@
 
     <properties><!-- Reporter les versions des dépendances de gradle.properties -->
         <entcore.version>6.0-objectstorage-SNAPSHOT</entcore.version>
-        <web-utils.version>3.0-SNAPSHOT</web-utils.version>
+        <web-utils.version>3.1-SNAPSHOT</web-utils.version>
         <mongodb-helper.version>3.0-SNAPSHOT</mongodb-helper.version>
         <vertx-cron-timer.version>3.0-SNAPSHOT</vertx-cron-timer.version>
     </properties>
