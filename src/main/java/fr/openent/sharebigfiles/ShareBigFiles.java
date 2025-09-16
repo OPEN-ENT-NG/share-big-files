@@ -26,6 +26,7 @@ import fr.openent.sharebigfiles.services.ShareBigFilesService;
 import fr.openent.sharebigfiles.services.ShareBigFilesServiceImpl;
 import fr.wseduc.cron.CronTrigger;
 import fr.openent.sharebigfiles.cron.DeleteOldFile;
+import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import org.entcore.common.http.BaseServer;
 import org.entcore.common.http.filter.ShareAndOwner;
@@ -47,7 +48,14 @@ public class ShareBigFiles extends BaseServer {
 
 	@Override
 	public void start(final Promise<Void> startPromise) throws Exception {
-		super.start(startPromise);
+    final Promise<Void> promise = Promise.promise();
+    super.start(promise);
+    promise.future()
+      .compose(e -> this.initShareBigFiles())
+      .onComplete(startPromise);
+  }
+
+  public Future<Void> initShareBigFiles() {
 		MongoDbConf.getInstance().setCollection(SHARE_BIG_FILE_COLLECTION);
 
 		if (config.getJsonObject("swift") == null && config.getJsonObject("s3") == null && config.getJsonObject("file-system") == null) {
@@ -60,27 +68,29 @@ public class ShareBigFiles extends BaseServer {
 				new JsonArray(Arrays.asList(1, 5, 10, 30)));
 
 		final CrudService shareBigFileCrudService = new MongoDbCrudService(SHARE_BIG_FILE_COLLECTION);
-		final Storage storage = new StorageFactory(vertx, config, new ShareBigFileStorage()).getStorage();
-		final ShareBigFilesService shareBigFilesService = new ShareBigFilesServiceImpl(maxQuota, storage);
-		addController(new ShareBigFilesController(storage, shareBigFileCrudService, shareBigFilesService, log, maxQuota,
-				maxRepositoryQuota, expirationDateList));
+    return StorageFactory.build(vertx, config, new ShareBigFileStorage()).compose(storageFactory -> {
+      final Storage storage = storageFactory.getStorage();
+      final ShareBigFilesService shareBigFilesService = new ShareBigFilesServiceImpl(maxQuota, storage);
+      addController(new ShareBigFilesController(storage, shareBigFileCrudService, shareBigFilesService, log, maxQuota,
+        maxRepositoryQuota, expirationDateList));
 
-		setDefaultResourceFilter(new ShareAndOwner());
-		// Subscribe to events published for searching
-		if (config.getBoolean("searching-event", true)) {
-			setSearchingEvents(new ShareBigFilesSearchingEvents(new MongoDbSearchService(SHARE_BIG_FILE_COLLECTION)));
-		}
+      setDefaultResourceFilter(new ShareAndOwner());
+      // Subscribe to events published for searching
+      if (config.getBoolean("searching-event", true)) {
+        setSearchingEvents(new ShareBigFilesSearchingEvents(new MongoDbSearchService(SHARE_BIG_FILE_COLLECTION)));
+      }
 
-		final String purgeFilesCron = config.getString("purgeFilesCron", "0 0 23 * * ?");
-		final TimelineHelper timelineHelper = new TimelineHelper(vertx, vertx.eventBus(), config);
+      final String purgeFilesCron = config.getString("purgeFilesCron", "0 0 23 * * ?");
+      final TimelineHelper timelineHelper = new TimelineHelper(vertx, vertx.eventBus(), config);
 
-		try {
-			new CronTrigger(vertx, purgeFilesCron).schedule(
-					new DeleteOldFile(timelineHelper, storage, shareBigFilesService, config)
-			);
-		} catch (ParseException e) {
-			log.fatal("[Share Big File] Invalid cron expression.", e);
-		}
-		startPromise.tryComplete();
+      try {
+        new CronTrigger(vertx, purgeFilesCron).schedule(
+          new DeleteOldFile(timelineHelper, storage, shareBigFilesService, config)
+        );
+      } catch (ParseException e) {
+        log.fatal("[Share Big File] Invalid cron expression.", e);
+      }
+      return Future.succeededFuture();
+    });
 	}
 }
