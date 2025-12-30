@@ -1,0 +1,98 @@
+{
+  "name": "fr.openent~share-big-files",
+  "config": {
+    "main" : "fr.openent.sharebigfiles.ShareBigFiles",
+    "port" : 8052,
+    "csrf-token": {{ csrfToken | default('true') }},
+    "app-name" : "ShareBigFiles",
+    "app-address" : "/sharebigfiles",
+    "app-icon" : "sharebigfiles-large",
+    "app-type" : "END_USER",
+    "host": "https://{{ host }}",
+    "ssl" : true,
+    {% if overrideTheme %} "override-theme": {{ override2d }}, {% endif %}
+    "auto-redeploy": false,
+    "userbook-host": "https://{{ host }}",
+    "integration-mode": "{{ integration_mode|default('HTTP') }}",
+    "app-registry.port" : 8012,
+    "mode" : "prod",
+    "entcore.port" : 8009,
+    {% if s3 is defined and 'sbf' in s3 and s3['sbf'] %}
+      "s3": {
+        "uri": "{{ s3['sbf']['uri'] }}",
+        "accessKey": "{{ s3['sbf']['accessKey'] }}",
+        "secretKey": "{{ s3['sbf']['secretKey'] }}",
+        {% if 'ssec' in s3['sbf'] %}
+          "ssec": "{{ s3['sbf']['ssec'] }}",
+        {% endif %}
+        "region": "{{ s3['sbf']['region'] }}",
+        "bucket": "{{ s3['sbf']['bucket'] }}",
+        {% if s3['sbf']['s3fallbacks3s3'] is defined and s3['sbf']['s3fallbacks3s3'] %}
+          "s3fallbacks3s3": {
+            "uri": "{{ s3['sbf']['s3fallbacks3s3']['uri'] }}",
+            "accessKey": "{{ s3['sbf']['s3fallbacks3s3']['accessKey'] }}",
+            "secretKey": "{{ s3['sbf']['s3fallbacks3s3']['secretKey'] }}",
+            "region": "{{ s3['sbf']['s3fallbacks3s3']['region'] }}",
+            "bucket": "{{ s3['sbf']['s3fallbacks3s3']['bucket'] }}"
+            {% if s3['sbf']['s3fallbacks3s3']['ssec'] is defined and s3['storage']['s3fallbacks3s3']['ssec'] %}
+              ,"ssec": "{{ s3['sbf']['s3fallbacks3s3']['ssec'] }}"
+            {% endif %}
+          },
+        {% endif %}
+        "antivirus": {
+          "host": "{{ s3['antivirus']['host'] }}",
+          "port": {{ s3['antivirus']['port'] }},
+          "credential": "{{ (project_env ~ '-' ~ project_name ~ ':' ~ s3['antivirus']['credential']) | b64encode }}"
+        },
+        "blockedExtensions" : {{ blockedExtensions | default('["ade","and","adp","ani","asp","asx","bas","bat","cab","cga","cgb","cgc","cgd","cge","cgf","cgg","cgh","cgi","cgj","cgk","cgl","cgm","cgn","cgo","cgp","cgq","cgr","cgs","cgt","cgu","cgv","cgw","cgx","cgy","cgz","chk","chm","clp","cmd","cnf","cod","col","com","conf","config","cpio","cpl","cpp","crl","crt","csh","exe","grp","hhp","hlp","ht","hta","idx","inf","ins","isp","job","js","jse","lnk","mcw","mdb","mde","msc","msg","msi","mso","msp","msrcincident","msstyles","mst","pcd","pif","prf","rar","reg","sc2","scd","scf","sch","schema","scp","scr","sct","shb","shs","shtm","shtml","svg","swf","url","vb","vbe","vbs","vxd","wab","wax","wbk","wcs","wdb","web","webinfo","webpnp","wht","wiz","wizhtml","wll","wm","wma","wmd","wmdb","wmf","wms","wmx","wmz","wpc","wpl","wpz","wri","wsc","wsdl","wsf","wsh","wtx","wvx"]')}}
+      },
+    {% else %}
+      "file-system" : {
+        "path" : "{{ sharebigfilesPath|default('/srv/sharebigfiles') }}",
+        "flat" : false,
+        "blockedExtensions" : {{ blockedExtensions | default('["ade","and","adp","ani","asp","asx","bas","bat","cab","cga","cgb","cgc","cgd","cge","cgf","cgg","cgh","cgi","cgj","cgk","cgl","cgm","cgn","cgo","cgp","cgq","cgr","cgs","cgt","cgu","cgv","cgw","cgx","cgy","cgz","chk","chm","clp","cmd","cnf","cod","col","com","conf","config","cpio","cpl","cpp","crl","crt","csh","exe","grp","hhp","hlp","ht","hta","idx","inf","ins","isp","job","js","jse","lnk","mcw","mdb","mde","msc","msg","msi","mso","msp","msrcincident","msstyles","mst","pcd","pif","prf","rar","reg","sc2","scd","scf","sch","schema","scp","scr","sct","shb","shs","shtm","shtml","svg","swf","url","vb","vbe","vbs","vxd","wab","wax","wbk","wcs","wdb","web","webinfo","webpnp","wht","wiz","wizhtml","wll","wm","wma","wmd","wmdb","wmf","wms","wmx","wmz","wpc","wpl","wpz","wri","wsc","wsdl","wsf","wsh","wtx","wvx"]') }}
+        {% if s3fallbacks3fs is defined and s3fallbacks3fs  %}
+          ,"s3fallbacks3fs": {
+            "uri": "{{ s3fallbacks3fs['sbf']['uri'] }}",
+            "accessKey": "{{ s3fallbacks3fs['sbf']['accessKey'] }}",
+            "secretKey": "{{ s3fallbacks3fs['sbf']['secretKey'] }}",
+            "region": "{{ s3fallbacks3fs['sbf']['region'] }}",
+            "bucket": "{{ s3fallbacks3fs['sbf']['bucket'] }}",
+            "bucketMaxAge": {{ s3fallbacks3fs['sbf']['bucketMaxAge'] }}
+            {% if s3fallbacks3fs['sbf']['ssec'] is defined and s3fallbacks3fs['sbf']['ssec'] %}
+              ,"ssec": "{{ s3fallbacks3fs['sbf']['ssec'] }}"
+            {% endif %}
+          }
+        {% endif %}
+      },
+    {% endif %}
+    "expirationDateList" : [1,5,10,30],
+    "maxQuota": {{ sharebigfilesUserQuota | default('2147483648') }},
+    {% if ha is defined and ha and inventory_hostname_short is defined and inventory_hostname_short != 'jobs' %}
+      "purgeFilesCron" : "0 0 23 * * ? 2099",
+      "enableCheckFileCron": false,
+      "enableCleanFileCron": false,
+    {% else %}
+      "purgeFilesCron" : "0 0 23 * * ?",
+      "enableCheckFileCron": {{ sharebigfilesEnableCheckFileCron | default('true') }},
+      "enableCleanFileCron": {{ sharebigfilesEnableCleanFileCron | default('true') }},
+    {% endif %}
+    "fileAnalyzer": {
+      "enabled": {{ fileAnalyzerOn | default('true') }},
+      "messaging": {
+        "type": "redis",
+        "stream": "xss-analyzer",
+        "tags": ["xss-analyzer", "big-files"],
+        "consumer-block-ms": 0,
+        "consumer-name": "xss-analyzer-big-files-{{ ansible_fqdn | default('app') }}",
+        "consumer-group": "xss-analyzer-big-files-group",
+        "metrics": {
+          "enabled": true
+        }
+      },
+      "mime-types": {{ fileAnalyzerMimeTypes | default('[".*image/svg.*"]') }},
+      "max-size": 20000000
+    },
+    "maxRepositoryQuota" : 1099511627776
+  }
+}
