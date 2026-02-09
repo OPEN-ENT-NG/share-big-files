@@ -1,10 +1,10 @@
 {
   "name": "community",
-  "version": "2.2.2-dev.0",
+  "version": "2.2.3",
   "description": "Community-building tool for ENT Core.",
   "main": "gulpfile.js",
   "dependencies": {
-    "entcore": "dev",
+    "entcore": "4.8.14",
     "@types/core-js": "0.9.42",
     "awesome-typescript-loader": "3.2.1",
     "axios": "0.16.2",
