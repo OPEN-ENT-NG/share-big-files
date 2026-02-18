@@ -29,8 +29,8 @@
     </repositories>
 
     <properties><!-- Reporter les versions des dépendances de gradle.properties -->
-        <entcore.version>6.13-SNAPSHOT</entcore.version>
-        <vertx-cron-timer.version>3.0-SNAPSHOT</vertx-cron-timer.version>
+        <entcore.version>6.14-develop-b2school-SNAPSHOT</entcore.version>
+        <vertx-cron-timer.version>3.0-develop-b2school-SNAPSHOT</vertx-cron-timer.version>
     </properties>
 
     <dependencies><!-- Reporter les dépendances qui étaient dans build.gradle > dependencies -->
