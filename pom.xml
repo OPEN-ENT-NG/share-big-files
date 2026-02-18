@@ -29,7 +29,7 @@
     </repositories>
 
     <properties><!-- Reporter les versions des dépendances de gradle.properties -->
-        <entcore.version>6.13-SNAPSHOT</entcore.version>
+        <entcore.version>6.14-develop-pedago-SNAPSHOT</entcore.version>
         <vertx-cron-timer.version>3.0-SNAPSHOT</vertx-cron-timer.version>
     </properties>
 
