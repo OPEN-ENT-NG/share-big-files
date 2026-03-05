@@ -20,6 +20,7 @@
 package fr.openent.sharebigfiles;
 
 import fr.openent.sharebigfiles.controllers.ShareBigFilesController;
+import fr.openent.sharebigfiles.controllers.TaskController;
 import fr.openent.sharebigfiles.services.ShareBigFileStorage;
 import fr.openent.sharebigfiles.services.ShareBigFilesSearchingEvents;
 import fr.openent.sharebigfiles.services.ShareBigFilesService;
@@ -82,11 +83,13 @@ public class ShareBigFiles extends BaseServer {
 
       final String purgeFilesCron = config.getString("purgeFilesCron", "0 0 23 * * ?");
       final TimelineHelper timelineHelper = new TimelineHelper(vertx, vertx.eventBus(), config);
+	  final DeleteOldFile deleteOldFileTask = new DeleteOldFile(timelineHelper, storage, shareBigFilesService, config);
 
+	  // Enable delete old file task to be triggered via API
+	  addController(new TaskController(deleteOldFileTask));
+	  // Schedule delete old file task from cron expression
       try {
-        new CronTrigger(vertx, purgeFilesCron).schedule(
-          new DeleteOldFile(timelineHelper, storage, shareBigFilesService, config)
-        );
+        new CronTrigger(vertx, purgeFilesCron).schedule(deleteOldFileTask);
       } catch (ParseException e) {
         log.fatal("[Share Big File] Invalid cron expression.", e);
       }
