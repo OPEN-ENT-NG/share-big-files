@@ -2,6 +2,8 @@ package fr.openent.sharebigfiles.controllers;
 
 import fr.openent.sharebigfiles.cron.DeleteOldFile;
 import fr.wseduc.rs.Post;
+import fr.wseduc.security.ActionType;
+import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.http.BaseController;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.impl.logging.Logger;
@@ -17,6 +19,7 @@ public class TaskController extends BaseController {
 	}
 
 	@Post("api/internal/delete-old-file")
+	@SecuredAction(value = "", type = ActionType.RESOURCE)
 	public void deleteOldFile(HttpServerRequest request) {
 		log.info("Triggered delete old file task");
 		deleteOldFileTask.handle(0L);
