@@ -2,6 +2,10 @@
   "name": "fr.openent~share-big-files",
   "config": {
     "main" : "fr.openent.sharebigfiles.ShareBigFiles",
+    "probes": [
+      "org.entcore.common.http.health.Neo4jProbe",
+      "org.entcore.common.http.health.MongoProbe"
+    ],
     "port" : 8052,
     "csrf-token": {{ csrfToken | default('true') }},
     "app-name" : "ShareBigFiles",
