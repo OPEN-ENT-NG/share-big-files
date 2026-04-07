@@ -20,6 +20,14 @@ case `uname -s` in
     fi
 esac
 
+# If DEBUG env var is set to "true" then set -x to enable debug mode
+if [ "$DEBUG" == "true" ]; then
+	set -x
+	EDIFICE_CLI_DEBUG_OPTION="--debug"
+else
+	EDIFICE_CLI_DEBUG_OPTION=""
+fi
+
 # options
 SPRINGBOARD="recette"
 for i in "$@"
@@ -37,6 +45,25 @@ done
 init() {
   me=`id -u`:`id -g`
   echo "DEFAULT_DOCKER_USER=$me" > .env
+
+  # If CLI_VERSION is empty set to latest
+  if [ -z "$CLI_VERSION" ]; then
+    CLI_VERSION="latest"
+  fi
+  # Create a build.compose.yaml file from following template
+  cat <<EOF > build.compose.yaml
+services:
+  edifice-cli:
+    image: opendigitaleducation/edifice-cli:$CLI_VERSION
+    user: "$DEFAULT_DOCKER_USER"
+EOF
+  # Copy /root/edifice from edifice-cli container to host machine
+  docker compose -f build.compose.yaml create edifice-cli
+  docker compose -f build.compose.yaml cp edifice-cli:/root/edifice ./edifice
+  docker compose -f build.compose.yaml rm -fsv edifice-cli
+  rm -f build.compose.yaml
+  chmod +x edifice
+  ./edifice version $EDIFICE_CLI_DEBUG_OPTION
 }
 
 test () {
@@ -99,6 +126,10 @@ publish () {
 watch () {
   docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "node_modules/gulp/bin/gulp.js watch --springboard=/home/node/$SPRINGBOARD"
 }
+
+if [ ! -e .env ]; then
+  init
+fi
 
 for param in "$@"
 do
