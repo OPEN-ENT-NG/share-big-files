@@ -1,6 +1,6 @@
 {
   "name": "community",
-  "version": "2.2.5-dev.0",
+  "version": "2.2.5-dev.1",
   "description": "Community-building tool for ENT Core.",
   "main": "gulpfile.js",
   "dependencies": {
