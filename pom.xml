@@ -10,7 +10,7 @@
   </parent>
   <groupId>fr.openent</groupId>
   <artifactId>share-big-files</artifactId>
-  <version>2.3-SNAPSHOT</version>
+  <version>2.3.3</version>
   <scm>
     <!-- Adapter avec l'url du repertoire (github, gitlab...) -->
     <connection>scm:git:https://github.com/OPEN-ENT-NG/bookmark.git</connection>
@@ -26,11 +26,11 @@
   </repositories>
   <properties>
     <!-- Reporter les versions des dépendances de gradle.properties -->
-    <vertx-cron-timer.version>3.0-SNAPSHOT</vertx-cron-timer.version>
-    <entCoreVersion>6.15-SNAPSHOT</entCoreVersion>
-    <modMongoVersion>4.2-SNAPSHOT</modMongoVersion>
-    <modJsonSchemaValidatorVersion>2.2-SNAPSHOT</modJsonSchemaValidatorVersion>
-    <entCoreLibsVersion>6.15-SNAPSHOT</entCoreLibsVersion>
+    <vertx-cron-timer.version>3.0.0</vertx-cron-timer.version>
+    <entCoreVersion>6.16.0</entCoreVersion>
+    <modMongoVersion>4.2.0</modMongoVersion>
+    <modJsonSchemaValidatorVersion>2.2.0</modJsonSchemaValidatorVersion>
+    <entCoreLibsVersion>6.16.0</entCoreLibsVersion>
   </properties>
   <dependencies>
     <!-- Reporter les dépendances qui étaient dans build.gradle > dependencies -->
