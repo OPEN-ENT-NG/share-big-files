@@ -27,7 +27,7 @@
   <properties>
     <!-- Reporter les versions des dépendances de gradle.properties -->
     <vertx-cron-timer.version>3.0-SNAPSHOT</vertx-cron-timer.version>
-    <entCoreVersion>6.16-SNAPSHOT</entCoreVersion>
+    <entCoreVersion>6.16-develop-enabling-SNAPSHOT</entCoreVersion>
     <modMongoVersion>4.2-SNAPSHOT</modMongoVersion>
     <modJsonSchemaValidatorVersion>2.2-SNAPSHOT</modJsonSchemaValidatorVersion>
     <entCoreLibsVersion>6.16-SNAPSHOT</entCoreLibsVersion>
