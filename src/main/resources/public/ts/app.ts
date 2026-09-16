@@ -1,7 +1,7 @@
 import { sharebigfilesController } from './controller';
 import { upload } from './model';
 import { ng, model } from 'entcore';
-import http from 'axios';
+import { http } from 'entcore-toolkit';
 
 ng.controllers.push(sharebigfilesController);
 

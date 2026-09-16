@@ -1,5 +1,5 @@
 import { moment, model } from 'entcore';
-import http from 'axios';
+import { http } from 'entcore-toolkit';
 
 var types = {
 	'doc': function (type) {
