@@ -1,6 +1,6 @@
 {
   "name": "community",
-  "version": "2.3.6-dev.1",
+  "version": "2.3.0-develop-b2school.0",
   "description": "Community-building tool for ENT Core.",
   "main": "gulpfile.js",
   "dependencies": {
